@@ -1,0 +1,189 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Form field surface — deliberately distinct from --background and --card
+     so inputs read as writable wells rather than flat panels. */
+  --color-field: var(--field);
+  --color-placeholder: var(--placeholder);
+
+  /* Status tokens — each paired with a *-muted backing surface that keeps
+     the pair above 4.5:1 contrast in both themes. */
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-info: var(--info);
+  --color-info-muted: var(--info-muted);
+
+  --radius-xs: calc(var(--radius) * 0.5);
+  --radius-sm: calc(var(--radius) * 0.75);
+  --radius-md: calc(var(--radius) * 0.875);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+}
+
+/* ─── Light theme (default) ─────────────────────────────────────────── */
+:root {
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.13 0.015 255);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.015 255);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.015 255);
+
+  --primary: oklch(0.26 0.095 249);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.95 0.015 249);
+  --secondary-foreground: oklch(0.26 0.095 249);
+
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.52 0.015 255);
+
+  --accent: oklch(0.93 0.02 249);
+  --accent-foreground: oklch(0.26 0.095 249);
+
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.88 0.01 255);
+  --input: oklch(0.88 0.01 255);
+  --ring: oklch(0.26 0.095 249);
+  --radius: 0.5rem;
+
+  --field: oklch(1 0 0);
+  --placeholder: oklch(0.58 0.015 255);
+
+  --success: oklch(0.45 0.14 152);
+  --success-muted: oklch(0.94 0.05 152);
+  --warning: oklch(0.5 0.15 75);
+  --warning-muted: oklch(0.94 0.07 75);
+  --info: oklch(0.48 0.16 255);
+  --info-muted: oklch(0.94 0.04 255);
+
+  color-scheme: light;
+}
+
+/* ─── Dark theme — follows the OS/browser preference automatically ─── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.12 0.015 255);
+    --foreground: oklch(0.96 0 0);
+
+    --card: oklch(0.16 0.015 255);
+    --card-foreground: oklch(0.96 0 0);
+
+    --popover: oklch(0.16 0.015 255);
+    --popover-foreground: oklch(0.96 0 0);
+
+    --primary: oklch(0.55 0.12 249);
+    --primary-foreground: oklch(0.985 0 0);
+
+    --secondary: oklch(0.22 0.02 255);
+    --secondary-foreground: oklch(0.96 0 0);
+
+    --muted: oklch(0.22 0.02 255);
+    --muted-foreground: oklch(0.64 0.02 255);
+
+    --accent: oklch(0.22 0.025 249);
+    --accent-foreground: oklch(0.96 0 0);
+
+    --destructive: oklch(0.65 0.22 25);
+    --border: oklch(0.26 0.02 255);
+    --input: oklch(0.34 0.02 255);
+    --ring: oklch(0.55 0.12 249);
+
+    --field: oklch(0.225 0.02 255);
+    --placeholder: oklch(0.62 0.02 255);
+
+    --success: oklch(0.78 0.16 152);
+    --success-muted: oklch(0.28 0.06 152);
+    --warning: oklch(0.8 0.15 75);
+    --warning-muted: oklch(0.29 0.06 75);
+    --info: oklch(0.74 0.13 235);
+    --info-muted: oklch(0.27 0.05 235);
+
+    color-scheme: dark;
+  }
+}
+
+/* ─── Base styles ───────────────────────────────────────────────────── */
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 1000;
+  border-radius: 0.5rem;
+  background: var(--foreground);
+  color: var(--background);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus-visible {
+  top: 0.75rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
