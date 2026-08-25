@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,8 +16,23 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - run: npm run build
+      - run: npm run lint -w @therapist/web
+      - run: npm run type-check -w @therapist/web
+      - run: npm run build -w @therapist/web
+
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - run: uv sync
+      - run: uv run ruff check .

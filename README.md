@@ -4,6 +4,8 @@ A structured, CBT-based personal recovery and accountability tool: a first-sessi
 
 This is **not** a psychiatrist, therapist, or crisis service. It's a text-based accountability layer around existing treatment — it doesn't diagnose, prescribe, or adjust medication. See [Safety](#safety) below.
 
+> **In progress**: this repo is being rebuilt as a multi-user, account-based, ADHD/OCD-focused platform (Next.js frontend + FastAPI/PostgreSQL backend). The description below still reflects the current single-user, localStorage-only build in `apps/web`; it will be rewritten as the overhaul lands.
+
 ## Privacy
 
 **All data stays on this device.** There is no backend, no database, and no account — every check-in, the baseline snapshot, and the exposure hierarchy are stored in the browser's `localStorage` only. Nothing is transmitted anywhere. Use **Progress → Export backup** periodically, since clearing browser data clears everything.
@@ -32,52 +34,76 @@ No database, no auth, no environment variables required.
 
 ## Local development
 
+This is an npm-workspaces monorepo: `apps/web` (Next.js) and `apps/api` (FastAPI), sharing one PostgreSQL instance via Docker Compose.
+
 ```bash
+# 1. Database
+docker compose up -d postgres
+
+# 2. Frontend (from repo root — npm workspaces)
 npm install
 npm run dev
+
+# 3. Backend
+cd apps/api
+uv sync
+cp .env.example .env
+uv run uvicorn app.main:app --reload
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Frontend: [http://localhost:3000](http://localhost:3000). API: [http://localhost:8000/docs](http://localhost:8000/docs).
 
-## Scripts
+## Scripts (run from repo root)
 
 | Script     | Command               | Description                |
 | ---------- | ---------------------- | --------------------------- |
-| Dev        | `npm run dev`          | Dev server with Turbopack   |
-| Build      | `npm run build`        | Production build            |
-| Start      | `npm run start`        | Run production build        |
+| Dev        | `npm run dev`          | Web dev server with Turbopack |
+| Build      | `npm run build`        | Web production build        |
+| Start      | `npm run start`        | Run web production build    |
 | Lint       | `npm run lint`         | ESLint (0 warnings allowed) |
 | Type Check | `npm run type-check`   | TypeScript strict check     |
 
+API checks (from `apps/api`): `uv run ruff check .`, `uv run pytest`.
+
 ## Deployment
 
-Deploys directly to [Vercel](https://vercel.com) or any Next.js-compatible host — no environment variables or external services are required.
+Frontend deploys to [Vercel](https://vercel.com) (project root: `apps/web`). The API is a standalone Docker service intended for a container host (Render/Fly) with a managed Postgres instance — see `apps/api/Dockerfile`.
 
-```bash
-npm run lint && npm run type-check && npm run build
-```
-
-CI (`.github/workflows/ci.yml`) runs the same three checks on every push and pull request against `main`.
+CI (`.github/workflows/ci.yml`) runs lint/type-check/build for the web app and lint for the API on every push and pull request against `main`.
 
 ## Project structure
 
 ```
-app/
-  layout.tsx        # Root layout — nav, footer, metadata
-  page.tsx           # Dashboard
-  intake/             # First-session intake
-  checkin/            # Standard check-in flow
-  roadmap/            # 6-month phased roadmap
-  tools/              # CBT framework, distortions, exposure hierarchy
-  progress/           # Trend chart, streaks, log history, data export
-  safety/             # Crisis protocol (always accessible, no gating)
-components/
-  ui/                 # Shared primitives (button, card, input, etc.)
-  *.tsx               # Feature components (nav, scale-input, trend-chart, ...)
-lib/
-  types.ts            # Data model
-  constants.ts        # Roadmap phases, distortions, crisis copy
-  storage.ts           # localStorage-backed data hook + streak/phase logic
+apps/
+  web/                 # Next.js frontend
+    app/
+      layout.tsx        # Root layout — nav, footer, metadata
+      page.tsx           # Dashboard
+      intake/             # First-session intake
+      checkin/            # Standard check-in flow
+      roadmap/            # 6-month phased roadmap
+      tools/              # CBT framework, distortions, exposure hierarchy
+      progress/           # Trend chart, streaks, log history, data export
+      safety/             # Crisis protocol (always accessible, no gating)
+    components/
+      ui/                 # Shared primitives (button, card, input, etc.)
+      *.tsx               # Feature components (nav, scale-input, trend-chart, ...)
+    lib/
+      types.ts            # Data model
+      constants.ts        # Roadmap phases, distortions, crisis copy
+      storage.ts           # localStorage-backed data hook + streak/phase logic (being replaced by the API)
+  api/                  # FastAPI backend
+    app/
+      main.py             # App entrypoint
+      core/                # Settings, security (auth, JWT, hashing)
+      db/                  # SQLAlchemy session/engine
+      models/              # ORM models
+      schemas/             # Pydantic request/response schemas
+      repositories/        # Only layer touching the ORM
+      services/            # Business logic, transaction boundaries
+      routers/              # Thin HTTP layer
+    alembic/               # Migrations
+docker-compose.yml     # Local Postgres
 ```
 
 ## Safety

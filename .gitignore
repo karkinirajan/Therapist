@@ -59,6 +59,15 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
 # Security
 *.pem
 
