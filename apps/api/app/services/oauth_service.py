@@ -42,6 +42,13 @@ class GoogleIdTokenVerificationError(Exception):
     """Raised when the returned Google ID token fails signature/claims verification."""
 
 
+class UnverifiedGoogleEmailError(Exception):
+    """Raised when Google reports the identity's email as unverified. We must not
+    treat an unverified email as proof of ownership - doing so would let an
+    attacker who controls an email-unverified Google account take over (or get
+    silently linked to) an existing password-based account with that email."""
+
+
 @dataclass(frozen=True)
 class OAuthState:
     nonce: str
@@ -72,9 +79,15 @@ def _decode_signed_token(token: str, expected_purpose: str) -> dict | None:
 
 
 def build_authorization_request() -> tuple[str, str]:
-    """Return (authorization_url, state_token). Stateless: the PKCE verifier and a
-    random nonce are embedded in the signed `state` JWT itself, so nothing needs to
-    be kept server-side between /authorize and /callback."""
+    """Return (authorization_url, state_token). The PKCE verifier and a random
+    nonce are embedded in the signed `state` JWT so nothing needs to be kept
+    server-side between /authorize and /callback. The `state` value returned
+    here must ALSO be stored by the caller in an httpOnly cookie on the /authorize
+    response and compared against the `state` query param on /callback BEFORE
+    calling `verify_state` - a signed-but-unbound state token is still replayable
+    by anyone who can observe or guess it (e.g. via an open redirect or a shared
+    device), since JWT validity alone doesn't prove the callback request came
+    from the same browser that started the flow."""
     code_verifier = generate_token(64)
     code_challenge = create_s256_code_challenge(code_verifier)
     nonce = generate_token(24)
@@ -90,6 +103,7 @@ def build_authorization_request() -> tuple[str, str]:
         "response_type": "code",
         "scope": "openid email profile",
         "state": state,
+        "nonce": nonce,
         "code_challenge": code_challenge,
         "code_challenge_method": "S256",
         "access_type": "online",
@@ -106,7 +120,9 @@ def verify_state(state: str) -> OAuthState:
     return OAuthState(nonce=payload["nonce"], code_verifier=payload["code_verifier"])
 
 
-async def exchange_code_for_google_identity(*, code: str, code_verifier: str) -> GoogleIdentity:
+async def exchange_code_for_google_identity(
+    *, code: str, code_verifier: str, expected_nonce: str
+) -> GoogleIdentity:
     """Exchange the authorization code (+ PKCE verifier) for tokens with Google,
     then verify the returned ID token and extract identity claims."""
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -129,10 +145,10 @@ async def exchange_code_for_google_identity(*, code: str, code_verifier: str) ->
     if not id_token:
         raise GoogleTokenExchangeError("No id_token in Google token response")
 
-    return await verify_google_id_token(id_token)
+    return await verify_google_id_token(id_token, expected_nonce=expected_nonce)
 
 
-async def verify_google_id_token(id_token: str) -> GoogleIdentity:
+async def verify_google_id_token(id_token: str, *, expected_nonce: str) -> GoogleIdentity:
     try:
         jwk_client = jwt.PyJWKClient(settings.google_jwks_url)
         signing_key = jwk_client.get_signing_key_from_jwt(id_token)
@@ -145,6 +161,12 @@ async def verify_google_id_token(id_token: str) -> GoogleIdentity:
         )
     except jwt.InvalidTokenError as exc:
         raise GoogleIdTokenVerificationError(str(exc)) from exc
+
+    # The nonce ties this specific ID token back to the /authorize request that
+    # started the flow, preventing a token issued for one login attempt from
+    # being replayed against a different (or attacker-initiated) callback.
+    if claims.get("nonce") != expected_nonce:
+        raise GoogleIdTokenVerificationError("ID token nonce does not match request")
 
     email = claims.get("email")
     sub = claims.get("sub")
@@ -175,6 +197,13 @@ class OAuthAccountService:
         self._identities = OAuthIdentityRepository(db)
 
     async def resolve(self, identity: GoogleIdentity) -> OAuthLoginResult:
+        if not identity.email_verified:
+            # Never create/link an account off an email Google itself hasn't
+            # verified - an unverified email is not proof the requester owns it,
+            # and treating it as such would allow account creation or (worse)
+            # silent linking under a victim's email address.
+            raise UnverifiedGoogleEmailError()
+
         existing_identity = await self._identities.get_by_provider_account(
             OAuthProvider.google, identity.provider_account_id
         )
@@ -200,7 +229,7 @@ class OAuthAccountService:
         new_user = await self._users.create(
             email=identity.email,
             password_hash=None,
-            email_verified=True,
+            email_verified=identity.email_verified,
         )
         await self._identities.create(
             user_id=new_user.id,

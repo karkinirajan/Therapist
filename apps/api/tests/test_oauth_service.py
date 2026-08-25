@@ -6,9 +6,11 @@ import pytest
 from app.core.config import get_settings
 from app.services.oauth_service import (
     GoogleIdentity,
+    GoogleIdTokenVerificationError,
     InvalidExchangeCodeError,
     InvalidOAuthStateError,
     OAuthAccountService,
+    UnverifiedGoogleEmailError,
     build_authorization_request,
     build_exchange_code,
     exchange_code_for_google_identity,
@@ -97,6 +99,18 @@ async def test_resolve_logs_in_existing_linked_identity(db_session) -> None:
     assert second.link_confirmation_token is None
 
 
+async def test_resolve_rejects_unverified_google_email(db_session) -> None:
+    identity = GoogleIdentity(
+        provider_account_id=f"google-{uuid.uuid4().hex[:8]}",
+        email=f"unverified-{uuid.uuid4().hex[:8]}@example.com",
+        email_verified=False,
+    )
+    service = OAuthAccountService(db_session)
+
+    with pytest.raises(UnverifiedGoogleEmailError):
+        await service.resolve(identity)
+
+
 async def test_resolve_requires_link_confirmation_for_existing_password_account(db_session) -> None:
     from app.repositories.user_repo import UserRepository
 
@@ -116,14 +130,7 @@ async def test_resolve_requires_link_confirmation_for_existing_password_account(
     assert result.link_confirmation_token is not None
 
 
-async def test_exchange_code_for_google_identity_uses_mocked_google_endpoints() -> None:
-    fake_id_token = "fake.id.token"
-    fake_claims = {
-        "sub": "google-account-123",
-        "email": "mocked@example.com",
-        "email_verified": True,
-    }
-
+def _mocked_google_client(fake_id_token: str = "fake.id.token"):
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = {"id_token": fake_id_token, "access_token": "unused"}
@@ -131,6 +138,17 @@ async def test_exchange_code_for_google_identity_uses_mocked_google_endpoints() 
     mock_async_client = AsyncMock()
     mock_async_client.__aenter__.return_value = mock_async_client
     mock_async_client.post.return_value = mock_response
+    return mock_async_client
+
+
+async def test_exchange_code_for_google_identity_uses_mocked_google_endpoints() -> None:
+    fake_claims = {
+        "sub": "google-account-123",
+        "email": "mocked@example.com",
+        "email_verified": True,
+        "nonce": "expected-nonce",
+    }
+    mock_async_client = _mocked_google_client()
 
     with (
         patch("app.services.oauth_service.httpx.AsyncClient", return_value=mock_async_client),
@@ -139,10 +157,34 @@ async def test_exchange_code_for_google_identity_uses_mocked_google_endpoints() 
     ):
         mock_jwk_client_cls.return_value.get_signing_key_from_jwt.return_value = MagicMock(key="fake-key")
 
-        identity = await exchange_code_for_google_identity(code="auth-code", code_verifier="verifier")
+        identity = await exchange_code_for_google_identity(
+            code="auth-code", code_verifier="verifier", expected_nonce="expected-nonce"
+        )
 
     assert identity.provider_account_id == "google-account-123"
     assert identity.email == "mocked@example.com"
     assert identity.email_verified is True
     mock_async_client.post.assert_awaited_once()
     mock_decode.assert_called_once()
+
+
+async def test_exchange_code_for_google_identity_rejects_nonce_mismatch() -> None:
+    fake_claims = {
+        "sub": "google-account-123",
+        "email": "mocked@example.com",
+        "email_verified": True,
+        "nonce": "attacker-supplied-nonce",
+    }
+    mock_async_client = _mocked_google_client()
+
+    with (
+        patch("app.services.oauth_service.httpx.AsyncClient", return_value=mock_async_client),
+        patch("app.services.oauth_service.jwt.PyJWKClient") as mock_jwk_client_cls,
+        patch("app.services.oauth_service.jwt.decode", return_value=fake_claims),
+        pytest.raises(GoogleIdTokenVerificationError),
+    ):
+        mock_jwk_client_cls.return_value.get_signing_key_from_jwt.return_value = MagicMock(key="fake-key")
+
+        await exchange_code_for_google_identity(
+            code="auth-code", code_verifier="verifier", expected_nonce="expected-nonce"
+        )
