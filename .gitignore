@@ -82,3 +82,9 @@ __pycache__/
 *.stackdump
 tmp/
 .nyc_output/
+
+# Playwright
+/apps/web/test-results/
+/apps/web/playwright-report/
+/apps/web/blob-report/
+/apps/web/playwright/.cache/
