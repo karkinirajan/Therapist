@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Enables `dark:` utility variants driven by a `.dark` class on <html>, in
+   addition to the existing `prefers-color-scheme` media query below. No
+   toggle UI exists yet (that's a separate settings feature) — this just
+   makes the CSS ready for whenever `<html class="dark">` is set. */
+@custom-variant dark (&:is(.dark *));
+
 @theme inline {
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
@@ -45,6 +51,10 @@
   --radius-xl: calc(var(--radius) * 1.5);
   --radius-2xl: calc(var(--radius) * 2);
   --radius-full: 9999px;
+
+  /* Dot-grid background, meant to sit behind cards/content — never behind
+     dense text. */
+  --color-grid-dot: var(--grid-dot);
 }
 
 /* ─── Light theme (default) ─────────────────────────────────────────── */
@@ -85,6 +95,10 @@
   --warning-muted: oklch(0.94 0.07 75);
   --info: oklch(0.48 0.16 255);
   --info-muted: oklch(0.94 0.04 255);
+
+  /* Dot-grid utility backing color — low-contrast on purpose, kept out of
+     --border/--muted so it never gets pulled in elsewhere by accident. */
+  --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
   color-scheme: light;
 }
@@ -128,8 +142,57 @@
     --info: oklch(0.74 0.13 235);
     --info-muted: oklch(0.27 0.05 235);
 
+    --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+
     color-scheme: dark;
   }
+}
+
+/* ─── Dark theme — explicit override via `.dark` on <html>, for whenever an
+   in-app theme toggle exists (account settings, not yet built). Mirrors the
+   prefers-color-scheme values above so both mechanisms agree. Takes
+   precedence over the OS preference since it's a plain class selector
+   applied outside the media query. ─── */
+.dark {
+  --background: oklch(0.12 0.015 255);
+  --foreground: oklch(0.96 0 0);
+
+  --card: oklch(0.16 0.015 255);
+  --card-foreground: oklch(0.96 0 0);
+
+  --popover: oklch(0.16 0.015 255);
+  --popover-foreground: oklch(0.96 0 0);
+
+  --primary: oklch(0.55 0.12 249);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.22 0.02 255);
+  --secondary-foreground: oklch(0.96 0 0);
+
+  --muted: oklch(0.22 0.02 255);
+  --muted-foreground: oklch(0.64 0.02 255);
+
+  --accent: oklch(0.22 0.025 249);
+  --accent-foreground: oklch(0.96 0 0);
+
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(0.26 0.02 255);
+  --input: oklch(0.34 0.02 255);
+  --ring: oklch(0.55 0.12 249);
+
+  --field: oklch(0.225 0.02 255);
+  --placeholder: oklch(0.62 0.02 255);
+
+  --success: oklch(0.78 0.16 152);
+  --success-muted: oklch(0.28 0.06 152);
+  --warning: oklch(0.8 0.15 75);
+  --warning-muted: oklch(0.29 0.06 75);
+  --info: oklch(0.74 0.13 235);
+  --info-muted: oklch(0.27 0.05 235);
+
+  --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+
+  color-scheme: dark;
 }
 
 /* ─── Base styles ───────────────────────────────────────────────────── */
@@ -171,6 +234,14 @@ html {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* Subtle dot-grid, meant to sit behind cards/content on marketing & legal
+   pages — never directly behind dense text (apply to an outer wrapper, put
+   text on an opaque --card/--background surface on top). */
+.bg-grid {
+  background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 @media (prefers-reduced-motion: reduce) {
