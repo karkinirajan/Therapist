@@ -6,7 +6,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
-from app.routers import auth, oauth
+from app.routers import auth, baseline, checkin, hierarchy, me, oauth, roadmap, tracking
 
 settings = get_settings()
 
@@ -31,6 +31,12 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(oauth.router)
+app.include_router(baseline.router)
+app.include_router(tracking.router)
+app.include_router(checkin.router)
+app.include_router(hierarchy.router)
+app.include_router(roadmap.router)
+app.include_router(me.router)
 
 
 @app.get("/health")
