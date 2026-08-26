@@ -36,3 +36,77 @@ jobs:
 
       - run: uv sync
       - run: uv run ruff check .
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: therapist
+          POSTGRES_PASSWORD: therapist_ci_only
+          POSTGRES_DB: therapist
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U therapist -d therapist"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://therapist:therapist_ci_only@localhost:5432/therapist
+      JWT_SECRET: ci-only-secret-not-for-production-use-please-1234
+      API_BASE_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install API dependencies
+        working-directory: apps/api
+        run: uv sync
+
+      - name: Run Alembic migrations
+        working-directory: apps/api
+        run: uv run alembic upgrade head
+
+      - name: Start FastAPI in the background
+        working-directory: apps/api
+        run: |
+          uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 1
+          done
+          echo "FastAPI did not become healthy in time" >&2
+          exit 1
+
+      - name: Install Playwright Chromium
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+
+      # API_BASE_URL is set at job level: apps/web's `next start` (started by
+      # Playwright's webServer) reads it server-side to proxy /api/auth/* to
+      # the FastAPI instance above, and the e2e suite's live-auth-flow test
+      # (tests/e2e/auth-pages.spec.ts) uses the same variable to opt itself
+      # in instead of skipping.
+      - name: Run Playwright e2e suite
+        working-directory: apps/web
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7
