@@ -54,7 +54,10 @@ export function setAccessToken(token: string | null): void {
   accessToken = token;
 }
 
-async function fetchJson<T>(
+/** Exported for reuse by lib/api.ts (baseline/tracking/checkins/roadmap/hierarchy/gate-state
+ * hooks) so every domain follows this exact same-origin-fetch + in-memory-token convention
+ * instead of a parallel data-fetching pattern. */
+export async function fetchJson<T>(
   input: string,
   init: RequestInit = {},
   { auth = false }: { auth?: boolean } = {},

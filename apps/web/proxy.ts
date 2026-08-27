@@ -11,6 +11,7 @@ const PROTECTED_PREFIXES = [
   "/tools",
   "/progress",
   "/account",
+  "/tracking",
 ];
 
 const REFRESH_COOKIE = "refresh_token";
@@ -55,5 +56,6 @@ export const config = {
     "/tools/:path*",
     "/progress/:path*",
     "/account/:path*",
+    "/tracking/:path*",
   ],
 };

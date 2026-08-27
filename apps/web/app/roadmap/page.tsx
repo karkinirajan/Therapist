@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Lock } from "lucide-react";
-import { phaseMetricMet, useRecoveryData, weeksSinceStart } from "@/lib/storage";
+import { AlertTriangle, CheckCircle2, Lock } from "lucide-react";
+import { ApiError, useAdvanceRoadmap, useBaseline, useRoadmapState } from "@/lib/api";
+import { weeksSinceStart } from "@/lib/storage";
 import { ROADMAP_PHASES } from "@/lib/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,84 +13,95 @@ import { RequireBaselineNotice } from "@/components/require-baseline";
 import { cn } from "@/lib/utils";
 
 export default function RoadmapPage() {
-  const { data, update, ready } = useRecoveryData();
+  const baseline = useBaseline();
+  const roadmapState = useRoadmapState();
+  const advance = useAdvanceRoadmap();
   const [confirmingAdvance, setConfirmingAdvance] = useState(false);
 
-  if (!ready) return null;
-  if (!data.baseline) return <RequireBaselineNotice />;
-
-  const { baseline, phaseIndex, logs, phaseHistory } = data;
-  const weeks = weeksSinceStart(baseline.createdAt);
-  const complete = phaseIndex >= ROADMAP_PHASES.length;
-  const currentPhase = !complete ? ROADMAP_PHASES[phaseIndex] : null;
-  const autoCheckable = phaseIndex <= 1;
-  const metricMet = !complete && phaseMetricMet(phaseIndex, logs);
-  const aheadOfSchedule = currentPhase ? weeks < currentPhase.startWeek : false;
-
-  function advance(earned: boolean) {
-    update((d) => ({
-      ...d,
-      phaseIndex: d.phaseIndex + 1,
-      phaseHistory: [
-        ...d.phaseHistory,
-        {
-          fromPhase: d.phaseIndex,
-          toPhase: d.phaseIndex + 1,
-          date: new Date().toISOString().slice(0, 10),
-          earned,
-        },
-      ],
-    }));
-    setConfirmingAdvance(false);
+  if (baseline.isPending || (baseline.data && roadmapState.isPending)) {
+    return (
+      <div className="space-y-4" role="status" aria-label="Loading roadmap">
+        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted/40" />
+        ))}
+      </div>
+    );
   }
 
-  function startNextCycle() {
-    update((d) => ({
-      ...d,
-      phaseIndex: 0,
-      phaseHistory: [
-        ...d.phaseHistory,
-        { fromPhase: d.phaseIndex, toPhase: 0, date: new Date().toISOString().slice(0, 10), earned: true },
-      ],
-    }));
+  if (baseline.isError) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle />
+        <AlertTitle>Couldn&apos;t load your baseline</AlertTitle>
+        <AlertDescription>{baseline.error.message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!baseline.data) {
+    return <RequireBaselineNotice />;
+  }
+
+  if (roadmapState.isError) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle />
+        <AlertTitle>Couldn&apos;t load your roadmap</AlertTitle>
+        <AlertDescription>{roadmapState.error.message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!roadmapState.data) return null;
+
+  const { phase_index: phaseIndex } = roadmapState.data;
+  const weeks = weeksSinceStart(baseline.data.created_at);
+  const atFinalPhase = phaseIndex >= ROADMAP_PHASES.length - 1;
+  const currentPhase = ROADMAP_PHASES[phaseIndex] ?? ROADMAP_PHASES[ROADMAP_PHASES.length - 1];
+  const aheadOfSchedule = weeks < currentPhase.startWeek;
+
+  const advanceError =
+    advance.error instanceof ApiError && advance.error.status !== 409
+      ? advance.error.message
+      : null;
+
+  function requestAdvance(confirmEarly: boolean) {
+    advance.mutate(
+      { confirm_early: confirmEarly },
+      {
+        onSuccess: () => setConfirmingAdvance(false),
+        onError: (err) => {
+          if (err instanceof ApiError && err.status === 409 && !confirmEarly) {
+            setConfirmingAdvance(true);
+          }
+        },
+      },
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          6-month roadmap
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">6-month roadmap</h1>
         <p className="text-sm text-muted-foreground">
-          Started {baseline.createdAt} · Week {weeks} of 24. Phased and gradual — phases don&apos;t
-          compress just because you want to move faster.
+          Started {baseline.data.created_at} · Week {weeks} of 24. Phased and gradual — phases
+          don&apos;t compress just because you want to move faster.
         </p>
       </div>
 
-      {complete && (
-        <Card className="border-success/30 bg-success-muted">
-          <CardHeader>
-            <CardTitle className="text-base text-success">6-month cycle complete</CardTitle>
-            <CardDescription>
-              Review the full trend on the Progress page — cold, numbers-first — then decide the
-              next cycle.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={startNextCycle}>Start next 6-month cycle</Button>
-          </CardContent>
-        </Card>
+      {advanceError && (
+        <Alert variant="destructive">
+          <AlertTriangle />
+          <AlertTitle>Couldn&apos;t advance</AlertTitle>
+          <AlertDescription>{advanceError}</AlertDescription>
+        </Alert>
       )}
 
       <div className="space-y-4">
         {ROADMAP_PHASES.map((phase) => {
           const status =
-            phase.index < phaseIndex || complete
-              ? "completed"
-              : phase.index === phaseIndex
-                ? "current"
-                : "locked";
-          const advanceRecord = phaseHistory.find((h) => h.fromPhase === phase.index);
+            phase.index < phaseIndex ? "completed" : phase.index === phaseIndex ? "current" : "locked";
 
           return (
             <Card
@@ -111,11 +123,7 @@ export default function RoadmapPage() {
                   <CardDescription>{phase.weekRange}</CardDescription>
                 </div>
                 {status === "current" && <Badge>Current</Badge>}
-                {status === "completed" && (
-                  <Badge variant="success">
-                    {advanceRecord && !advanceRecord.earned ? "Advanced early" : "Complete"}
-                  </Badge>
-                )}
+                {status === "completed" && <Badge variant="success">Complete</Badge>}
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-foreground">{phase.goal}</p>
@@ -131,41 +139,26 @@ export default function RoadmapPage() {
 
                 {status === "current" && (
                   <div className="space-y-3 border-t border-border pt-3">
-                    {autoCheckable && (
-                      <p className={cn("text-sm", metricMet ? "text-success" : "text-warning")}>
-                        {metricMet
-                          ? "Metric met from your logged check-ins."
-                          : "Not met yet from your logged check-ins."}
-                      </p>
-                    )}
-                    {!autoCheckable && (
-                      <p className="text-sm text-muted-foreground">
-                        This metric is self-reported — check it honestly against what&apos;s
-                        actually in your log history, not what you wish were true.
-                      </p>
-                    )}
-
                     {aheadOfSchedule && (
                       <Alert variant="warning">
                         <AlertTitle>Ahead of the calendar</AlertTitle>
                         <AlertDescription>
                           You&apos;re at week {weeks}, and this phase doesn&apos;t normally start
-                          until week {currentPhase!.startWeek}. Wanting to move faster isn&apos;t a
+                          until week {currentPhase.startWeek}. Wanting to move faster isn&apos;t a
                           reason to compress a phase.
                         </AlertDescription>
                       </Alert>
                     )}
 
-                    {!confirmingAdvance && (
-                      <Button
-                        onClick={() => (autoCheckable && !metricMet ? setConfirmingAdvance(true) : advance(true))}
-                        variant={autoCheckable && !metricMet ? "outline" : "default"}
-                      >
-                        {autoCheckable && !metricMet
-                          ? "Advance anyway"
-                          : phase.index === ROADMAP_PHASES.length - 1
-                            ? "Confirm phase complete & finish cycle"
-                            : "Advance to next phase"}
+                    {atFinalPhase && (
+                      <p className="text-sm text-muted-foreground">
+                        This is the final phase of the current 6-month cycle.
+                      </p>
+                    )}
+
+                    {!atFinalPhase && !confirmingAdvance && (
+                      <Button onClick={() => requestAdvance(false)} disabled={advance.isPending}>
+                        {advance.isPending ? "Advancing…" : "Advance to next phase"}
                       </Button>
                     )}
 
@@ -174,12 +167,18 @@ export default function RoadmapPage() {
                         <AlertTitle>This is the pattern to name, not skip</AlertTitle>
                         <AlertDescription className="space-y-3">
                           <p>
-                            The success metric for this phase isn&apos;t met yet. Rushing ahead
-                            here is exactly the kind of avoidance this tool is built to catch — if
-                            you advance anyway, it gets flagged in your roadmap history.
+                            This phase&apos;s success metric hasn&apos;t been met yet from your
+                            logged check-ins. Rushing ahead here is exactly the kind of avoidance
+                            this tool is built to catch — if you advance anyway, it gets flagged
+                            in your roadmap history.
                           </p>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="destructive" onClick={() => advance(false)}>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => requestAdvance(true)}
+                              disabled={advance.isPending}
+                            >
                               Advance anyway
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => setConfirmingAdvance(false)}>
@@ -196,16 +195,6 @@ export default function RoadmapPage() {
           );
         })}
       </div>
-
-      {phaseIndex > 0 && !complete && (
-        <button
-          type="button"
-          className="text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground"
-          onClick={() => update((d) => ({ ...d, phaseIndex: Math.max(0, d.phaseIndex - 1) }))}
-        >
-          Go back a phase
-        </button>
-      )}
     </div>
   );
 }

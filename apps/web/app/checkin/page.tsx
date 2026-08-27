@@ -4,14 +4,18 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import {
-  computeStreaks,
-  formatLogBlock,
-  isCheckinOverdue,
-  newId,
-  useRecoveryData,
-} from "@/lib/storage";
+  ApiError,
+  useBaseline,
+  useCheckins,
+  useCreateCheckin,
+  useGateState,
+  useRoadmapState,
+  type CheckinInput,
+  type CheckinToolData,
+  type HomeworkStatus,
+} from "@/lib/api";
+import { isCheckinOverdue } from "@/lib/storage";
 import { CBT_TOOLS, DISTORTIONS, ROADMAP_PHASES } from "@/lib/constants";
-import type { CbtToolData, CbtToolId, CheckinLog, HomeworkStatus } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,14 +29,24 @@ import { LogBlock } from "@/components/log-block";
 import { RequireBaselineNotice } from "@/components/require-baseline";
 import { cn } from "@/lib/utils";
 
+type CbtToolId = "thought-record" | "behavioral-activation" | "exposure-hierarchy" | "behavioral-experiment";
+
 const HOMEWORK_OPTIONS: { value: HomeworkStatus; label: string }[] = [
   { value: "done", label: "Done" },
   { value: "partial", label: "Partial" },
   { value: "missed", label: "Missed" },
 ];
 
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function CheckinPage() {
-  const { data, update, ready } = useRecoveryData();
+  const baseline = useBaseline();
+  const gateState = useGateState();
+  const roadmapState = useRoadmapState();
+  const lastCheckins = useCheckins({ limit: 1 });
+  const createCheckin = useCreateCheckin();
 
   const [mood, setMood] = useState(5);
   const [anxiety, setAnxiety] = useState(5);
@@ -50,98 +64,137 @@ export default function CheckinPage() {
   const [nextHomeworkDue, setNextHomeworkDue] = useState("");
   const [savedBlock, setSavedBlock] = useState<string | null>(null);
 
-  const lastLog = useMemo(
-    () => [...data.logs].sort((a, b) => b.date.localeCompare(a.date))[0] ?? null,
-    [data.logs],
-  );
+  const lastCheckin = lastCheckins.data?.[0] ?? null;
   const overdue = useMemo(
-    () => (data.baseline ? isCheckinOverdue(lastLog?.date ?? null, data.baseline.cadence) : null),
-    [data.baseline, lastLog],
+    () => (baseline.data ? isCheckinOverdue(lastCheckin?.date ?? null, baseline.data.cadence) : null),
+    [baseline.data, lastCheckin],
   );
 
-  if (!ready) return null;
-  if (!data.baseline) {
+  if (baseline.isPending) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4" role="status" aria-label="Loading check-in">
+        <div className="h-8 w-40 animate-pulse rounded bg-muted" />
+        <div className="h-64 animate-pulse rounded-lg border border-border bg-muted/40" />
+      </div>
+    );
+  }
+
+  if (baseline.isError) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle />
+        <AlertTitle>Couldn&apos;t load your baseline</AlertTitle>
+        <AlertDescription>{baseline.error.message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!baseline.data) {
     return <RequireBaselineNotice />;
+  }
+
+  if (gateState.data && !gateState.data.today_blocking_categories_complete) {
+    return (
+      <Alert variant="warning">
+        <AlertTriangle />
+        <AlertTitle>Log today&apos;s tracking first</AlertTitle>
+        <AlertDescription className="space-y-2">
+          <p>
+            Check-in unlocks once today&apos;s entries for every blocking tracking category are
+            logged. Missing: {gateState.data.missing_blocking_categories.join(", ")}.
+          </p>
+          <Button asChild size="sm">
+            <Link href="/dashboard">Go log them</Link>
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   function setField(key: string, value: string) {
     setToolFields((f) => ({ ...f, [key]: value }));
   }
 
-  function buildToolData(): CbtToolData {
+  function buildToolData(): CheckinToolData {
     switch (tool) {
       case "thought-record":
         return {
           tool: "thought-record",
           situation: toolFields.situation ?? "",
-          automaticThought: toolFields.automaticThought ?? "",
+          automatic_thought: toolFields.automatic_thought ?? "",
           distortion: toolFields.distortion ?? "",
-          evidenceFor: toolFields.evidenceFor ?? "",
-          evidenceAgainst: toolFields.evidenceAgainst ?? "",
-          balancedThought: toolFields.balancedThought ?? "",
+          evidence_for: toolFields.evidence_for ?? "",
+          evidence_against: toolFields.evidence_against ?? "",
+          balanced_thought: toolFields.balanced_thought ?? "",
         };
       case "behavioral-activation":
         return {
           tool: "behavioral-activation",
           activity: toolFields.activity ?? "",
-          scheduledFor: toolFields.scheduledFor ?? "",
-          valuesLink: toolFields.valuesLink ?? "",
-          predictedMood: toolFields.predictedMood ?? "",
+          value_link: toolFields.value_link ?? "",
+          predicted_mood_delta: Number(toolFields.predicted_mood_delta || 0),
+          actual_mood_delta:
+            toolFields.actual_mood_delta === undefined || toolFields.actual_mood_delta === ""
+              ? null
+              : Number(toolFields.actual_mood_delta),
         };
       case "exposure-hierarchy":
         return {
           tool: "exposure-hierarchy",
-          hierarchyItem: toolFields.hierarchyItem ?? "",
-          sudsBefore: toolFields.sudsBefore ?? "",
-          sudsAfter: toolFields.sudsAfter ?? "",
-          outcome: toolFields.outcome ?? "",
+          item_label: toolFields.item_label ?? "",
+          suds_before: Number(toolFields.suds_before || 0),
+          suds_after: Number(toolFields.suds_after || 0),
+          notes: toolFields.notes ?? "",
         };
       case "behavioral-experiment":
         return {
           tool: "behavioral-experiment",
-          belief: toolFields.belief ?? "",
           prediction: toolFields.prediction ?? "",
           experiment: toolFields.experiment ?? "",
-          actualOutcome: toolFields.actualOutcome ?? "",
-          whatItMeans: toolFields.whatItMeans ?? "",
+          outcome: toolFields.outcome ?? "",
+          what_it_means: toolFields.what_it_means ?? "",
         };
     }
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!data.baseline) return;
 
-    const phase = ROADMAP_PHASES[data.phaseIndex];
-    const date = new Date().toISOString().slice(0, 10);
+    const phaseIndex = roadmapState.data?.phase_index ?? 0;
+    const phase = ROADMAP_PHASES[phaseIndex] ?? ROADMAP_PHASES[0];
+    const isFirstCheckin = (lastCheckins.data?.length ?? 0) === 0;
 
-    const draft: CheckinLog = {
-      id: newId(),
-      date,
+    const body: CheckinInput = {
+      date: todayIso(),
       mood,
       anxiety,
       meds,
       sleep,
-      lastHomeworkStatus: data.logs.length === 0 ? "n/a" : homeworkStatus,
-      lastHomeworkNote: homeworkNote,
-      gapReflection,
-      whatWorked,
-      whatDidnt,
-      toolData: buildToolData(),
-      patternFlagged,
-      roadmapPhaseName: `${phase.index + 1} — ${phase.name}`,
-      nextHomework,
-      nextHomeworkDue,
-      streakAtLogging: 0,
+      last_homework_status: isFirstCheckin ? "n/a" : homeworkStatus,
+      last_homework_note: homeworkNote,
+      gap_reflection: gapReflection,
+      what_worked: whatWorked,
+      what_didnt: whatDidnt,
+      tool_data: buildToolData(),
+      pattern_flagged: patternFlagged,
+      roadmap_phase_name: `${phase.index + 1} — ${phase.name}`,
+      next_homework: nextHomework,
+      next_homework_due: nextHomeworkDue || null,
     };
 
-    const streaks = computeStreaks([...data.logs, draft]);
-    draft.streakAtLogging = streaks.current;
-
-    const block = formatLogBlock(draft);
-    update((d) => ({ ...d, logs: [...d.logs, draft] }));
-    setSavedBlock(block);
+    createCheckin.mutate(body, {
+      onSuccess: (saved) => {
+        setSavedBlock(formatLogBlock(saved));
+      },
+    });
   }
+
+  const mutationError =
+    createCheckin.error instanceof ApiError
+      ? createCheckin.error.message
+      : createCheckin.error
+        ? "Something went wrong saving your check-in. Please try again."
+        : null;
 
   if (savedBlock) {
     return (
@@ -155,7 +208,7 @@ export default function CheckinPage() {
         <LogBlock text={savedBlock} />
         <div className="flex gap-3">
           <Button asChild>
-            <Link href="/">Back to dashboard</Link>
+            <Link href="/dashboard">Back to dashboard</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/progress">View progress</Link>
@@ -170,10 +223,18 @@ export default function CheckinPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Check-in</h1>
         <p className="text-sm text-muted-foreground">
-          Phase {data.phaseIndex + 1} — {ROADMAP_PHASES[data.phaseIndex].name} · Cadence:{" "}
-          {data.baseline.cadence}
+          Cadence: {baseline.data.cadence}
+          {roadmapState.data ? ` · Phase ${roadmapState.data.phase_index + 1}` : ""}
         </p>
       </div>
+
+      {mutationError && (
+        <Alert variant="destructive">
+          <AlertTriangle />
+          <AlertTitle>Couldn&apos;t save your check-in</AlertTitle>
+          <AlertDescription>{mutationError}</AlertDescription>
+        </Alert>
+      )}
 
       {overdue?.overdue && (
         <Alert variant="warning">
@@ -213,7 +274,7 @@ export default function CheckinPage() {
               onChange={(e) => setSleep(e.target.value)}
             />
           </div>
-          {data.logs.length > 0 && (
+          {(lastCheckins.data?.length ?? 0) > 0 && (
             <div className="space-y-1.5">
               <Label>Last homework</Label>
               <div className="flex gap-2">
@@ -274,9 +335,7 @@ export default function CheckinPage() {
                 onClick={() => setTool(t.id)}
                 className={cn(
                   "rounded-md border p-3 text-left text-sm transition-colors",
-                  tool === t.id
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:bg-muted",
+                  tool === t.id ? "border-primary bg-primary/10" : "border-border hover:bg-muted",
                 )}
               >
                 <p className="font-medium text-foreground">{t.name}</p>
@@ -290,8 +349,8 @@ export default function CheckinPage() {
               <TextField label="Situation" value={toolFields.situation} onChange={(v) => setField("situation", v)} />
               <TextField
                 label="Automatic thought"
-                value={toolFields.automaticThought}
-                onChange={(v) => setField("automaticThought", v)}
+                value={toolFields.automatic_thought}
+                onChange={(v) => setField("automatic_thought", v)}
               />
               <div className="space-y-1.5">
                 <Label>Distortion</Label>
@@ -309,18 +368,18 @@ export default function CheckinPage() {
               </div>
               <TextField
                 label="Evidence for the thought"
-                value={toolFields.evidenceFor}
-                onChange={(v) => setField("evidenceFor", v)}
+                value={toolFields.evidence_for}
+                onChange={(v) => setField("evidence_for", v)}
               />
               <TextField
                 label="Evidence against the thought"
-                value={toolFields.evidenceAgainst}
-                onChange={(v) => setField("evidenceAgainst", v)}
+                value={toolFields.evidence_against}
+                onChange={(v) => setField("evidence_against", v)}
               />
               <TextField
                 label="Balanced / replacement thought"
-                value={toolFields.balancedThought}
-                onChange={(v) => setField("balancedThought", v)}
+                value={toolFields.balanced_thought}
+                onChange={(v) => setField("balanced_thought", v)}
               />
             </div>
           )}
@@ -329,20 +388,21 @@ export default function CheckinPage() {
             <div className="space-y-4">
               <TextField label="Activity" value={toolFields.activity} onChange={(v) => setField("activity", v)} />
               <TextField
-                label="Scheduled for"
-                value={toolFields.scheduledFor}
-                onChange={(v) => setField("scheduledFor", v)}
-                placeholder="Date / time slot"
+                label="Why it matters (value it connects to)"
+                value={toolFields.value_link}
+                onChange={(v) => setField("value_link", v)}
               />
               <TextField
-                label="Why it matters (values link)"
-                value={toolFields.valuesLink}
-                onChange={(v) => setField("valuesLink", v)}
+                label="Predicted mood delta (e.g. -2 to +2)"
+                value={toolFields.predicted_mood_delta}
+                onChange={(v) => setField("predicted_mood_delta", v)}
+                type="number"
               />
               <TextField
-                label="Predicted mood before doing it"
-                value={toolFields.predictedMood}
-                onChange={(v) => setField("predictedMood", v)}
+                label="Actual mood delta (fill in once you've done it)"
+                value={toolFields.actual_mood_delta}
+                onChange={(v) => setField("actual_mood_delta", v)}
+                type="number"
               />
             </div>
           )}
@@ -351,48 +411,40 @@ export default function CheckinPage() {
             <div className="space-y-4">
               <TextField
                 label="Hierarchy item / rung"
-                value={toolFields.hierarchyItem}
-                onChange={(v) => setField("hierarchyItem", v)}
-                placeholder="See the Tools page to build your full hierarchy"
+                value={toolFields.item_label}
+                onChange={(v) => setField("item_label", v)}
               />
               <div className="grid grid-cols-2 gap-4">
                 <TextField
                   label="SUDS before (0-100)"
-                  value={toolFields.sudsBefore}
-                  onChange={(v) => setField("sudsBefore", v)}
+                  value={toolFields.suds_before}
+                  onChange={(v) => setField("suds_before", v)}
+                  type="number"
                 />
                 <TextField
                   label="SUDS after (0-100)"
-                  value={toolFields.sudsAfter}
-                  onChange={(v) => setField("sudsAfter", v)}
+                  value={toolFields.suds_after}
+                  onChange={(v) => setField("suds_after", v)}
+                  type="number"
                 />
               </div>
-              <TextField label="Outcome" value={toolFields.outcome} onChange={(v) => setField("outcome", v)} />
+              <TextField label="Notes" value={toolFields.notes} onChange={(v) => setField("notes", v)} />
             </div>
           )}
 
           {tool === "behavioral-experiment" && (
             <div className="space-y-4">
-              <TextField
-                label="Belief being tested"
-                value={toolFields.belief}
-                onChange={(v) => setField("belief", v)}
-              />
               <TextField label="Prediction" value={toolFields.prediction} onChange={(v) => setField("prediction", v)} />
               <TextField
                 label="Smallest real-world experiment"
                 value={toolFields.experiment}
                 onChange={(v) => setField("experiment", v)}
               />
-              <TextField
-                label="Actual outcome"
-                value={toolFields.actualOutcome}
-                onChange={(v) => setField("actualOutcome", v)}
-              />
+              <TextField label="Actual outcome" value={toolFields.outcome} onChange={(v) => setField("outcome", v)} />
               <TextField
                 label="What it means for the belief"
-                value={toolFields.whatItMeans}
-                onChange={(v) => setField("whatItMeans", v)}
+                value={toolFields.what_it_means}
+                onChange={(v) => setField("what_it_means", v)}
               />
             </div>
           )}
@@ -421,12 +473,7 @@ export default function CheckinPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="hw">Action</Label>
-            <Input
-              id="hw"
-              required
-              value={nextHomework}
-              onChange={(e) => setNextHomework(e.target.value)}
-            />
+            <Input id="hw" required value={nextHomework} onChange={(e) => setNextHomework(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="hwdue">Due by</Label>
@@ -440,36 +487,67 @@ export default function CheckinPage() {
         </CardContent>
       </Card>
 
-      <Button type="submit" size="lg" className="w-full">
-        Save check-in
+      <Button type="submit" size="lg" className="w-full" disabled={createCheckin.isPending}>
+        {createCheckin.isPending ? "Saving…" : "Save check-in"}
       </Button>
     </form>
   );
 }
 
-let textFieldCounter = 0;
+function formatLogBlock(log: {
+  date: string;
+  mood: number;
+  anxiety: number;
+  meds: boolean;
+  sleep: string;
+  last_homework_status: HomeworkStatus;
+  last_homework_note: string;
+  pattern_flagged: string;
+  roadmap_phase_name: string;
+  next_homework: string;
+  next_homework_due: string | null;
+  streak_at_logging: number;
+}): string {
+  const homeworkLine =
+    log.last_homework_status === "n/a"
+      ? "n/a — first check-in"
+      : `${log.last_homework_status}${log.last_homework_note ? ` — ${log.last_homework_note}` : ""}`;
+
+  return [
+    `CBT-LOG | ${log.date}`,
+    `Mood: ${log.mood}/10 | Anxiety: ${log.anxiety}/10 | Meds: ${log.meds ? "Y" : "N"} | Sleep: ${log.sleep || "—"}`,
+    `Last homework: ${homeworkLine}`,
+    `Pattern flagged this session: ${log.pattern_flagged || "none"}`,
+    `Roadmap phase: ${log.roadmap_phase_name}`,
+    `Next homework: ${log.next_homework}${log.next_homework_due ? ` — due by ${log.next_homework_due}` : ""}`,
+    `Streak: ${log.streak_at_logging}`,
+  ].join("\n");
+}
 
 function TextField({
   label,
   value,
   onChange,
-  placeholder,
+  type = "text",
 }: {
   label: string;
   value?: string;
   onChange: (v: string) => void;
-  placeholder?: string;
+  type?: "text" | "number";
 }) {
-  const [id] = useState(() => `field-${(textFieldCounter += 1)}`);
+  const [id] = useState(() => `field-${label.replace(/\s+/g, "-").toLowerCase()}`);
+  if (type === "number") {
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={id}>{label}</Label>
+        <Input id={id} type="number" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
-      <Textarea
-        id={id}
-        value={value ?? ""}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      <Textarea id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

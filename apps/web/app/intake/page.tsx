@@ -2,44 +2,78 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRecoveryData } from "@/lib/storage";
+import { AlertTriangle } from "lucide-react";
 import {
-  CADENCE_OPTIONS,
-  MEDS_2WK_OPTIONS,
-  SLEEP_OPTIONS,
-} from "@/lib/constants";
-import type { BaselineSnapshot, Cadence, MedsAdherence2wk, SleepQuality } from "@/lib/types";
+  ApiError,
+  type BaselineCadence,
+  type BaselineInput,
+  type MedsAdherence2wk,
+  type SleepQuality,
+  useBaseline,
+  useCreateBaseline,
+  useUpdateBaseline,
+} from "@/lib/api";
+import { CADENCE_OPTIONS, MEDS_2WK_OPTIONS, SLEEP_OPTIONS } from "@/lib/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { NativeSelect } from "@/components/native-select";
 import { ScaleInput } from "@/components/scale-input";
 import { formatDate } from "@/lib/utils";
 
-const EMPTY: Omit<BaselineSnapshot, "createdAt"> = {
+const EMPTY: BaselineInput = {
   mood: 5,
   anxiety: 5,
-  sleepQuality: "fair",
   energy: 5,
-  medsAdherence2wk: "consistent",
-  careerExample: "",
-  structureExample: "",
-  lifeExample: "",
-  whatWorks: "",
-  nonNegotiables: "",
+  sleep_quality: "fair",
+  meds_adherence_2wk: "consistent",
+  career_example: "",
+  structure_example: "",
+  life_example: "",
+  what_works: "",
+  non_negotiables: "",
   cadence: "weekly",
 };
 
 export default function IntakePage() {
-  const { data, update, ready } = useRecoveryData();
   const router = useRouter();
-  const [form, setForm] = useState(EMPTY);
+  const baseline = useBaseline();
+  const createBaseline = useCreateBaseline();
+  const updateBaseline = useUpdateBaseline();
+
+  const [form, setForm] = useState<BaselineInput>(EMPTY);
   const [editing, setEditing] = useState(false);
 
-  if (!ready) return null;
+  if (baseline.isPending) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4" role="status" aria-label="Loading intake">
+        <div className="h-8 w-64 animate-pulse rounded bg-muted" />
+        <div className="h-48 animate-pulse rounded-lg border border-border bg-muted/40" />
+      </div>
+    );
+  }
 
-  const existing = data.baseline;
+  if (baseline.isError) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle />
+        <AlertTitle>Couldn&apos;t load your intake</AlertTitle>
+        <AlertDescription>{baseline.error.message}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  const existing = baseline.data;
+  const mutation = existing ? updateBaseline : createBaseline;
+
+  const mutationErrorMessage =
+    mutation.error instanceof ApiError
+      ? mutation.error.message
+      : mutation.error
+        ? "Something went wrong saving your intake. Please try again."
+        : null;
 
   if (existing && !editing) {
     return (
@@ -47,8 +81,8 @@ export default function IntakePage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Baseline Snapshot</h1>
           <p className="text-sm text-muted-foreground">
-            Recorded {formatDate(existing.createdAt)}. This runs once — your roadmap and phase
-            tracking are built from it.
+            Recorded {formatDate(existing.created_at)}. This runs once — your roadmap and tracking
+            are built from it.
           </p>
         </div>
 
@@ -56,28 +90,28 @@ export default function IntakePage() {
           <CardContent className="grid gap-4 p-6 sm:grid-cols-2">
             <Field label="Mood at intake" value={`${existing.mood}/10`} />
             <Field label="Anxiety at intake" value={`${existing.anxiety}/10`} />
-            <Field label="Sleep quality" value={existing.sleepQuality} />
+            <Field label="Sleep quality" value={existing.sleep_quality} />
             <Field label="Energy" value={`${existing.energy}/10`} />
             <Field
               label="Meds adherence (last 2 weeks)"
-              value={MEDS_2WK_OPTIONS.find((o) => o.value === existing.medsAdherence2wk)?.label ?? ""}
+              value={MEDS_2WK_OPTIONS.find((o) => o.value === existing.meds_adherence_2wk)?.label ?? ""}
             />
             <Field
               label="Check-in cadence"
               value={CADENCE_OPTIONS.find((o) => o.value === existing.cadence)?.label ?? ""}
             />
-            <Field label="Career/work example" value={existing.careerExample} full />
-            <Field label="Daily structure/time example" value={existing.structureExample} full />
-            <Field label="General life example" value={existing.lifeExample} full />
-            <Field label="What's already working" value={existing.whatWorks} full />
-            <Field label="Non-negotiables" value={existing.nonNegotiables} full />
+            <Field label="Career/work example" value={existing.career_example} full />
+            <Field label="Daily structure/time example" value={existing.structure_example} full />
+            <Field label="General life example" value={existing.life_example} full />
+            <Field label="What's already working" value={existing.what_works} full />
+            <Field label="Non-negotiables" value={existing.non_negotiables ?? ""} full />
           </CardContent>
         </Card>
 
         <Button
           variant="outline"
           onClick={() => {
-            setForm({ ...existing });
+            setForm(existing);
             setEditing(true);
           }}
         >
@@ -89,14 +123,12 @@ export default function IntakePage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    update((d) => ({
-      ...d,
-      baseline: {
-        ...form,
-        createdAt: existing?.createdAt ?? new Date().toISOString().slice(0, 10),
+    mutation.mutate(form, {
+      onSuccess: () => {
+        setEditing(false);
+        router.push("/dashboard");
       },
-    }));
-    router.push("/");
+    });
   }
 
   return (
@@ -106,10 +138,18 @@ export default function IntakePage() {
           First-session intake
         </h1>
         <p className="text-sm text-muted-foreground">
-          Runs once. Your answers build the Baseline Snapshot and the first draft of your
-          6-month roadmap.
+          Runs once. Your answers build the Baseline Snapshot that unlocks tracking, check-ins, and
+          the 6-month roadmap.
         </p>
       </div>
+
+      {mutationErrorMessage && (
+        <Alert variant="destructive">
+          <AlertTriangle />
+          <AlertTitle>Couldn&apos;t save your intake</AlertTitle>
+          <AlertDescription>{mutationErrorMessage}</AlertDescription>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader>
@@ -121,10 +161,11 @@ export default function IntakePage() {
           <ScaleInput label="Anxiety right now" value={form.anxiety} onChange={(v) => setForm((f) => ({ ...f, anxiety: v }))} lowLabel="Calm" highLabel="High" />
           <ScaleInput label="Energy" value={form.energy} onChange={(v) => setForm((f) => ({ ...f, energy: v }))} lowLabel="Depleted" highLabel="High" />
           <div className="space-y-1.5">
-            <Label>Sleep quality</Label>
+            <Label htmlFor="sleep-quality">Sleep quality</Label>
             <NativeSelect
-              value={form.sleepQuality}
-              onChange={(e) => setForm((f) => ({ ...f, sleepQuality: e.target.value as SleepQuality }))}
+              id="sleep-quality"
+              value={form.sleep_quality}
+              onChange={(e) => setForm((f) => ({ ...f, sleep_quality: e.target.value as SleepQuality }))}
             >
               {SLEEP_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -134,11 +175,12 @@ export default function IntakePage() {
             </NativeSelect>
           </div>
           <div className="space-y-1.5">
-            <Label>Medication adherence, last 2 weeks</Label>
+            <Label htmlFor="meds-adherence">Medication adherence, last 2 weeks</Label>
             <NativeSelect
-              value={form.medsAdherence2wk}
+              id="meds-adherence"
+              value={form.meds_adherence_2wk}
               onChange={(e) =>
-                setForm((f) => ({ ...f, medsAdherence2wk: e.target.value as MedsAdherence2wk }))
+                setForm((f) => ({ ...f, meds_adherence_2wk: e.target.value as MedsAdherence2wk }))
               }
             >
               {MEDS_2WK_OPTIONS.map((o) => (
@@ -163,8 +205,8 @@ export default function IntakePage() {
               id="career"
               required
               placeholder="A recent, specific example — not a general feeling."
-              value={form.careerExample}
-              onChange={(e) => setForm((f) => ({ ...f, careerExample: e.target.value }))}
+              value={form.career_example}
+              onChange={(e) => setForm((f) => ({ ...f, career_example: e.target.value }))}
             />
           </div>
           <div className="space-y-1.5">
@@ -173,8 +215,8 @@ export default function IntakePage() {
               id="structure"
               required
               placeholder="A recent, specific example."
-              value={form.structureExample}
-              onChange={(e) => setForm((f) => ({ ...f, structureExample: e.target.value }))}
+              value={form.structure_example}
+              onChange={(e) => setForm((f) => ({ ...f, structure_example: e.target.value }))}
             />
           </div>
           <div className="space-y-1.5">
@@ -183,8 +225,8 @@ export default function IntakePage() {
               id="life"
               required
               placeholder="Whatever you'd name here."
-              value={form.lifeExample}
-              onChange={(e) => setForm((f) => ({ ...f, lifeExample: e.target.value }))}
+              value={form.life_example}
+              onChange={(e) => setForm((f) => ({ ...f, life_example: e.target.value }))}
             />
           </div>
         </CardContent>
@@ -194,15 +236,15 @@ export default function IntakePage() {
         <CardHeader>
           <CardTitle className="text-base">3. What&apos;s already working</CardTitle>
           <CardDescription>
-            From the last 6 years of treatment — so nothing solid gets rebuilt from scratch.
+            From past treatment — so nothing solid gets rebuilt from scratch.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Textarea
             required
             aria-label="What's already working"
-            value={form.whatWorks}
-            onChange={(e) => setForm((f) => ({ ...f, whatWorks: e.target.value }))}
+            value={form.what_works}
+            onChange={(e) => setForm((f) => ({ ...f, what_works: e.target.value }))}
           />
         </CardContent>
       </Card>
@@ -218,8 +260,8 @@ export default function IntakePage() {
         <CardContent>
           <Textarea
             aria-label="Non-negotiables"
-            value={form.nonNegotiables}
-            onChange={(e) => setForm((f) => ({ ...f, nonNegotiables: e.target.value }))}
+            value={form.non_negotiables ?? ""}
+            onChange={(e) => setForm((f) => ({ ...f, non_negotiables: e.target.value }))}
           />
         </CardContent>
       </Card>
@@ -231,8 +273,9 @@ export default function IntakePage() {
         </CardHeader>
         <CardContent>
           <NativeSelect
+            aria-label="Check-in cadence"
             value={form.cadence}
-            onChange={(e) => setForm((f) => ({ ...f, cadence: e.target.value as Cadence }))}
+            onChange={(e) => setForm((f) => ({ ...f, cadence: e.target.value as BaselineCadence }))}
           >
             {CADENCE_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -244,7 +287,9 @@ export default function IntakePage() {
       </Card>
 
       <div className="flex gap-3">
-        <Button type="submit">Save baseline &amp; build roadmap</Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Saving…" : "Save baseline & build roadmap"}
+        </Button>
         {editing && (
           <Button type="button" variant="outline" onClick={() => setEditing(false)}>
             Cancel

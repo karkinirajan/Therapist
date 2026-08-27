@@ -6,8 +6,9 @@ import { LifeBuoy, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/lib/api-client";
 
-const LINKS = [
+const ANON_LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/checkin", label: "Check-in" },
   { href: "/roadmap", label: "Roadmap" },
@@ -16,14 +17,31 @@ const LINKS = [
   { href: "/intake", label: "Intake" },
 ];
 
+// Signed-in users get the real API-backed pages instead of the legacy
+// localStorage ones, plus an Account link (accessible link, not just a
+// dropdown-only affordance).
+const AUTHED_LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/checkin", label: "Check-in" },
+  { href: "/roadmap", label: "Roadmap" },
+  { href: "/tools", label: "CBT Tools" },
+  { href: "/progress", label: "Progress" },
+  { href: "/account", label: "Account" },
+];
+
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const currentUser = useCurrentUser();
+  const LINKS = currentUser.data ? AUTHED_LINKS : ANON_LINKS;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
-        <Link href="/" className="text-sm font-semibold tracking-tight text-foreground">
+        <Link
+          href={currentUser.data ? "/dashboard" : "/"}
+          className="text-sm font-semibold tracking-tight text-foreground"
+        >
           CBT Recovery
         </Link>
 
