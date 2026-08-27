@@ -70,37 +70,52 @@ class AuthService:
         self, *, raw_token: str, user_agent: str | None, ip: str | None
     ) -> IssuedTokens:
         token_hash = hash_refresh_token(raw_token)
+        now = datetime.now(UTC)
+
+        # Atomically revoke-if-active: this is the only place that decides
+        # whether a presented token is "the one true next rotation" or not.
+        # See RefreshTokenRepository.claim_for_rotation for why a plain
+        # read-then-revoke is unsafe under concurrent /auth/refresh calls.
+        claimed = await self._refresh_tokens.claim_for_rotation(token_hash)
+
+        if claimed is not None:
+            claimed_expires_at = (
+                claimed.expires_at
+                if claimed.expires_at.tzinfo is not None
+                else claimed.expires_at.replace(tzinfo=UTC)
+            )
+            if claimed_expires_at < now:
+                # Already flipped to revoked as a side effect of the atomic
+                # claim above - it was live but expired, so it's simply dead
+                # now either way. Not a theft signal, just an expired token.
+                raise InvalidRefreshTokenError()
+
+            user = await self._users.get_by_id(claimed.user_id)
+            if user is None:
+                raise InvalidRefreshTokenError()
+
+            return await self._issue_tokens(
+                user, family_id=claimed.family_id, user_agent=user_agent, ip=ip
+            )
+
+        # Nothing was claimed: either this token never existed, or it was
+        # already revoked - by an earlier legitimate rotation (a genuine
+        # replay/reuse), or by a concurrent request that won the race above
+        # a moment ago. We deliberately don't try to tell those apart: any
+        # presentation of an already-revoked token kills the whole family and
+        # forces re-login, the same strict policy this app already applies to
+        # ordinary reuse detection.
         existing = await self._refresh_tokens.get_by_hash(token_hash)
         if existing is None:
             raise InvalidRefreshTokenError()
 
-        now = datetime.now(UTC)
-        if existing.expires_at.tzinfo is None:
-            existing_expires_at = existing.expires_at.replace(tzinfo=UTC)
-        else:
-            existing_expires_at = existing.expires_at
-
-        if existing.revoked_at is not None:
-            # Reuse of an already-rotated token: treat as theft, kill the whole family.
-            await self._refresh_tokens.revoke_family(existing.family_id)
-            # Commit explicitly: this write must survive even though we're about to
-            # raise. `get_db` rolls back the session on any exception leaving the
-            # endpoint, which would otherwise silently undo the exact mitigation
-            # we just applied for a detected refresh-token replay.
-            await self._db.commit()
-            raise InvalidRefreshTokenError()
-
-        if existing_expires_at < now:
-            raise InvalidRefreshTokenError()
-
-        user = await self._users.get_by_id(existing.user_id)
-        if user is None:
-            raise InvalidRefreshTokenError()
-
-        await self._refresh_tokens.revoke(existing)
-        return await self._issue_tokens(
-            user, family_id=existing.family_id, user_agent=user_agent, ip=ip
-        )
+        await self._refresh_tokens.revoke_family(existing.family_id)
+        # Commit explicitly: this write must survive even though we're about to
+        # raise. `get_db` rolls back the session on any exception leaving the
+        # endpoint, which would otherwise silently undo the exact mitigation
+        # we just applied for a detected refresh-token replay.
+        await self._db.commit()
+        raise InvalidRefreshTokenError()
 
     async def issue_tokens_for_user(
         self, user: User, *, user_agent: str | None, ip: str | None

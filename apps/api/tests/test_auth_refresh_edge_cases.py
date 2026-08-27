@@ -35,26 +35,6 @@ def _unique_email() -> str:
     return f"user-{uuid.uuid4().hex[:12]}@example.com"
 
 
-@pytest.mark.xfail(
-    reason=(
-        "BUG (found while writing this test, not fixed here per instructions): "
-        "app/routers/auth.py's `refresh` endpoint calls `_clear_refresh_cookie(response)` "
-        "then `raise HTTPException(...)` on InvalidRefreshTokenError. FastAPI discards any "
-        "mutation made to an injected `Response` parameter (headers/cookies) when the "
-        "endpoint subsequently raises an exception — the exception handler builds a fresh "
-        "Response instead. Verified in isolation with a minimal FastAPI repro: calling "
-        "`response.delete_cookie(...)` then `raise HTTPException(...)` never emits a "
-        "Set-Cookie header. Net effect: a rejected refresh (expired token, or a detected "
-        "reuse/replay) never actually clears the stale refresh_token cookie from the "
-        "browser, despite the code and its own comment implying it does. Not a security "
-        "hole on its own (the cookie is httpOnly and the stale token is rejected server-side "
-        "on every future use), but it is a real, verified discrepancy between intended and "
-        "actual behavior worth fixing (e.g. by setting the Set-Cookie header on the "
-        "HTTPException itself via `exc.headers`, or by returning a Response instead of "
-        "raising)."
-    ),
-    strict=True,
-)
 async def test_refresh_with_expired_token_returns_401_and_clears_cookie(
     client: AsyncClient, db_session: AsyncSession
 ) -> None:
@@ -98,26 +78,6 @@ async def test_refresh_missing_cookie_returns_401(client: AsyncClient) -> None:
     assert response.json() == {"detail": "Missing refresh token"}
 
 
-@pytest.mark.xfail(
-    reason=(
-        "BUG (found while writing this test, not fixed here per instructions): "
-        "AuthService.refresh() in app/services/auth_service.py reads the refresh-token row "
-        "(`get_by_hash`), checks `existing.revoked_at is not None`, and only *then* revokes "
-        "it and issues a new token pair. There is no row-level lock (e.g. `SELECT ... FOR "
-        "UPDATE`) or atomic compare-and-swap between the read and the revoke, so two truly "
-        "concurrent /auth/refresh calls presenting the SAME not-yet-rotated token can both "
-        "read `revoked_at IS NULL` before either has committed its revocation, and both "
-        "successfully rotate — producing two valid token pairs (two active sessions) from a "
-        "single refresh token. This defeats the single-active-chain guarantee rotation and "
-        "reuse-detection are meant to provide (reuse-detection only catches a REPLAY of an "
-        "already-committed-revoked token, not a true race on the same uncommitted one). "
-        "Reproduced below by racing two independent per-request DB sessions against the "
-        "same token repeatedly; on this branch it reliably shows up as duplicate 200s "
-        "well within the loop below. Fix would need a `SELECT ... FOR UPDATE` (or "
-        "equivalent atomic revoke-if-not-revoked) in the refresh read/revoke path."
-    ),
-    strict=True,
-)
 async def test_concurrent_refresh_reuse_triggers_reuse_detection() -> None:
     """Two callers racing to refresh the same (not-yet-rotated) token: at most
     one may succeed, the other must be rejected as a reuse/race loser.

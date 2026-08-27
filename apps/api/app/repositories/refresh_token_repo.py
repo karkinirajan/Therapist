@@ -44,6 +44,26 @@ class RefreshTokenRepository:
         token.revoked_at = datetime.now(UTC)
         await self._db.flush()
 
+    async def claim_for_rotation(self, token_hash: str) -> RefreshToken | None:
+        """Atomically revoke a token IF it is still active, returning the row
+        only to whichever caller's UPDATE actually flipped it. Two concurrent
+        callers racing the same `token_hash` cannot both get a non-None result:
+        Postgres holds a row lock across the first UPDATE until it commits or
+        rolls back, so a second concurrent UPDATE targeting the same row
+        blocks, then re-evaluates `revoked_at IS NULL` against the already-
+        committed result and matches zero rows. This is what makes refresh-
+        token rotation safe under real concurrent requests - a plain
+        get-then-revoke (read `revoked_at`, decide, then revoke) has a gap
+        between the read and the write where two callers can both observe
+        "not revoked yet" and both rotate the same token."""
+        result = await self._db.execute(
+            update(RefreshToken)
+            .where(RefreshToken.token_hash == token_hash, RefreshToken.revoked_at.is_(None))
+            .values(revoked_at=datetime.now(UTC))
+            .returning(RefreshToken)
+        )
+        return result.scalar_one_or_none()
+
     async def revoke_family(self, family_id: uuid.UUID) -> None:
         await self._db.execute(
             update(RefreshToken)

@@ -42,6 +42,18 @@ def _clear_refresh_cookie(response: Response) -> None:
     response.delete_cookie(key=REFRESH_COOKIE_NAME, path=REFRESH_COOKIE_PATH)
 
 
+def _expired_refresh_cookie_header() -> str:
+    """The Set-Cookie value that clears the refresh cookie, for use as an
+    HTTPException header. Mutating the handler's injected `Response` (via
+    `_clear_refresh_cookie`) has no effect once the handler raises - FastAPI
+    builds a brand-new Response from the exception instead of reusing the one
+    already mutated in the handler - so a cookie-clear on a rejected refresh
+    has to travel on the exception itself instead."""
+    probe = Response()
+    _clear_refresh_cookie(probe)
+    return probe.headers["set-cookie"]
+
+
 async def _signup_body(request: Request, body: SignupRequest) -> SignupRequest:
     request.state.rate_limit_email = body.email.lower()
     return body
@@ -127,9 +139,10 @@ async def refresh(
             ip=request.client.host if request.client else None,
         )
     except InvalidRefreshTokenError as exc:
-        _clear_refresh_cookie(response)
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+            headers={"set-cookie": _expired_refresh_cookie_header()},
         ) from exc
 
     _set_refresh_cookie(
