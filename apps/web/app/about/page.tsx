@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "What this tool is, who it's for, and how it structures ADHD/OCD-focused CBT accountability alongside your existing treatment.",
+  // Root layout defaults to noindex/nofollow (appropriate for the authenticated
+  // app) - this and the other public marketing pages explicitly opt back in so
+  // they're actually indexable, matching what app/robots.ts's robots.txt rules
+  // already allow.
+  robots: { index: true, follow: true },
 };
 
 export default function AboutPage() {

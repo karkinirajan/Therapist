@@ -43,6 +43,11 @@ export default function SafetyPage() {
             Also call the doctor who manages your medication, and a trusted person if there is
             one you&apos;d loop in.
           </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Outside Nepal, this number won&apos;t connect — call your country&apos;s emergency
+            number or crisis line instead (for example, 988 in the US, 111 in the UK, or 112 in
+            most of the EU).
+          </p>
         </CardContent>
       </Card>
 
@@ -92,9 +97,9 @@ export default function SafetyPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-foreground">
-            A structured behavioral coaching tool built around CBT technique — not a
-            psychiatrist, not a crisis service. It doesn&apos;t diagnose, prescribe, or adjust
-            medication. It&apos;s an accountability layer around existing treatment, for
+            A structured behavioral coaching tool built around CBT technique for ADHD and OCD —
+            not a psychiatrist, not a crisis service. It doesn&apos;t diagnose, prescribe, or
+            adjust medication. It&apos;s an accountability layer around existing treatment, for
             stable-but-stuck days. Genuine risk goes to the call above, not to a thought record.
           </p>
         </CardContent>

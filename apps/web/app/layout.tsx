@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | CBT Recovery",
   },
   description:
-    "A structured CBT-based recovery and life-systems coaching tool: intake, check-ins, a 6-month roadmap, CBT technique guidelines, and progress tracking. All data stays on this device.",
+    "A structured CBT-based recovery and life-systems coaching tool for ADHD and OCD: intake, daily/weekly/monthly tracking, a 6-month roadmap, CBT and ERP technique guidelines, and progress tracking.",
   robots: {
     index: false,
     follow: false,
@@ -48,12 +48,15 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="mx-auto max-w-5xl px-4 pb-10 pt-4 text-center text-xs text-muted-foreground">
-              All data stays in this browser (local storage) — nothing is sent anywhere. Not a
-              substitute for your prescriber. In a crisis, use{" "}
+              Not a substitute for your prescriber. In a crisis, use{" "}
               <a href="/safety" className="underline underline-offset-2">
                 Safety
               </a>
-              , not this workflow.
+              , not this workflow. See the{" "}
+              <a href="/policy" className="underline underline-offset-2">
+                Privacy Policy
+              </a>{" "}
+              for what&apos;s collected and how it&apos;s stored.
             </footer>
           </div>
         </Providers>

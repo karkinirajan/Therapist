@@ -11,6 +11,7 @@ import {
 export const metadata: Metadata = {
   title: "FAQ",
   description: "Common questions about how this tool works, what it isn't, and your data.",
+  robots: { index: true, follow: true },
 };
 
 const FAQS: { id: string; question: string; answer: React.ReactNode }[] = [

@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "What data this tool collects, how it's stored, and what rights you have over it.",
+  robots: { index: true, follow: true },
 };
 
 export default function PolicyPage() {

@@ -3,7 +3,7 @@ import type { Cadence, CbtToolId, MedsAdherence2wk, SleepQuality } from "./types
 export const TOOL_NAME = "CBT Recovery & Life-Systems Coach";
 
 // ─── Identity & scope (Section 1) — shown once, in full, on first visit ───
-export const IDENTITY_STATEMENT = `This is a structured behavioral coaching tool built around Cognitive Behavioral Therapy (CBT) technique — not a psychiatrist and not a crisis service. It does not diagnose, prescribe, or adjust medication. It functions as a daily/weekly accountability layer around your existing treatment: applying CBT with precision, structuring a 6-month recovery arc in small compounding steps, and holding you accountable via tracked check-ins. It is built for someone who is stable-but-stuck — functional, medicated, but with slowed motivation, disorganized time, and a trajectory that feels off-track — not for acute crisis. If you are in crisis, use the Safety page, not this workflow.`;
+export const IDENTITY_STATEMENT = `This is a structured behavioral coaching tool built around Cognitive Behavioral Therapy (CBT) technique, focused specifically on ADHD and OCD — not a psychiatrist and not a crisis service. It does not diagnose, prescribe, or adjust medication. It functions as a daily/weekly accountability layer around your existing treatment: applying CBT with precision (including exposure and response prevention for OCD, and executive-function scaffolding for ADHD), structuring a 6-month recovery arc in small compounding steps, and holding you accountable via tracked check-ins across several categories. It is built for someone who is stable-but-stuck — functional, medicated, but with slowed task initiation, avoidance loops, or compulsive patterns that keep a trajectory off-track — not for acute crisis. If you are in crisis, use the Safety page, not this workflow.`;
 
 // ─── Crisis resources (Section 2) ───
 export const CRISIS = {
@@ -117,6 +117,27 @@ export const DISTORTIONS: Distortion[] = [
       "Rigid rules about how you or others “should” or “must” be, that produce guilt or frustration when unmet.",
     example: "“I should already be further along in my career by now.”",
   },
+  {
+    id: "thought-action-fusion",
+    name: "Thought-action fusion",
+    definition:
+      "Treating an intrusive thought as morally or practically equivalent to actually doing it, or as if merely thinking it makes it more likely to happen. Core to OCD.",
+    example: "“I had a violent intrusive thought about my kid — that means I'm dangerous.”",
+  },
+  {
+    id: "intolerance-of-uncertainty",
+    name: "Intolerance of uncertainty",
+    definition:
+      "Treating not-knowing-for-certain as intolerable or dangerous, driving checking, reassurance-seeking, or avoidance to manufacture false certainty.",
+    example: "“I can't send this email until I'm 100% sure there's no mistake in it.”",
+  },
+  {
+    id: "time-blindness-optimism",
+    name: "Time-blindness optimism bias",
+    definition:
+      "Systematically underestimating how long a task will take or overestimating future motivation/energy — common in ADHD's disrupted sense of time.",
+    example: "“I'll definitely have energy to do this tonight after work.”",
+  },
 ];
 
 // ─── Framework overview (Section 3) ───
@@ -141,15 +162,21 @@ export const FRAMEWORK: FrameworkTechnique[] = [
   },
   {
     id: "graded-exposure",
-    name: "Graded exposure",
+    name: "Graded exposure / ERP",
     description:
-      "For anxiety-driven avoidance: build a fear/avoidance hierarchy and move up it in small, defined steps — not leaps.",
+      "For OCD-driven avoidance and compulsions: build a fear/compulsion hierarchy (Exposure and Response Prevention) and move up it in small, defined steps — sitting with the urge without performing the compulsion, not leaping to the hardest item first.",
   },
   {
     id: "behavioral-experiments",
     name: "Behavioral experiments",
     description:
-      "When a belief is testable, design the smallest real-world test of it rather than debating it in the abstract.",
+      "When a belief is testable, design the smallest real-world test of it rather than debating it in the abstract — useful for both OCD's feared-outcome beliefs and ADHD's “I'll never manage this” beliefs.",
+  },
+  {
+    id: "executive-function-scaffolding",
+    name: "Executive-function scaffolding",
+    description:
+      "External structure to compensate for ADHD's executive-function gaps — time-blocking instead of relying on remembered intentions, body-doubling (working alongside someone, even virtually) for task initiation, and externalized task capture instead of mental to-do lists.",
   },
   {
     id: "values-based-goals",
@@ -173,8 +200,8 @@ export const CBT_TOOLS: { id: CbtToolId; name: string; use: string }[] = [
   },
   {
     id: "exposure-hierarchy",
-    name: "Graded Exposure",
-    use: "Move up one rung of an avoidance hierarchy in a small, defined step.",
+    name: "Graded Exposure / ERP",
+    use: "Move up one rung of an avoidance or compulsion hierarchy — resist the compulsion or avoidance in a small, defined step, and track the urge before/after.",
   },
   {
     id: "behavioral-experiment",
@@ -202,12 +229,12 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     weekRange: "Weeks 1–4",
     startWeek: 1,
     endWeek: 4,
-    goal: "Consistent basics, not ambition.",
+    goal: "Consistent basics, not ambition — the foundation both ADHD symptom control and OCD's ERP work depend on.",
     focus: [
-      "Sleep/wake consistency",
+      "Sleep/wake consistency and medication timing (ADHD medication is timing-sensitive; missed or shifted doses show up fast in focus and impulse control)",
       "Medication adherence tracking",
-      "One small daily behavioral-activation task (not work-related — reintroduce reward first)",
-      "No career-overhaul talk yet",
+      "One small daily behavioral-activation task — not work-related yet, reintroduce reward first",
+      "Start naming compulsions and avoidance patterns without trying to stop them yet — observation before intervention",
     ],
     successMetric: "4 consecutive weeks of logged check-ins with meds adherence ≥ 90%.",
   },
@@ -217,30 +244,30 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     weekRange: "Weeks 5–10",
     startWeek: 5,
     endWeek: 10,
-    goal: "Rebuild a daily/weekly time structure around actual energy patterns, not aspirational ones.",
+    goal: "Build external structure to compensate for executive-function gaps, and begin the first, lowest rungs of ERP.",
     focus: [
-      "Basic task capture system",
-      "One fixed daily work block",
-      "Light exposure work on the specific avoided career tasks that have been deferred",
+      "Externalized task capture — nothing lives only in memory",
+      "One fixed daily work block, plus a body-doubling or timer-based scaffold if task initiation is the sticking point",
+      "Begin ERP on the lowest 1–2 rungs of the exposure hierarchy, deliberately easy",
     ],
     successMetric:
       "A repeatable weekly structure held for 3+ consecutive weeks without a full collapse-week.",
   },
   {
     index: 2,
-    name: "Rebuild career traction",
+    name: "Systems under load",
     weekRange: "Weeks 11–18",
     startWeek: 11,
     endWeek: 18,
-    goal: "Apply behavioral experiments and cognitive restructuring directly to career-stall beliefs.",
+    goal: "Move up the ERP hierarchy while the executive-function scaffolding holds under real work and life demands.",
     focus: [
-      "Impostor framing challenged with evidence",
-      "Avoidance of outreach/visibility tackled via exposure",
-      "Procrastination on specific deliverables addressed",
-      "Named, trackable career actions per week — proposals sent, projects shipped, applications made",
+      "Progress steadily up the exposure/compulsion hierarchy — no skipping rungs, no lingering indefinitely on one either",
+      "Thought-action fusion and intolerance-of-uncertainty distortions challenged directly, with evidence",
+      "Time-blindness optimism bias tracked against actual task-completion data, not predicted",
+      "Named, trackable weekly actions on whatever domain has been avoided — work, outreach, admin — the same avoidance pattern, applied to real stakes",
     ],
     successMetric:
-      "Concrete career actions completed weekly, tied to your stated career goal — not vague “get back on track.”",
+      "Concrete weekly actions completed against the stated goal, not vague “get back on track.”",
   },
   {
     index: 3,
@@ -248,14 +275,14 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     weekRange: "Weeks 19–24",
     startWeek: 19,
     endWeek: 24,
-    goal: "Test the new systems under real friction without full relapse into the old avoidance pattern.",
+    goal: "Test the new systems under real friction — a bad week, a relapse urge, a missed dose — without full collapse into the old pattern.",
     focus: [
-      "Survive a busy week, a setback, a bad mood day without full collapse",
-      "Build an explicit relapse-prevention plan: early-warning signs + first three actions",
-      "Review the 6-month log trend, cold, numbers-first",
+      "Survive a busy week, a setback, or a spike in intrusive thoughts without abandoning the structure",
+      "Build an explicit relapse-prevention plan: early-warning signs specific to your ADHD/OCD patterns + first three actions",
+      "Review the 6-month log trend, cold, numbers-first, across all tracked categories",
     ],
     successMetric:
-      "A written relapse-prevention plan, plus a completed 6-month review: mood/anxiety trend, adherence streak, career actions completed.",
+      "A written relapse-prevention plan, plus a completed 6-month review: mood/anxiety trend, adherence streak, exposure-hierarchy progress, actions completed.",
   },
 ];
 

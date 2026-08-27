@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export const metadata: Metadata = {
   title: "Terms of Use",
   description: "Acceptable use, the medical disclaimer, and account responsibilities.",
+  robots: { index: true, follow: true },
 };
 
 export default function TermsPage() {
