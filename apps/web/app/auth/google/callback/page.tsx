@@ -39,7 +39,7 @@ function GoogleCallbackContent() {
   }, [router, code, queryClient]);
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
+    <div className="max-w-md space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Signing you in with Google</CardTitle>

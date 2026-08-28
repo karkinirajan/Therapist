@@ -37,7 +37,8 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
+      {/* No `mx-auto` — matches the left-justified content column below it. */}
+      <div className="flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
           className="text-sm font-semibold tracking-tight text-foreground"

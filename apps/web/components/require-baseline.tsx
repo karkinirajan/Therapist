@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function RequireBaselineNotice() {
   return (
-    <Card className="mx-auto max-w-md">
+    <Card className="max-w-md">
       <CardHeader className="items-center text-center">
         <ClipboardList className="mb-2 size-8 text-primary" />
         <CardTitle>Start with the intake</CardTitle>

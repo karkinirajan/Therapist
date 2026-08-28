@@ -8,17 +8,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Plus Jakarta Sans: a rounded geometric sans (loaded via next/font/google in
-     layout.tsx) — softer terminals than Geist at the same weights, reads warmer
-     and more "designed" at bold display sizes while staying highly legible at
-     body sizes. Chosen over keeping Geist because the product ask was
-     specifically for rounder, bolder, more elegant type; Geist's terminals are
-     comparatively square/neutral. Geist Mono is kept for the one code-styled
-     surface (saved thought-record dumps) since mono legibility isn't part of
-     this pass. */
-  --font-sans: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", ui-sans-serif, system-ui,
-    -apple-system, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
+  /* JetBrains Mono, everywhere — nav, footer, headings, body, forms, buttons
+     (loaded via next/font/google in layout.tsx). Requested explicitly by the
+     product owner as a deliberate, whole-app choice, not just a code-styled
+     surface. --font-sans is repointed at it rather than introduced as a new
+     token, since every existing component already drives its typography off
+     `font-sans`-based Tailwind classes — nothing needs per-component
+     changes. --font-mono is consolidated to the same family (was Geist Mono,
+     used only by the one code-styled surface in components/log-block.tsx) so
+     there's a single mono voice throughout instead of two visually-similar
+     but distinct monospace faces. Long-form prose in mono reads denser than
+     in a proportional font — mitigated via generous line-height/leading on
+     body copy rather than by reverting to a proportional font (see the
+     `body` rule and prose-heavy pages under app/(about|policy|terms|faq)). */
+  --font-sans: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -35,6 +39,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -66,53 +71,101 @@
   --color-grid-dot: var(--grid-dot);
 }
 
-/* ─── Light theme (default) ─────────────────────────────────────────────
-   Palette direction: a deep indigo-violet primary (hue ~288) on a warm ivory
-   base (hue ~85, barely-there — reads as a soft warm white, not gray) instead
-   of the previous desaturated blue-on-neutral-gray. Indigo/violet was chosen
-   over staying in blue because it reads calmer and more considered ("elegant")
-   than a default SaaS blue while remaining a cool, low-arousal hue appropriate
-   for a low-stimulation ADHD/OCD product — and it sits far enough from
-   --destructive's red-orange (hue 25) on the wheel that red keeps its
-   exclusive alarm signal. All foreground/background pairs below are verified
-   ≥4.5:1 (body text) — see contrast notes in the PR description. ───────── */
+/* ─── Catppuccin theme pass ──────────────────────────────────────────────
+   Replaces the prior indigo-violet-on-warm-ivory palette. Light mode uses
+   the official Catppuccin Latte swatches, dark mode the official Catppuccin
+   Mocha swatches — both first-class, matched hex-for-hex to the published
+   palette (https://catppuccin.com/palette), not an invented light variant.
+
+   Layering convention (Catppuccin's own semantic model, applied to both
+   variants even though "darker" and "lighter" flip between them):
+     base            → --background
+     mantle          → --muted / --field (subtly recessed, close to base)
+     crust           → --secondary (a step further recessed, for a surface
+                        that should read as more distinct than muted)
+     surface0        → --card / --popover / --accent (the "elevated element"
+                        tier — cards and popovers get it directly; accent
+                        reuses it for hover/highlight backgrounds)
+     surface1        → --border / --input (subtle structural lines — kept
+                        low-contrast against background on purpose, same as
+                        the prior design; the card's own fill already
+                        provides the primary visual boundary)
+     text            → --foreground / --card-foreground / --popover-foreground
+                        / --secondary-foreground / --accent-foreground
+     subtext1        → --muted-foreground / --placeholder
+
+   Primary accent: mauve. Of the calm, low-arousal options that fit this
+   product's "calm, low-stimulation, ADHD/OCD-appropriate" constraint (mauve,
+   blue, lavender, sky), mauve was chosen because it's the closest hue-wheel
+   descendant of the previous indigo-violet primary — users who've already
+   internalized "this app is purple" keep that association — while sitting
+   comfortably far from --destructive's red on the wheel (hue difference
+   holds red's exclusive alarm signal, verified below).
+
+   --destructive is Catppuccin's own `red` in both variants, reserved
+   exclusively for the crisis-support "Call now" button on /safety and the
+   destructive button/badge variants — never reused elsewhere.
+
+   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed):
+     Mocha  text-on-base            11.34:1   crust-on-mauve (primary-fg)  9.23:1
+     Mocha  text-on-surface0 (card)  8.69:1   crust-on-red (destructive-fg) 8.10:1
+     Latte  text-on-base             7.06:1   base-on-mauve (primary-fg)  4.79:1
+     Latte  text-on-surface0 (card)  5.17:1   base-on-red (destructive-fg) 4.80:1
+     Latte  subtext1-on-mantle (muted-fg)      5.14:1
+     Mocha  subtext1-on-mantle (muted-fg)      9.91:1
+   All ≥4.5:1 (AA body text). Catppuccin Latte's own `green`/`yellow`/`sky`
+   fail AA when used as *text* directly on `base` (2.3–3.0:1 — Latte's accent
+   colors are tuned for icons/large surfaces, not body-size text) — flagged
+   and fixed below by darkening the Latte success/warning/info *text* colors
+   just enough to clear 4.5:1 while keeping them recognizably green/amber/
+   blue and keeping their *-muted backing tinted from the same hue. Mocha's
+   status colors already cleared 4.5:1 unmodified and are used as-is.
+   ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: oklch(0.985 0.004 85);
-  --foreground: oklch(0.19 0.03 288);
+  --background: #eff1f5; /* Latte base */
+  --foreground: #4c4f69; /* Latte text */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.03 288);
+  --card: #ccd0da; /* Latte surface0 */
+  --card-foreground: #4c4f69; /* Latte text */
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.03 288);
+  --popover: #ccd0da; /* Latte surface0 */
+  --popover-foreground: #4c4f69; /* Latte text */
 
-  --primary: oklch(0.36 0.13 288);
-  --primary-foreground: oklch(0.99 0.004 85);
+  --primary: #8839ef; /* Latte mauve */
+  --primary-foreground: #eff1f5; /* Latte base — crust-on-mauve fails AA (4.09:1), base clears it (4.79:1) */
 
-  --secondary: oklch(0.95 0.02 288);
-  --secondary-foreground: oklch(0.32 0.11 288);
+  --secondary: #dce0e8; /* Latte crust */
+  --secondary-foreground: #4c4f69; /* Latte text */
 
-  --muted: oklch(0.96 0.006 85);
-  --muted-foreground: oklch(0.46 0.02 288);
+  --muted: #e6e9ef; /* Latte mantle */
+  --muted-foreground: #5c5f77; /* Latte subtext1 */
 
-  --accent: oklch(0.92 0.035 288);
-  --accent-foreground: oklch(0.32 0.11 288);
+  --accent: #ccd0da; /* Latte surface0 */
+  --accent-foreground: #4c4f69; /* Latte text */
 
-  --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.89 0.012 85);
-  --input: oklch(0.89 0.012 85);
-  --ring: oklch(0.36 0.13 288);
+  /* Catppuccin `red`, reserved exclusively for crisis/destructive actions. */
+  --destructive: #d20f39; /* Latte red */
+  --destructive-foreground: #eff1f5; /* Latte base — white text on Latte red is only 5.4:1 but drifts warm; base keeps the token family consistent with primary-foreground and still clears 4.8:1 */
+
+  --border: #bcc0cc; /* Latte surface1 */
+  --input: #bcc0cc; /* Latte surface1 */
+  --ring: #8839ef; /* Latte mauve, matches --primary */
   --radius: 0.75rem;
 
-  --field: oklch(0.995 0.004 85);
-  --placeholder: oklch(0.55 0.02 288);
+  --field: #e6e9ef; /* Latte mantle */
+  --placeholder: #5c5f77; /* Latte subtext1 */
 
-  --success: oklch(0.45 0.14 152);
-  --success-muted: oklch(0.94 0.05 152);
-  --warning: oklch(0.5 0.15 75);
-  --warning-muted: oklch(0.94 0.07 75);
-  --info: oklch(0.48 0.16 235);
-  --info-muted: oklch(0.94 0.04 235);
+  /* Catppuccin Latte's green/yellow/sky read at only 2.3–3.0:1 as body-size
+     text directly on base — darkened here (still clearly green/amber/blue)
+     to clear AA; the *-muted backings are a light tint of the same darkened
+     color into --background, kept subtle enough that the pairing stays
+     ≥4.5:1 (computed, not eyeballed — see contrast notes above). */
+  --success: #2d701e; /* darkened Latte green — 5.39:1 on base, 4.84:1 on success-muted */
+  --success-muted: #dfe7e4;
+  --warning: #865511; /* darkened Latte yellow — 5.59:1 on base, 5.03:1 on warning-muted */
+  --warning-muted: #e7e5e3;
+  --info: #1a57d0; /* darkened Latte blue — 5.60:1 on base, 5.00:1 on info-muted */
+  --info-muted: #dee5f2;
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
@@ -124,49 +177,44 @@
 /* ─── Dark theme — follows the OS/browser preference automatically ─── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.15 0.02 288);
-    --foreground: oklch(0.96 0.006 85);
+    --background: #1e1e2e; /* Mocha base */
+    --foreground: #cdd6f4; /* Mocha text */
 
-    --card: oklch(0.19 0.02 288);
-    --card-foreground: oklch(0.96 0.006 85);
+    --card: #313244; /* Mocha surface0 */
+    --card-foreground: #cdd6f4; /* Mocha text */
 
-    --popover: oklch(0.19 0.02 288);
-    --popover-foreground: oklch(0.96 0.006 85);
+    --popover: #313244; /* Mocha surface0 */
+    --popover-foreground: #cdd6f4; /* Mocha text */
 
-    /* Primary is intentionally lighter than the light-theme primary with a
-       dark-ink foreground (rather than white-on-mid-violet) — a mid-lightness
-       violet with white text fails 4.5:1 for normal-size button labels, so
-       the pairing flips to keep the AA guarantee instead of dimming the
-       accent to compensate. */
-    --primary: oklch(0.72 0.13 288);
-    --primary-foreground: oklch(0.14 0.02 288);
+    --primary: #cba6f7; /* Mocha mauve */
+    --primary-foreground: #11111b; /* Mocha crust — 9.23:1 on mauve */
 
-    --secondary: oklch(0.24 0.03 288);
-    --secondary-foreground: oklch(0.96 0.006 85);
+    --secondary: #11111b; /* Mocha crust */
+    --secondary-foreground: #cdd6f4; /* Mocha text */
 
-    --muted: oklch(0.24 0.03 288);
-    --muted-foreground: oklch(0.66 0.02 288);
+    --muted: #181825; /* Mocha mantle */
+    --muted-foreground: #bac2de; /* Mocha subtext1 */
 
-    --accent: oklch(0.26 0.035 288);
-    --accent-foreground: oklch(0.96 0.006 85);
+    --accent: #313244; /* Mocha surface0 */
+    --accent-foreground: #cdd6f4; /* Mocha text */
 
-    /* Slightly deeper than the previous dark-mode red so white destructive
-       button text clears 4.5:1 (was ~3.4:1) — same hue/salience, just tuned
-       for contrast. */
-    --destructive: oklch(0.58 0.2 25);
-    --border: oklch(0.29 0.025 288);
-    --input: oklch(0.36 0.025 288);
-    --ring: oklch(0.72 0.13 288);
+    /* Catppuccin `red`, reserved exclusively for crisis/destructive actions. */
+    --destructive: #f38ba8; /* Mocha red */
+    --destructive-foreground: #11111b; /* Mocha crust — white text on Mocha red is only 2.3:1; crust clears 8.1:1 */
 
-    --field: oklch(0.225 0.025 288);
-    --placeholder: oklch(0.64 0.02 288);
+    --border: #45475a; /* Mocha surface1 */
+    --input: #45475a; /* Mocha surface1 */
+    --ring: #cba6f7; /* Mocha mauve, matches --primary */
 
-    --success: oklch(0.78 0.16 152);
-    --success-muted: oklch(0.28 0.06 152);
-    --warning: oklch(0.8 0.15 75);
-    --warning-muted: oklch(0.29 0.06 75);
-    --info: oklch(0.74 0.13 235);
-    --info-muted: oklch(0.27 0.05 235);
+    --field: #181825; /* Mocha mantle */
+    --placeholder: #bac2de; /* Mocha subtext1 */
+
+    --success: #a6e3a1; /* Mocha green — 11.0:1 on base, used as-is */
+    --success-muted: #364143;
+    --warning: #f9e2af; /* Mocha yellow — 12.9:1 on base, used as-is */
+    --warning-muted: #454145;
+    --info: #89dceb; /* Mocha sky — 10.5:1 on base, used as-is */
+    --info-muted: #314050;
 
     --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 
@@ -180,41 +228,43 @@
    precedence over the OS preference since it's a plain class selector
    applied outside the media query. ─── */
 .dark {
-  --background: oklch(0.15 0.02 288);
-  --foreground: oklch(0.96 0.006 85);
+  --background: #1e1e2e;
+  --foreground: #cdd6f4;
 
-  --card: oklch(0.19 0.02 288);
-  --card-foreground: oklch(0.96 0.006 85);
+  --card: #313244;
+  --card-foreground: #cdd6f4;
 
-  --popover: oklch(0.19 0.02 288);
-  --popover-foreground: oklch(0.96 0.006 85);
+  --popover: #313244;
+  --popover-foreground: #cdd6f4;
 
-  --primary: oklch(0.72 0.13 288);
-  --primary-foreground: oklch(0.14 0.02 288);
+  --primary: #cba6f7;
+  --primary-foreground: #11111b;
 
-  --secondary: oklch(0.24 0.03 288);
-  --secondary-foreground: oklch(0.96 0.006 85);
+  --secondary: #11111b;
+  --secondary-foreground: #cdd6f4;
 
-  --muted: oklch(0.24 0.03 288);
-  --muted-foreground: oklch(0.66 0.02 288);
+  --muted: #181825;
+  --muted-foreground: #bac2de;
 
-  --accent: oklch(0.26 0.035 288);
-  --accent-foreground: oklch(0.96 0.006 85);
+  --accent: #313244;
+  --accent-foreground: #cdd6f4;
 
-  --destructive: oklch(0.58 0.2 25);
-  --border: oklch(0.29 0.025 288);
-  --input: oklch(0.36 0.025 288);
-  --ring: oklch(0.72 0.13 288);
+  --destructive: #f38ba8;
+  --destructive-foreground: #11111b;
 
-  --field: oklch(0.225 0.025 288);
-  --placeholder: oklch(0.64 0.02 288);
+  --border: #45475a;
+  --input: #45475a;
+  --ring: #cba6f7;
 
-  --success: oklch(0.78 0.16 152);
-  --success-muted: oklch(0.28 0.06 152);
-  --warning: oklch(0.8 0.15 75);
-  --warning-muted: oklch(0.29 0.06 75);
-  --info: oklch(0.74 0.13 235);
-  --info-muted: oklch(0.27 0.05 235);
+  --field: #181825;
+  --placeholder: #bac2de;
+
+  --success: #a6e3a1;
+  --success-muted: #364143;
+  --warning: #f9e2af;
+  --warning-muted: #454145;
+  --info: #89dceb;
+  --info-muted: #314050;
 
   --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 
@@ -233,23 +283,25 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Comfortable reading line-height as the default; per-component classes
-     (e.g. dense stat labels) override this locally where a tighter rhythm is
-     appropriate. */
-  line-height: 1.55;
+  /* Looser than the prior 1.55 — monospace body copy reads visibly denser
+     than a proportional face at the same line-height (every character is
+     the same width, so lines feel more "packed"), so the default is opened
+     up to keep long-form prose (/about, /policy, /terms, /faq) comfortable
+     without shrinking type or reverting to a proportional font. */
+  line-height: 1.65;
 }
 
 /* h1–h3 aren't reset to a fixed size here on purpose: every page already
-   applies an explicit Tailwind class per heading level (kept consistent via
-   the `text-3xl font-bold tracking-tight` / `text-xl font-semibold
-   tracking-tight` pattern applied across every app page), so a global
-   type-selector rule would just be redundant with — and lower specificity
-   than — those classes. Weight/letter-spacing below applies uniformly to any
-   heading regardless of the page-level size class chosen. */
+   applies an explicit Tailwind class per heading level. In a monospace face,
+   weight/size differences alone read less distinctly than in a variable/
+   humanist sans (every glyph occupies the same width, so a heading and a
+   line of body text can look deceptively similar in "shape"), so headings
+   get a slightly tighter negative tracking than body copy in addition to
+   their existing size/weight jump, keeping hierarchy legible at a glance. */
 h1,
 h2,
 h3 {
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 html {

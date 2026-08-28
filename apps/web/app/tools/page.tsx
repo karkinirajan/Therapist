@@ -46,14 +46,14 @@ export default function ToolsPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">CBT Tools &amp; Guidelines</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">CBT Tools &amp; Guidelines</h1>
         <p className="text-base leading-relaxed text-muted-foreground">
           The techniques applied in every check-in, plus the running tools that support them.
         </p>
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Framework</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Framework</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {FRAMEWORK.map((f) => (
             <Card key={f.id}>
@@ -67,7 +67,7 @@ export default function ToolsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Cognitive distortions</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Cognitive distortions</h2>
         <p className="text-sm text-muted-foreground">
           Named explicitly in every thought record — not paraphrased around.
         </p>
@@ -91,7 +91,7 @@ export default function ToolsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Exposure hierarchy</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Exposure hierarchy</h2>
         <p className="text-sm text-muted-foreground">
           Build the avoidance ladder here; climb one rung at a time in check-ins, small steps
           rather than leaps.
@@ -161,7 +161,7 @@ export default function ToolsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Saved thought records &amp; experiments</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Saved thought records &amp; experiments</h2>
         <p className="text-sm text-muted-foreground">
           Pulled from past check-ins — worth rereading when a similar thought comes up again.
         </p>

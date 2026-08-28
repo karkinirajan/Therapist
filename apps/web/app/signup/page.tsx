@@ -40,9 +40,9 @@ export default function SignupPage() {
         : null;
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
+    <div className="max-w-md space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Sign up</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Sign up</h1>
         <p className="text-sm text-muted-foreground">
           Create an account to sync your check-ins and roadmap across devices.
         </p>

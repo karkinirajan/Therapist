@@ -18,13 +18,13 @@ export const metadata: Metadata = {
 // from components/ui/button.tsx — that module is a Client Component, and this page stays a
 // Server Component so it can export page-specific metadata.
 const CALL_BUTTON_CLASS =
-  "inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-transparent bg-destructive px-8 py-3 text-center text-base leading-tight font-medium text-white transition-all outline-none select-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px min-h-12 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+  "inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-transparent bg-destructive px-8 py-3 text-center text-base leading-tight font-medium text-destructive-foreground transition-all outline-none select-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px min-h-12 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
 export default function SafetyPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Safety</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Safety</h1>
         <p className="text-base leading-relaxed text-muted-foreground">
           This overrides every other part of this tool, including check-ins and homework.
         </p>
