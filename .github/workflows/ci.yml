@@ -28,6 +28,23 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: therapist
+          POSTGRES_PASSWORD: therapist_ci_only
+          POSTGRES_DB: therapist
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U therapist -d therapist"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://therapist:therapist_ci_only@localhost:5432/therapist
+      JWT_SECRET: ci-only-secret-not-for-production-use-please-1234
     steps:
       - uses: actions/checkout@v4
 
@@ -36,6 +53,25 @@ jobs:
 
       - run: uv sync
       - run: uv run ruff check .
+
+      # tests/conftest.py creates its own dedicated `therapist_test` database
+      # (via _ensure_test_database_exists) against this service container, so
+      # no separate provisioning step is needed here.
+      - run: uv run pytest -q
+
+      - name: Smoke-test the production entrypoint (Gunicorn + Uvicorn workers)
+        env:
+          WEB_CONCURRENCY: "2"
+        run: |
+          uv run gunicorn -c gunicorn.conf.py app.main:app &
+          GUNICORN_PID=$!
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:8000/health && { kill $GUNICORN_PID; exit 0; }
+            sleep 1
+          done
+          echo "Gunicorn did not become healthy in time" >&2
+          kill $GUNICORN_PID 2>/dev/null || true
+          exit 1
 
   e2e:
     runs-on: ubuntu-latest

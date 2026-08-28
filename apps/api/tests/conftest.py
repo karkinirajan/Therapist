@@ -20,6 +20,7 @@ _base_db_url = os.environ["DATABASE_URL"]
 _TEST_DB_NAME = "therapist_test"
 os.environ["DATABASE_URL"] = _base_db_url.rsplit("/", 1)[0] + f"/{_TEST_DB_NAME}"
 
+import asyncpg
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -31,10 +32,41 @@ from app.core.deps import get_db
 settings = get_settings()
 
 
+def _to_asyncpg_dsn(sqlalchemy_url: str) -> str:
+    """asyncpg.connect() doesn't understand the `postgresql+asyncpg://` driver
+    prefix SQLAlchemy uses - strip it back to plain `postgresql://`."""
+    return sqlalchemy_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+
+
+async def _ensure_test_database_exists() -> None:
+    """Create `therapist_test` if it doesn't exist yet. Without this, a fresh
+    clone (a new dev machine, CI, or a freshly-provisioned EC2 box) has no
+    way to run the test suite at all - the database has to exist before
+    Alembic can even connect to it, and nothing else in this repo creates
+    it. `CREATE DATABASE` can't run inside a transaction block, so this
+    connects directly via asyncpg with autocommit semantics rather than
+    going through a SQLAlchemy engine/session."""
+    admin_dsn = _to_asyncpg_dsn(_base_db_url)
+    conn = await asyncpg.connect(admin_dsn)
+    try:
+        exists = await conn.fetchval(
+            "SELECT 1 FROM pg_database WHERE datname = $1", _TEST_DB_NAME
+        )
+        if not exists:
+            # Identifier, not a value - can't be a bound parameter. Safe here
+            # since _TEST_DB_NAME is a hardcoded constant, never user input.
+            await conn.execute(f'CREATE DATABASE "{_TEST_DB_NAME}"')
+    finally:
+        await conn.close()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _apply_migrations() -> None:
-    """Run Alembic migrations against the dedicated test database once per
-    test session (never against the dev database)."""
+    """Ensure the dedicated test database exists, then run Alembic migrations
+    against it once per test session (never against the dev database)."""
+    import asyncio
+
+    asyncio.run(_ensure_test_database_exists())
     subprocess.run(
         ["uv", "run", "alembic", "upgrade", "head"],
         cwd=str(_API_ROOT),

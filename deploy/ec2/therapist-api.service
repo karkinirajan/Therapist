@@ -1,0 +1,43 @@
+# systemd unit for the FastAPI backend, run via Gunicorn + Uvicorn workers.
+#
+# Install:
+#   sudo cp deploy/ec2/therapist-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now therapist-api
+#
+# Assumes:
+#   - App checked out at /opt/therapist (adjust WorkingDirectory/paths if different)
+#   - A dedicated, unprivileged "therapist" system user owns /opt/therapist
+#   - apps/api/.env exists (600 perms, owned by that user) with real production values -
+#     see DEPLOYMENT.md's EC2 section for what belongs in it
+#   - `uv` is installed for the "therapist" user (or adjust ExecStart to a venv path)
+
+[Unit]
+Description=Therapist API (FastAPI via Gunicorn/Uvicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=therapist
+Group=therapist
+WorkingDirectory=/opt/therapist/apps/api
+EnvironmentFile=/opt/therapist/apps/api/.env
+ExecStart=/home/therapist/.local/bin/uv run gunicorn -c gunicorn.conf.py app.main:app
+Restart=on-failure
+RestartSec=5
+# Run Alembic migrations as a one-shot pre-start step. If a migration fails,
+# the service fails to start rather than serving traffic against a stale or
+# half-migrated schema.
+ExecStartPre=/home/therapist/.local/bin/uv run alembic upgrade head
+
+# Hardening: this process only needs network access and its own working
+# directory - it doesn't need to read the rest of the filesystem or escalate.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/therapist/apps/api
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
