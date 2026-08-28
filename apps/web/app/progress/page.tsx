@@ -64,7 +64,7 @@ export default function ProgressPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Progress</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Progress</h1>
         <p className="text-sm text-muted-foreground">{data.logs.length} check-ins logged.</p>
       </div>
 

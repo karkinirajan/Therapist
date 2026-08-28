@@ -17,9 +17,9 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
+    <div className="max-w-md space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Account</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Account</h1>
         <p className="text-sm text-muted-foreground">Manage your sign-in.</p>
       </div>
 

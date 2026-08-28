@@ -72,7 +72,7 @@ export default function CheckinPage() {
 
   if (baseline.isPending) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4" role="status" aria-label="Loading check-in">
+      <div className="max-w-2xl space-y-4" role="status" aria-label="Loading check-in">
         <div className="h-8 w-40 animate-pulse rounded bg-muted" />
         <div className="h-64 animate-pulse rounded-lg border border-border bg-muted/40" />
       </div>
@@ -198,9 +198,9 @@ export default function CheckinPage() {
 
   if (savedBlock) {
     return (
-      <div className="mx-auto max-w-xl space-y-6">
+      <div className="max-w-xl space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Check-in saved</h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Check-in saved</h1>
           <p className="text-sm text-muted-foreground">
             Save this block — paste it back at the start of your next check-in.
           </p>
@@ -219,9 +219,9 @@ export default function CheckinPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Check-in</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Check-in</h1>
         <p className="text-sm text-muted-foreground">
           Cadence: {baseline.data.cadence}
           {roadmapState.data ? ` · Phase ${roadmapState.data.phase_index + 1}` : ""}
