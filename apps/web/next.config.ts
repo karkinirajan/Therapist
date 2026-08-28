@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -52,6 +53,14 @@ const nextConfig: NextConfig = {
   // `next build` additionally emits under `.next/standalone` and
   // `.next/static`.
   output: "standalone",
+  // The Docker build context is the monorepo root (see apps/web/Dockerfile),
+  // so node_modules ends up hoisted one level above this app by npm
+  // workspaces. Without this, `output: "standalone"`'s file tracer assumes
+  // apps/web itself is the project root and can miss hoisted dependencies
+  // when copying into .next/standalone, producing an image that's missing
+  // packages at runtime. Pointing it at the actual repo root (two levels up
+  // from this file) makes the trace match the real dependency layout.
+  outputFileTracingRoot: path.join(__dirname, "../.."),
   headers: () =>
     Promise.resolve([{ source: "/(.*)", headers: securityHeaders }]),
   experimental: {

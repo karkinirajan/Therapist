@@ -104,8 +104,11 @@ services:
 
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      # Repo root, not ./apps/web — apps/web is an npm-workspaces member and
+      # its lockfile only exists at the workspace root (package-lock.json).
+      # See apps/web/Dockerfile's top comment for why this matters.
+      context: .
+      dockerfile: apps/web/Dockerfile
       target: runtime
     environment:
       NODE_ENV: production

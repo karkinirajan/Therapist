@@ -1,0 +1,21 @@
+# Applies to any Docker build using the repo root as its context
+# (apps/web/Dockerfile — apps/api/Dockerfile uses apps/api as its own
+# context and has its own .dockerignore).
+.git
+.env
+.env.*
+!.env.example
+node_modules
+apps/web/.next
+apps/web/node_modules
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
+apps/web/test-results
+apps/web/playwright-report
+apps/web/blob-report
+apps/web/playwright/.cache
+apps/api
+deploy
+.claude
+.remember
+*.log
