@@ -24,8 +24,8 @@ export default function SafetyPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Safety</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Safety</h1>
+        <p className="text-base leading-relaxed text-muted-foreground">
           This overrides every other part of this tool, including check-ins and homework.
         </p>
       </div>

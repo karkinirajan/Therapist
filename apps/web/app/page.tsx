@@ -20,7 +20,7 @@ export default function DashboardPage() {
   if (!baseline) {
     return (
       <div className="mx-auto max-w-xl space-y-6 py-8 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           CBT Recovery &amp; Life-Systems Coach
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">{IDENTITY_STATEMENT}</p>
@@ -73,7 +73,7 @@ export default function DashboardPage() {
       )}
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
           Week {weeks} · Phase {phase.index + 1} — {phase.name}
         </p>

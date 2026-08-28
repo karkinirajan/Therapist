@@ -13,10 +13,10 @@ export default function PolicyPage() {
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Privacy Policy
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base leading-relaxed text-muted-foreground">
             Plain-language summary of what we collect, how it&apos;s stored, and what you can do
             about it.
           </p>
@@ -26,7 +26,7 @@ export default function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-base">What we collect</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
               <li>Your email address, used to create and secure your account.</li>
               <li>
@@ -47,7 +47,7 @@ export default function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-base">How it&apos;s stored</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               This is a change from an earlier version of this tool, which kept all data
               client-side in your browser&apos;s local storage and sent nothing to a server.
@@ -69,7 +69,7 @@ export default function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-base">Your rights</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
               <li>
                 You can request an export of your data — your account details and everything
@@ -91,7 +91,7 @@ export default function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-base">What this is not</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               This product does not provide medical or clinical services, and it is not a
               HIPAA-covered entity — we are not a healthcare provider, health plan, or
@@ -108,7 +108,7 @@ export default function PolicyPage() {
           <CardHeader>
             <CardTitle className="text-base">Questions about this policy</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-foreground">
+          <CardContent className="text-base leading-relaxed text-foreground">
             <p>
               If you have questions about this policy or want to exercise any of the rights
               above, reach out through the contact channel listed in your account, or via the

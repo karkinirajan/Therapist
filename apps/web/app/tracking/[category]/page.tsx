@@ -299,7 +299,7 @@ export default function TrackingCategoryPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{category.label}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">{category.label}</h1>
         <p className="text-sm text-muted-foreground">{category.description}</p>
       </div>
 

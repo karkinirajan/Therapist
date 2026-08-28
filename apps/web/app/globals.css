@@ -8,7 +8,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Plus Jakarta Sans: a rounded geometric sans (loaded via next/font/google in
+     layout.tsx) — softer terminals than Geist at the same weights, reads warmer
+     and more "designed" at bold display sizes while staying highly legible at
+     body sizes. Chosen over keeping Geist because the product ask was
+     specifically for rounder, bolder, more elegant type; Geist's terminals are
+     comparatively square/neutral. Geist Mono is kept for the one code-styled
+     surface (saved thought-record dumps) since mono legibility isn't part of
+     this pass. */
+  --font-sans: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", ui-sans-serif, system-ui,
+    -apple-system, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
 
   --color-background: var(--background);
@@ -57,44 +66,53 @@
   --color-grid-dot: var(--grid-dot);
 }
 
-/* ─── Light theme (default) ─────────────────────────────────────────── */
+/* ─── Light theme (default) ─────────────────────────────────────────────
+   Palette direction: a deep indigo-violet primary (hue ~288) on a warm ivory
+   base (hue ~85, barely-there — reads as a soft warm white, not gray) instead
+   of the previous desaturated blue-on-neutral-gray. Indigo/violet was chosen
+   over staying in blue because it reads calmer and more considered ("elegant")
+   than a default SaaS blue while remaining a cool, low-arousal hue appropriate
+   for a low-stimulation ADHD/OCD product — and it sits far enough from
+   --destructive's red-orange (hue 25) on the wheel that red keeps its
+   exclusive alarm signal. All foreground/background pairs below are verified
+   ≥4.5:1 (body text) — see contrast notes in the PR description. ───────── */
 :root {
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.13 0.015 255);
+  --background: oklch(0.985 0.004 85);
+  --foreground: oklch(0.19 0.03 288);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.015 255);
+  --card-foreground: oklch(0.19 0.03 288);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.015 255);
+  --popover-foreground: oklch(0.19 0.03 288);
 
-  --primary: oklch(0.26 0.095 249);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.36 0.13 288);
+  --primary-foreground: oklch(0.99 0.004 85);
 
-  --secondary: oklch(0.95 0.015 249);
-  --secondary-foreground: oklch(0.26 0.095 249);
+  --secondary: oklch(0.95 0.02 288);
+  --secondary-foreground: oklch(0.32 0.11 288);
 
-  --muted: oklch(0.95 0 0);
-  --muted-foreground: oklch(0.52 0.015 255);
+  --muted: oklch(0.96 0.006 85);
+  --muted-foreground: oklch(0.46 0.02 288);
 
-  --accent: oklch(0.93 0.02 249);
-  --accent-foreground: oklch(0.26 0.095 249);
+  --accent: oklch(0.92 0.035 288);
+  --accent-foreground: oklch(0.32 0.11 288);
 
   --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.88 0.01 255);
-  --input: oklch(0.88 0.01 255);
-  --ring: oklch(0.26 0.095 249);
-  --radius: 0.5rem;
+  --border: oklch(0.89 0.012 85);
+  --input: oklch(0.89 0.012 85);
+  --ring: oklch(0.36 0.13 288);
+  --radius: 0.75rem;
 
-  --field: oklch(1 0 0);
-  --placeholder: oklch(0.58 0.015 255);
+  --field: oklch(0.995 0.004 85);
+  --placeholder: oklch(0.55 0.02 288);
 
   --success: oklch(0.45 0.14 152);
   --success-muted: oklch(0.94 0.05 152);
   --warning: oklch(0.5 0.15 75);
   --warning-muted: oklch(0.94 0.07 75);
-  --info: oklch(0.48 0.16 255);
-  --info-muted: oklch(0.94 0.04 255);
+  --info: oklch(0.48 0.16 235);
+  --info-muted: oklch(0.94 0.04 235);
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
@@ -106,34 +124,42 @@
 /* ─── Dark theme — follows the OS/browser preference automatically ─── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.12 0.015 255);
-    --foreground: oklch(0.96 0 0);
+    --background: oklch(0.15 0.02 288);
+    --foreground: oklch(0.96 0.006 85);
 
-    --card: oklch(0.16 0.015 255);
-    --card-foreground: oklch(0.96 0 0);
+    --card: oklch(0.19 0.02 288);
+    --card-foreground: oklch(0.96 0.006 85);
 
-    --popover: oklch(0.16 0.015 255);
-    --popover-foreground: oklch(0.96 0 0);
+    --popover: oklch(0.19 0.02 288);
+    --popover-foreground: oklch(0.96 0.006 85);
 
-    --primary: oklch(0.55 0.12 249);
-    --primary-foreground: oklch(0.985 0 0);
+    /* Primary is intentionally lighter than the light-theme primary with a
+       dark-ink foreground (rather than white-on-mid-violet) — a mid-lightness
+       violet with white text fails 4.5:1 for normal-size button labels, so
+       the pairing flips to keep the AA guarantee instead of dimming the
+       accent to compensate. */
+    --primary: oklch(0.72 0.13 288);
+    --primary-foreground: oklch(0.14 0.02 288);
 
-    --secondary: oklch(0.22 0.02 255);
-    --secondary-foreground: oklch(0.96 0 0);
+    --secondary: oklch(0.24 0.03 288);
+    --secondary-foreground: oklch(0.96 0.006 85);
 
-    --muted: oklch(0.22 0.02 255);
-    --muted-foreground: oklch(0.64 0.02 255);
+    --muted: oklch(0.24 0.03 288);
+    --muted-foreground: oklch(0.66 0.02 288);
 
-    --accent: oklch(0.22 0.025 249);
-    --accent-foreground: oklch(0.96 0 0);
+    --accent: oklch(0.26 0.035 288);
+    --accent-foreground: oklch(0.96 0.006 85);
 
-    --destructive: oklch(0.65 0.22 25);
-    --border: oklch(0.26 0.02 255);
-    --input: oklch(0.34 0.02 255);
-    --ring: oklch(0.55 0.12 249);
+    /* Slightly deeper than the previous dark-mode red so white destructive
+       button text clears 4.5:1 (was ~3.4:1) — same hue/salience, just tuned
+       for contrast. */
+    --destructive: oklch(0.58 0.2 25);
+    --border: oklch(0.29 0.025 288);
+    --input: oklch(0.36 0.025 288);
+    --ring: oklch(0.72 0.13 288);
 
-    --field: oklch(0.225 0.02 255);
-    --placeholder: oklch(0.62 0.02 255);
+    --field: oklch(0.225 0.025 288);
+    --placeholder: oklch(0.64 0.02 288);
 
     --success: oklch(0.78 0.16 152);
     --success-muted: oklch(0.28 0.06 152);
@@ -154,34 +180,34 @@
    precedence over the OS preference since it's a plain class selector
    applied outside the media query. ─── */
 .dark {
-  --background: oklch(0.12 0.015 255);
-  --foreground: oklch(0.96 0 0);
+  --background: oklch(0.15 0.02 288);
+  --foreground: oklch(0.96 0.006 85);
 
-  --card: oklch(0.16 0.015 255);
-  --card-foreground: oklch(0.96 0 0);
+  --card: oklch(0.19 0.02 288);
+  --card-foreground: oklch(0.96 0.006 85);
 
-  --popover: oklch(0.16 0.015 255);
-  --popover-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.19 0.02 288);
+  --popover-foreground: oklch(0.96 0.006 85);
 
-  --primary: oklch(0.55 0.12 249);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.72 0.13 288);
+  --primary-foreground: oklch(0.14 0.02 288);
 
-  --secondary: oklch(0.22 0.02 255);
-  --secondary-foreground: oklch(0.96 0 0);
+  --secondary: oklch(0.24 0.03 288);
+  --secondary-foreground: oklch(0.96 0.006 85);
 
-  --muted: oklch(0.22 0.02 255);
-  --muted-foreground: oklch(0.64 0.02 255);
+  --muted: oklch(0.24 0.03 288);
+  --muted-foreground: oklch(0.66 0.02 288);
 
-  --accent: oklch(0.22 0.025 249);
-  --accent-foreground: oklch(0.96 0 0);
+  --accent: oklch(0.26 0.035 288);
+  --accent-foreground: oklch(0.96 0.006 85);
 
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.26 0.02 255);
-  --input: oklch(0.34 0.02 255);
-  --ring: oklch(0.55 0.12 249);
+  --destructive: oklch(0.58 0.2 25);
+  --border: oklch(0.29 0.025 288);
+  --input: oklch(0.36 0.025 288);
+  --ring: oklch(0.72 0.13 288);
 
-  --field: oklch(0.225 0.02 255);
-  --placeholder: oklch(0.62 0.02 255);
+  --field: oklch(0.225 0.025 288);
+  --placeholder: oklch(0.64 0.02 288);
 
   --success: oklch(0.78 0.16 152);
   --success-muted: oklch(0.28 0.06 152);
@@ -207,6 +233,23 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Comfortable reading line-height as the default; per-component classes
+     (e.g. dense stat labels) override this locally where a tighter rhythm is
+     appropriate. */
+  line-height: 1.55;
+}
+
+/* h1–h3 aren't reset to a fixed size here on purpose: every page already
+   applies an explicit Tailwind class per heading level (kept consistent via
+   the `text-3xl font-bold tracking-tight` / `text-xl font-semibold
+   tracking-tight` pattern applied across every app page), so a global
+   type-selector rule would just be redundant with — and lower specificity
+   than — those classes. Weight/letter-spacing below applies uniformly to any
+   heading regardless of the page-level size class chosen. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.01em;
 }
 
 html {

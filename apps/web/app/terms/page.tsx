@@ -12,10 +12,10 @@ export default function TermsPage() {
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Terms of Use
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base leading-relaxed text-muted-foreground">
             Short and specific on purpose — this is a small tool, not an enterprise product.
           </p>
         </div>
@@ -24,7 +24,7 @@ export default function TermsPage() {
           <CardHeader>
             <CardTitle className="text-base">Medical disclaimer</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               This tool does not diagnose ADHD, OCD, or anything else, and it does not prescribe
               or manage medication. Never start, stop, or change the dose or timing of any
@@ -43,7 +43,7 @@ export default function TermsPage() {
           <CardHeader>
             <CardTitle className="text-base">Acceptable use</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               Use this tool for your own personal tracking and CBT-based accountability. Don&apos;t
               use it to store or transmit anything unlawful, don&apos;t try to break, scrape, or
@@ -57,7 +57,7 @@ export default function TermsPage() {
           <CardHeader>
             <CardTitle className="text-base">Account responsibilities</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
               <li>Give accurate information when you create your account.</li>
               <li>One account per person — don&apos;t share logins or create accounts for others.</li>
@@ -73,7 +73,7 @@ export default function TermsPage() {
           <CardHeader>
             <CardTitle className="text-base">Limitation of liability</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               This tool is provided as-is, without warranties of any kind. We work to keep it
               reliable and your data safe, but we can&apos;t guarantee the service will be
@@ -88,7 +88,7 @@ export default function TermsPage() {
           <CardHeader>
             <CardTitle className="text-base">Contact</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-foreground">
+          <CardContent className="text-base leading-relaxed text-foreground">
             <p>
               Questions about these terms can be sent through the contact channel listed in your
               account settings once you&apos;re signed in.

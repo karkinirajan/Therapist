@@ -128,10 +128,10 @@ export default function FaqPage() {
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Frequently asked questions
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base leading-relaxed text-muted-foreground">
             If your question isn&apos;t here, the{" "}
             <a href="/about" className="underline underline-offset-2 hover:text-primary">
               About

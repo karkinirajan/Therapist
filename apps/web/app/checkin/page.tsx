@@ -200,7 +200,7 @@ export default function CheckinPage() {
     return (
       <div className="mx-auto max-w-xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Check-in saved</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Check-in saved</h1>
           <p className="text-sm text-muted-foreground">
             Save this block — paste it back at the start of your next check-in.
           </p>
@@ -221,7 +221,7 @@ export default function CheckinPage() {
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Check-in</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Check-in</h1>
         <p className="text-sm text-muted-foreground">
           Cadence: {baseline.data.cadence}
           {roadmapState.data ? ` · Phase ${roadmapState.data.phase_index + 1}` : ""}
