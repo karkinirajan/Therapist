@@ -67,9 +67,9 @@ API checks (from `apps/api`): `uv run ruff check .`, `uv run pytest`.
 
 ## Deployment
 
-Frontend deploys to [Vercel](https://vercel.com) (project root: `apps/web`). The API is a standalone Docker service intended for a container host (Render/Fly) with a managed Postgres instance — see `apps/api/Dockerfile`.
+Frontend deploys to [Vercel](https://vercel.com) (project root: `apps/web`). The API is a standalone Docker service intended for a container host (Fly.io — see `apps/api/fly.toml` — or Render) with a managed Postgres instance. **See [DEPLOYMENT.md](DEPLOYMENT.md) for the full walkthrough** (env vars, Google OAuth production client, DNS, post-deploy checklist). Nothing is deployed yet — that doc is prepared configuration, not a record of live infrastructure.
 
-CI (`.github/workflows/ci.yml`) runs lint/type-check/build for the web app and lint for the API on every push and pull request against `main`.
+CI (`.github/workflows/ci.yml`) runs lint/type-check/build/tests for both apps plus a Playwright e2e job on every push and pull request against `main`.
 
 ## Project structure
 

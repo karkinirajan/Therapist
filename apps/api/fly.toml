@@ -1,0 +1,40 @@
+# Fly.io app config for the FastAPI backend. Not yet deployed — this is
+# prepared configuration only. To actually deploy:
+#   1. `flyctl launch --no-deploy` from apps/api (creates the app, keeps this file)
+#   2. Set secrets: `flyctl secrets set DATABASE_URL=... JWT_SECRET=... GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... FRONTEND_URL=... CORS_ALLOW_ORIGINS='["https://<vercel-domain>"]'`
+#   3. `flyctl deploy`
+# See ../../DEPLOYMENT.md for the full walkthrough, including Postgres and
+# frontend setup.
+
+app = "therapist-api"                  # rename before first deploy — must be globally unique on Fly
+primary_region = "sin"                 # pick the region closest to your users; see `flyctl platform regions`
+
+[build]
+
+[env]
+  ENVIRONMENT = "production"
+  PORT = "8000"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1             # 0 allows scale-to-zero but adds cold-start latency on auth requests
+  processes = ["app"]
+
+  [http_service.checks]
+    [http_service.checks.health]
+      grace_period = "10s"
+      interval = "30s"
+      method = "GET"
+      timeout = "5s"
+      path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+# Run migrations before each new deploy's machines take traffic.
+[deploy]
+  release_command = "alembic upgrade head"
