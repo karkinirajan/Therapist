@@ -1,6 +1,28 @@
-# Local development only. Values come from a root .env (see .env.example) so
-# no real credential lives in this file; the fallback defaults below are for
-# a laptop-only Postgres instance and must never be reused anywhere else.
+# Base Compose file — defines all three services (db + api + web) with
+# production-shaped defaults. Values come from a root .env (see
+# .env.example) so no real credential lives in this file; the fallback
+# defaults below are for a laptop-only/dev instance and must never be
+# reused anywhere else.
+#
+# Three ways to run this, all from the repo root:
+#
+#   docker compose up -d postgres
+#     Postgres only — for the granular/manual dev path (README's
+#     "Running locally"): `uv run uvicorn ...` + `npm run dev` against
+#     it yourself. Unchanged from before this file grew api/web services.
+#
+#   docker compose up
+#     Full stack, DEV mode. docker-compose.override.yml is auto-loaded
+#     on top of this file (Compose's default behavior, no flags needed)
+#     and adds hot reload, bind-mounted source, and dev tooling.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#     Full stack, PRODUCTION mode. docker-compose.prod.yml is layered on
+#     top explicitly instead — override.yml is NOT auto-loaded when -f
+#     is passed, so this file's production-shaped defaults (Gunicorn,
+#     Next.js production server, no bind mounts) apply as-is, with
+#     prod.yml additionally requiring real secrets instead of dev
+#     fallbacks. See DEPLOYMENT.md's "Path C — Docker Compose" section.
 services:
   postgres:
     image: postgres:17-alpine
@@ -18,6 +40,82 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: runtime
+    # Migrations run once at container start, then `exec` hands off to
+    # Gunicorn as PID 1 (so signals — e.g. `docker stop`'s SIGTERM —
+    # reach the actual server process directly, not a shell wrapping
+    # it, for a clean graceful shutdown).
+    #
+    # Alternative considered: a separate one-shot `migrate` service with
+    # `depends_on: condition: service_completed_successfully` on `api`.
+    # Rejected — it adds a fourth Compose service and a second
+    # depends_on hop for no real benefit at this scale. `alembic upgrade
+    # head` is already idempotent (no-op once the DB is current), so
+    # running it as part of every `api` container start is simplest and
+    # safe to repeat, including on restarts/redeploys.
+    command: >
+      sh -c "alembic upgrade head && exec gunicorn -c gunicorn.conf.py app.main:app"
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      # Internal Compose network address (postgres:5432), not the
+      # host-mapped POSTGRES_PORT — containers talk to each other over
+      # Compose's own DNS/network, never through the host port mapping.
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-therapist}:${POSTGRES_PASSWORD:-therapist_dev_only}@postgres:5432/${POSTGRES_DB:-therapist}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-secret-change-me}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      ACCESS_TOKEN_TTL_MINUTES: ${ACCESS_TOKEN_TTL_MINUTES:-15}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-30}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-["http://localhost:3000"]}
+      # Bind 0.0.0.0, not the gunicorn.conf.py default of 127.0.0.1 —
+      # Docker's own per-container network namespace means 127.0.0.1
+      # inside this container is invisible to the `web` container, so
+      # it must bind on all interfaces to be reachable at all over the
+      # Compose network. Not published to the host (no `ports:` here,
+      # unlike `web`) — only other containers on this Compose network
+      # can reach it, matching the EC2 path's "API never publicly
+      # reachable, only the frontend proxies to it" posture. See the
+      # comment in gunicorn.conf.py for the full rationale.
+      BIND_HOST: "0.0.0.0"
+      PORT: "8000"
+      # gunicorn.conf.py's own default is (2 x CPU cores) + 1 — a
+      # reasonable rule of thumb for a process running directly on a
+      # host, but inside a container with an explicit memory limit
+      # (docker-compose.prod.yml) it sizes off the *build/dev machine's*
+      # core count, not the container's actual resource budget. Verified
+      # empirically: on a 12-core dev box this defaulted to 25 workers
+      # and pinned the 512M limit at 100% immediately. 2 is deliberately
+      # conservative for a small instance; raise it (and the memory
+      # limit in docker-compose.prod.yml) together if the target
+      # instance is bigger.
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      target: runtime
+    environment:
+      NODE_ENV: production
+      # Compose service DNS name, not localhost — see .env.example.
+      API_BASE_URL: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    restart: unless-stopped
 
 volumes:
   postgres_data:

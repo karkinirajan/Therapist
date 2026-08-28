@@ -19,6 +19,7 @@ RUN uv sync --no-dev --no-install-project
 COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
+COPY gunicorn.conf.py ./
 RUN uv sync --no-dev
 
 FROM python:3.12-slim AS runtime

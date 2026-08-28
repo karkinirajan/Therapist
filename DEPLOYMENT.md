@@ -2,12 +2,13 @@
 
 Status: **configuration prepared, not yet deployed.** Nothing here provisions live infrastructure by itself — it's the reference for when you're ready to actually deploy. No resources have been created, no domains purchased, no accounts set up, no EC2 instance launched.
 
-Two deployment paths are documented. Pick one:
+Three deployment paths are documented. Pick one:
 
-- **[Path A — Self-hosted EC2](#path-a--self-hosted-ec2-pm2--nginx--gunicorn)** (recommended if you're reading this): a single EC2 instance running Postgres, the FastAPI backend (Gunicorn + Uvicorn workers, managed by systemd), and the Next.js frontend (PM2), reverse-proxied by Nginx. Full control, one bill, no third-party PaaS account needed beyond AWS itself.
+- **[Path A — Self-hosted EC2](#path-a--self-hosted-ec2-pm2--nginx--gunicorn)**: a single EC2 instance running Postgres, the FastAPI backend (Gunicorn + Uvicorn workers, managed by systemd), and the Next.js frontend (PM2), reverse-proxied by Nginx — all as native OS processes, no containers. Full control, one bill, no third-party PaaS account needed beyond AWS itself.
 - **[Path B — Managed platforms](#path-b--managed-platforms-vercel--flyrender--neon)**: Vercel (frontend) + Fly.io/Render (backend) + Neon/Railway (Postgres). Less to operate yourself, but three separate accounts/bills.
+- **[Path C — Docker Compose](#path-c--docker-compose-identical-devprod)** (recommended if you're reading this and want the same setup on your dev machine and in production): three containers — Postgres, FastAPI, Next.js — orchestrated by Docker Compose, with one command each for dev (hot reload) and prod (Gunicorn + Next.js production server). Runs identically on Arch/CachyOS, any other dev machine, or a bare EC2 instance with just Docker installed — no systemd units, no PM2, no Nginx to hand-configure.
 
-Both share the same architecture principle: **the browser never calls the API origin directly.** Next.js Route Handlers under `apps/web/app/api/*` proxy to FastAPI server-side (see `apps/web/lib/auth-proxy.ts`). This is why the existing strict CSP (`connect-src 'self'` in `apps/web/next.config.ts`) doesn't need to change for production either way.
+All three share the same architecture principle: **the browser never calls the API origin directly.** Next.js Route Handlers under `apps/web/app/api/*` proxy to FastAPI server-side (see `apps/web/lib/auth-proxy.ts`). This is why the existing strict CSP (`connect-src 'self'` in `apps/web/next.config.ts`) doesn't need to change for production either way.
 
 ---
 
@@ -190,6 +191,89 @@ Point custom subdomains at each service (e.g. `app.yourdomain.com` → Vercel, `
 - [ ] A real signup → login → refresh → logout flow works end-to-end
 - [ ] `CORS_ALLOW_ORIGINS` matches the exact production frontend origin
 - [ ] `JWT_SECRET` is a real random value, not the local-dev placeholder
+
+---
+
+## Path C — Docker Compose (identical dev/prod)
+
+### Architecture
+
+```
+Compose network (bridge, DNS resolves service names)
+
+  postgres (5432 internal, published to host as ${POSTGRES_PORT:-5433})
+       ▲
+       │ depends_on: condition: service_healthy
+       │
+      api (Gunicorn+Uvicorn workers, 8000 internal — published to host
+       │   in dev only, for direct debugging; NOT published in prod,
+       │   same "frontend proxies to it, nothing else reaches it
+       │   directly" posture as Path A)
+       ▲
+       │ API_BASE_URL=http://api:8000 (Compose service DNS, not localhost)
+       │
+      web (Next.js, 3000 internal — published to host as ${WEB_PORT:-3000}
+           in both dev and prod)
+```
+
+Three files, layered by Compose:
+
+- `docker-compose.yml` — base: all three services, production-shaped defaults (Gunicorn, Next.js production server, no bind mounts).
+- `docker-compose.override.yml` — **auto-loaded** on top of the base file whenever you run plain `docker compose up` (Compose's own default behavior, no flags needed). Adds hot reload (bind-mounted source, `uvicorn --reload`, `next dev`) and a directly-published API port for debugging.
+- `docker-compose.prod.yml` — **never auto-loaded**, always passed explicitly via `-f`. Requires real secrets (fails fast, not silently, if left as dev placeholders), adds restart policies and conservative resource limits.
+
+### The two commands
+
+**Dev** (CachyOS, any other dev machine, or even a spare EC2 box if you want to develop against a real instance):
+
+```bash
+cp .env.example .env   # once — see the vars below, dev defaults are safe as-is
+docker compose up
+```
+
+One command. Brings up Postgres, runs Alembic migrations, starts FastAPI with `--reload` and Next.js with `next dev --turbopack` (hot reload on both). First run also builds both images and self-installs Python/Node deps inside named volumes (`api_venv`, `web_node_modules`) — a few minutes; subsequent runs are fast.
+
+**Prod** (EC2, or anywhere Docker runs):
+
+```bash
+cp .env.example .env
+# edit .env — at minimum set real values for:
+#   JWT_SECRET        (openssl rand -base64 48, or the python3 one-liner in .env.example)
+#   POSTGRES_PASSWORD  a real password, not the local-dev placeholder
+#   FRONTEND_URL       your real deployed frontend origin, e.g. https://app.yourdomain.com
+#   CORS_ALLOW_ORIGINS a JSON array matching FRONTEND_URL exactly, e.g. ["https://app.yourdomain.com"]
+#   (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_REDIRECT_URI if using Google sign-in)
+
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+One command, detached, production builds (Gunicorn workers, `next start`'s standalone server — no hot reload, no bind mounts, no dev tooling in the image). `docker-compose.prod.yml`'s `${VAR:?message}` guards mean this **refuses to start** with a clear error if `JWT_SECRET`/`POSTGRES_PASSWORD`/`FRONTEND_URL`/`CORS_ALLOW_ORIGINS` are left unset — it won't silently run with a weak/placeholder secret in production.
+
+`make deploy` (root `Makefile`) is a shorter alias for the same command.
+
+If you're putting this behind Nginx/a load balancer for TLS (recommended — Compose alone doesn't terminate HTTPS): point it at the host's published `${WEB_PORT:-3000}`, same as Path A's Nginx config points at PM2's port, just swap in the Docker-published port instead.
+
+### Migrations
+
+Run automatically, every `api` container start, before Gunicorn/Uvicorn takes over (`alembic upgrade head && exec ...` — see the `command:` in `docker-compose.yml`, with the reasoning for that choice over a separate one-shot migration service in the comment above it). `alembic upgrade head` is idempotent — a no-op if the schema's already current — so this is safe to run on every restart/redeploy, not just the first one.
+
+### Worker sizing
+
+`apps/api/gunicorn.conf.py`'s own default worker count is `(2 × CPU cores) + 1`, sized for a process running directly on a host. Inside a container with `docker-compose.prod.yml`'s resource limits, that can badly overshoot the memory budget on a many-core build/host machine (verified while building this: 25 workers on a 12-core box pinned a 512M limit at 100% immediately). `docker-compose.yml` sets `WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}` to keep this container-appropriate regardless of host core count — raise it (and `docker-compose.prod.yml`'s memory limit) together if your target instance is bigger than the conservative default assumes.
+
+### Post-deploy checklist (Docker Compose, prod mode)
+
+- [ ] `docker compose -f docker-compose.yml -f docker-compose.prod.yml ps` shows all three containers `healthy` (Docker's own `HEALTHCHECK`s in each Dockerfile, not just "running")
+- [ ] `docker compose -f docker-compose.yml -f docker-compose.prod.yml exec web node -e "fetch('http://api:8000/health').then(r=>r.text()).then(console.log)"` prints `{"status":"ok"}` — confirms the internal Compose network, not just each container in isolation
+- [ ] `curl http://localhost:${WEB_PORT:-3000}/` returns 200 through the actual container (or your real domain, once Nginx/TLS is in front)
+- [ ] A real signup → login → refresh → logout flow works end-to-end through the web container's proxy (not curled against the API directly — the API isn't published to the host in prod mode by design)
+- [ ] `docker compose -f docker-compose.yml -f docker-compose.prod.yml logs api` shows Alembic ran cleanly on this deploy, no errors
+- [ ] `.env`'s `JWT_SECRET`/`POSTGRES_PASSWORD` are real random values, not the placeholders from `.env.example`, and `.env` is `chmod 600` and never committed
+- [ ] Only the host ports you actually publish (80/443 if fronted by Nginx, or `${WEB_PORT:-3000}` directly) are open in your security group/firewall — the `api` service has no `ports:` in prod, so there's nothing to lock down there beyond the Docker network itself
+
+### Rollback
+
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build` rebuilds and replaces containers in place. To roll back: `git checkout <previous-commit>` and re-run the same command — Compose will rebuild the previous images and recreate the containers. There's no separate "keep the old image around" step in this setup (unlike a tagged-image registry workflow) — if you need guaranteed instant rollback without a rebuild, tag and push images to a registry (ECR, Docker Hub) as part of your deploy step and reference the tag instead of building on the box; that's a reasonable next step once this is actually running in production, not included here since it needs a registry account/credentials decision.
 
 ---
 

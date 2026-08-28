@@ -1,0 +1,40 @@
+# Production overlay — layered on top of docker-compose.yml explicitly:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Never auto-loaded (unlike docker-compose.override.yml) — you always
+# have to opt in with -f, so a plain `docker compose up` can never
+# accidentally run in production mode.
+#
+# Adds: hard requirements for real secrets (fails fast at `up` time,
+# not silently, via Compose's `${VAR:?message}` syntax, if the root
+# .env still has dev-only placeholder values), restart policies, and
+# conservative resource limits. No bind mounts here — the base file
+# already has none, and this file doesn't add any.
+services:
+  postgres:
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a real POSTGRES_PASSWORD in your root .env before running in production}
+
+  api:
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-therapist}:${POSTGRES_PASSWORD:?Set a real POSTGRES_PASSWORD in your root .env before running in production}@postgres:5432/${POSTGRES_DB:-therapist}
+      JWT_SECRET: ${JWT_SECRET:?Set a real random JWT_SECRET in your root .env before running in production — python3 -c "import secrets; print(secrets.token_urlsafe(48))"}
+      FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL in your root .env to your real production frontend origin}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:?Set CORS_ALLOW_ORIGINS in your root .env to a JSON array matching FRONTEND_URL exactly}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  web:
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M

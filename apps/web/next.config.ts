@@ -44,6 +44,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Standalone output traces the minimal set of files/deps needed to run
+  // `node server.js` and copies them into `.next/standalone` — lets the
+  // Docker production image skip shipping full node_modules. No effect on
+  // the Vercel deploy path (Vercel ignores `output` and uses its own build
+  // pipeline) or on `next dev`/`next build` locally; it only changes what
+  // `next build` additionally emits under `.next/standalone` and
+  // `.next/static`.
+  output: "standalone",
   headers: () =>
     Promise.resolve([{ source: "/(.*)", headers: securityHeaders }]),
   experimental: {

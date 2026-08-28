@@ -52,8 +52,10 @@ apps/
     gunicorn.conf.py        # Production entrypoint config (Gunicorn + Uvicorn workers)
     fly.toml                 # Fly.io deploy config
 deploy/ec2/            # Self-hosted EC2 deployment: systemd unit, Nginx site config, provision/deploy scripts
-docker-compose.yml     # Local Postgres only
-DEPLOYMENT.md          # Full deployment walkthrough (EC2 and managed-platform paths)
+docker-compose.yml     # Base Compose file — db + api + web, all three containers
+docker-compose.override.yml  # Dev overlay (auto-loaded by `docker compose up`): hot reload, bind mounts
+docker-compose.prod.yml      # Prod overlay (explicit `-f`): real secrets required, no bind mounts
+DEPLOYMENT.md          # Full deployment walkthrough (EC2, managed-platform, and Docker Compose paths)
 ```
 
 ---
@@ -110,7 +112,25 @@ If you want Google sign-in working locally, also fill in `GOOGLE_CLIENT_ID`/`GOO
 
 ## Running locally
 
-### 1. Start Postgres
+Two ways to run the stack locally — pick whichever fits how you like to iterate:
+
+- **One-command Docker Compose** (below, [Option A](#option-a--one-command-docker-compose)): `docker compose up` brings up Postgres + the API + the frontend together, with hot reload on both apps. Fastest to get started, identical setup to how this repo deploys ([DEPLOYMENT.md](DEPLOYMENT.md)'s Path C) — no per-service manual steps.
+- **Manual, granular** ([Option B](#option-b--manual-granular), the original 3-step): Postgres via Docker, then `uv run uvicorn`/`npm run dev` yourself. No container overhead, faster iteration if you're used to it, easier to attach a debugger directly to either process. Both remain fully supported — this isn't being deprecated.
+
+### Option A — one-command Docker Compose
+
+```bash
+cp .env.example .env       # once — dev defaults are safe to use as-is
+docker compose up
+```
+
+Brings up all three containers (Postgres, FastAPI with `--reload`, Next.js with `next dev --turbopack`), runs Alembic migrations automatically, and hot-reloads both apps on source changes. First run builds images and installs deps inside named volumes (a few minutes); after that, `docker compose up` is fast. Frontend: [http://localhost:3000](http://localhost:3000). API: [http://localhost:8000](http://localhost:8000) (also directly reachable in dev mode for debugging; not published in production — see [DEPLOYMENT.md](DEPLOYMENT.md)).
+
+Tear down with `docker compose down` (add `-v` to also drop the Postgres volume, for a truly clean slate). `make dev` / `make dev-down` are equivalent shorter aliases (see the root `Makefile`).
+
+### Option B — manual, granular
+
+#### 1. Start Postgres
 
 ```bash
 docker compose up -d postgres
@@ -118,7 +138,7 @@ docker compose up -d postgres
 
 Runs on `localhost:5433` (not 5432 — chosen to avoid colliding with a system-wide Postgres install; adjust `POSTGRES_PORT` in a root `.env` — copy from `.env.example` — if you need a different port).
 
-### 2. Start the backend
+#### 2. Start the backend
 
 ```bash
 cd apps/api
@@ -128,7 +148,7 @@ uv run uvicorn app.main:app --reload
 
 API: [http://localhost:8000](http://localhost:8000). Interactive docs: [http://localhost:8000/docs](http://localhost:8000/docs) (only enabled outside `ENVIRONMENT=production`).
 
-### 3. Start the frontend
+#### 3. Start the frontend
 
 ```bash
 npm run dev
@@ -173,7 +193,13 @@ All of the above are exactly what `.github/workflows/ci.yml` runs on every push/
 
 **Nothing is deployed yet.** All of the following is prepared configuration for when you're ready — no live infrastructure, accounts, or domains exist because of anything in this repo.
 
-Two paths are documented in **[DEPLOYMENT.md](DEPLOYMENT.md)** — read that file for the actual step-by-step, this is just the summary of what you'll need to set up yourself:
+Three paths are documented in **[DEPLOYMENT.md](DEPLOYMENT.md)** — read that file for the actual step-by-step, this is just the summary of what you'll need to set up yourself:
+
+### Path C — Docker Compose (identical dev/prod)
+
+What you need to create manually: an EC2 instance (or any other host) with Docker + Docker Compose installed — no Postgres/Node/Python/Nginx/PM2 to install by hand, the containers bring their own. A domain if you want TLS in front of it (Compose itself doesn't terminate HTTPS — put Nginx or a load balancer in front, same as Path A's Nginx does for PM2).
+
+`DEPLOYMENT.md` walks through: `cp .env.example .env`, filling in real `JWT_SECRET`/`POSTGRES_PASSWORD`/`FRONTEND_URL`/`CORS_ALLOW_ORIGINS`, then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build` — one command, migrations run automatically, no separate systemd/PM2/Nginx-to-the-app wiring needed. The exact same `docker compose up` (no `-f` flags) is also the recommended way to run this repo locally — see [Running locally](#running-locally) above.
 
 ### Path A — Self-hosted EC2 (PM2 + Nginx + Gunicorn)
 

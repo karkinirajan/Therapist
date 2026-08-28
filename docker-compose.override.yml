@@ -1,0 +1,97 @@
+# Dev-mode overlay — auto-loaded by Compose on top of docker-compose.yml
+# whenever you run plain `docker compose up` (no -f flags), no extra
+# config needed. NOT loaded when -f flags are passed explicitly (e.g. the
+# production command), so this file's dev conveniences never leak into a
+# prod run.
+#
+# Adds: hot reload for both apps via bind-mounted source, dev tooling
+# (uvicorn --reload, next dev), and host-published ports for direct
+# debugging access to the API (not published in the base/prod file, to
+# mirror the EC2 path's "API only reachable via the frontend's proxy"
+# posture in production).
+#
+# Each service bind-mounts individual source subdirectories/files rather
+# than the whole apps/api or apps/web directory as one blob. Two
+# deliberate reasons, not just style:
+#
+#   1. A whole-directory bind mount would also drag in anything else
+#      sitting at that directory's root on the host — most importantly
+#      apps/api/.env / apps/web/.env.local, which a contributor following
+#      this repo's own README setup steps is instructed to create. Those
+#      files carry host-local values (e.g. DATABASE_URL pointing at
+#      localhost:5433) that would silently override this file's
+#      container-correct `environment:` values (postgres:5432) once
+#      picked up by pydantic-settings'/Next.js's own automatic env-file
+#      loading — breaking DB/API connectivity inside the container in a
+#      confusing way. Mounting only named subdirectories/files never
+#      touches those paths at all.
+#   2. Docker mounts (named or anonymous volumes) targeting a path nested
+#      *inside* a bind-mounted host directory need that mount point to
+#      already exist; when it doesn't, the Docker daemon creates it —
+#      as root — on the HOST side of the bind mount, not just inside the
+#      container. Confirmed empirically while building this: nesting
+#      `web_node_modules:/app/node_modules` etc. under a whole-directory
+#      `./apps/web:/app` bind mount left root-owned `node_modules`/
+#      `.next`/`.venv` directories sitting in the actual git worktree on
+#      a fresh clone (no pre-existing `npm install`/`uv sync` to serve as
+#      the mount point). Keeping node_modules/.next/.venv as named
+#      volumes with NO bind-mounted ancestor directory (below) avoids
+#      this entirely — nothing about them ever touches the host tree.
+services:
+  api:
+    build:
+      # `builder` stage in apps/api/Dockerfile has the full dependency
+      # set (including alembic — a normal dependency, not dev-only) and
+      # source, without the lean runtime stage's stripped-down image —
+      # exactly what's needed for a `--reload` dev server.
+      target: builder
+    environment:
+      ENVIRONMENT: development
+      BIND_HOST: "0.0.0.0"
+    # `uv run` (not a bare `alembic`/`uvicorn` on PATH) because the
+    # `builder` stage doesn't set the runtime stage's
+    # PATH=/app/.venv/bin:$PATH — `uv run` finds the project's .venv via
+    # pyproject.toml/uv.lock regardless, and self-heals (auto `uv sync`)
+    # if the `api_venv` volume below starts out empty on a fresh clone.
+    command: >
+      sh -c "uv run alembic upgrade head && exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./apps/api/app:/app/app
+      - ./apps/api/alembic:/app/alembic
+      - ./apps/api/alembic.ini:/app/alembic.ini
+      - ./apps/api/pyproject.toml:/app/pyproject.toml
+      - ./apps/api/uv.lock:/app/uv.lock
+      # Named volume, not nested under any bind mount above — see the
+      # file-level comment. Seeded from the image's own build-time
+      # `.venv` on first use (Docker's standard behavior for a named
+      # volume mounted over a non-empty image path), then persists
+      # across container recreations.
+      - api_venv:/app/.venv
+    ports:
+      - "${API_PORT:-8000}:8000"
+    restart: "no"
+
+  web:
+    build:
+      # Full source + dev tooling (`next dev`), not the lean runtime
+      # stage — see apps/web/Dockerfile's `dev` stage.
+      target: dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps/web/app:/app/app
+      - ./apps/web/components:/app/components
+      - ./apps/web/lib:/app/lib
+      - ./apps/web/next.config.ts:/app/next.config.ts
+      - ./apps/web/proxy.ts:/app/proxy.ts
+      - ./apps/web/tsconfig.json:/app/tsconfig.json
+      - ./apps/web/postcss.config.mjs:/app/postcss.config.mjs
+      # Named volumes, not nested under any bind mount above — see the
+      # file-level comment.
+      - web_node_modules:/app/node_modules
+      - web_next_cache:/app/.next
+
+volumes:
+  api_venv:
+  web_node_modules:
+  web_next_cache:
