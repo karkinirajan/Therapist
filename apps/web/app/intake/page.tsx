@@ -79,7 +79,7 @@ export default function IntakePage() {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Baseline Snapshot</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Baseline Snapshot</h1>
           <p className="text-sm text-muted-foreground">
             Recorded {formatDate(existing.created_at)}. This runs once — your roadmap and tracking
             are built from it.
@@ -134,7 +134,7 @@ export default function IntakePage() {
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           First-session intake
         </h1>
         <p className="text-sm text-muted-foreground">

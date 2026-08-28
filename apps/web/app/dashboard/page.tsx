@@ -34,7 +34,7 @@ export default function DashboardPage() {
     return (
       <div className="mx-auto max-w-xl space-y-6 py-8 text-center">
         <ClipboardList className="mx-auto size-10 text-primary" aria-hidden="true" />
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Start with the intake
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
@@ -104,7 +104,7 @@ function DashboardContent({
       )}
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
           {gateState.this_week_rollup_complete
             ? "This week's rollup is complete."

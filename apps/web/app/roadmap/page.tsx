@@ -83,7 +83,7 @@ export default function RoadmapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">6-month roadmap</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">6-month roadmap</h1>
         <p className="text-sm text-muted-foreground">
           Started {baseline.data.created_at} · Week {weeks} of 24. Phased and gradual — phases
           don&apos;t compress just because you want to move faster.

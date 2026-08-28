@@ -31,7 +31,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "flex w-full items-center justify-between py-4 text-left text-sm font-medium",
+          "flex w-full items-center justify-between py-4 text-left text-base font-semibold",
           "transition-all hover:text-primary",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
           "[&[data-panel-open]>svg]:rotate-180",
@@ -54,7 +54,7 @@ function AccordionPanel({
     <AccordionPrimitive.Panel
       data-slot="accordion-panel"
       className={cn(
-        "overflow-hidden text-sm text-muted-foreground",
+        "overflow-hidden text-base text-muted-foreground",
         "data-[open]:animate-in data-[closed]:animate-out",
         "data-[closed]:fade-out-0 data-[open]:fade-in-0",
         "data-[closed]:slide-up-4 data-[open]:slide-down-4",

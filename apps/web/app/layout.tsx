@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Providers } from "@/lib/providers";
 
-const geistSans = Geist({
+// Plus Jakarta Sans: rounder terminals than Geist at the same weights, reads
+// warmer/more elegant at bold display sizes while staying highly legible at
+// body sizes — see globals.css for the full rationale. Loading weights
+// 500-800 covers the app's range from body copy through bold headings
+// without relying on synthetic bold (font-synthesis is disabled).
+const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-sans-vars",
   display: "swap",
 });
 
@@ -36,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${fontSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         <Providers>
           <a href="#main-content" className="skip-link">

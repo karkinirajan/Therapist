@@ -17,8 +17,8 @@ export default function AboutPage() {
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">About</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">About</h1>
+          <p className="text-base leading-relaxed text-muted-foreground">
             A CBT-based accountability layer for ADHD and OCD, built to work alongside real
             treatment — not instead of it.
           </p>
@@ -28,7 +28,7 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-base">What this tool is</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               This is a structured, Cognitive Behavioral Therapy (CBT) based coaching tool for
               people managing ADHD and/or OCD. It gives you a consistent place to check in,
@@ -49,7 +49,7 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-base">Who it&apos;s for</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               It&apos;s built for someone who is stable but stuck: functional day to day,
               possibly already medicated or in therapy for ADHD or OCD, but with slowed
@@ -68,7 +68,7 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-base">The philosophy</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-relaxed text-foreground">
+          <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
               Progress here is structured, not improvised. You track across several categories —
               sleep, medication adherence, mood, and the specific behaviors that matter for ADHD
@@ -91,7 +91,7 @@ export default function AboutPage() {
           <CardHeader>
             <CardTitle className="text-base">In its own words: not a substitute for treatment</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-foreground">
+          <CardContent className="text-base leading-relaxed text-foreground">
             <p>
               This tool does not diagnose ADHD or OCD, does not prescribe or adjust medication,
               and does not deliver therapy. It structures the accountability work that sits

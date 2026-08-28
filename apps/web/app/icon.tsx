@@ -13,8 +13,11 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#1c3a63",
-          borderRadius: 7,
+          // Matches --primary in globals.css (oklch(0.36 0.13 288) ≈ this
+          // hex) — ImageResponse can't consume CSS custom properties, so this
+          // is kept in sync by hand whenever the palette changes.
+          background: "#3d2b7c",
+          borderRadius: 8,
           color: "white",
           fontSize: 18,
           fontWeight: 700,
