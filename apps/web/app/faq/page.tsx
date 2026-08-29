@@ -67,7 +67,7 @@ const FAQS: { id: string; question: string; answer: React.ReactNode }[] = [
     answer: (
       <p>
         Stop here and go to the{" "}
-        <a href="/safety" className="underline underline-offset-2 hover:text-primary">
+        <a href="/safety" className="underline underline-offset-2 hover:text-link">
           Safety
         </a>{" "}
         page. It has a direct call button and steps for genuine crisis situations — this FAQ
@@ -103,7 +103,7 @@ const FAQS: { id: string; question: string; answer: React.ReactNode }[] = [
         Your account and check-in data are stored in a PostgreSQL database behind a real
         authentication system, encrypted at rest by our hosting provider. We don&apos;t sell it
         or share it with third parties for advertising. See the{" "}
-        <a href="/policy" className="underline underline-offset-2 hover:text-primary">
+        <a href="/policy" className="underline underline-offset-2 hover:text-link">
           Privacy Policy
         </a>{" "}
         for the full picture.
@@ -133,11 +133,11 @@ export default function FaqPage() {
           </h1>
           <p className="text-base leading-relaxed text-muted-foreground">
             If your question isn&apos;t here, the{" "}
-            <a href="/about" className="underline underline-offset-2 hover:text-primary">
+            <a href="/about" className="underline underline-offset-2 hover:text-link">
               About
             </a>{" "}
             and{" "}
-            <a href="/policy" className="underline underline-offset-2 hover:text-primary">
+            <a href="/policy" className="underline underline-offset-2 hover:text-link">
               Privacy Policy
             </a>{" "}
             pages have more detail.

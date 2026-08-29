@@ -25,7 +25,7 @@ export function ScaleInput({
     <div className={cn("space-y-2", className)}>
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <span className="text-sm font-semibold tabular-nums text-primary">
+        <span className="text-sm font-semibold tabular-nums text-link">
           {value}/{max}
         </span>
       </div>

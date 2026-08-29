@@ -315,7 +315,7 @@ export default function TrackingCategoryPage({
               "rounded-md border px-3 py-1.5 text-sm font-medium capitalize transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
               cadence === c
-                ? "border-primary bg-primary/10 text-primary"
+                ? "border-primary bg-primary/10 text-link"
                 : "border-border text-muted-foreground hover:bg-muted",
             )}
           >

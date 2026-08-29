@@ -13,19 +13,19 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          // Matches --primary in globals.css light-mode (Catppuccin Latte
-          // mauve, #8839ef) — ImageResponse can't consume CSS custom
-          // properties, so this is kept in sync by hand whenever the
+          // Matches --primary in globals.css (the #124559 accent, literal
+          // in both light and dark) — ImageResponse can't consume CSS
+          // custom properties, so this is kept in sync by hand whenever the
           // palette changes.
-          background: "#8839ef",
+          background: "#124559",
           borderRadius: 8,
-          color: "white",
+          color: "#f8f9fa",
           fontSize: 18,
           fontWeight: 700,
           fontFamily: "sans-serif",
         }}
       >
-        C
+        T
       </div>
     ),
     size,

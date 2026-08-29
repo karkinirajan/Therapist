@@ -33,7 +33,7 @@ export default function DashboardPage() {
   if (!baseline.data) {
     return (
       <div className="max-w-xl space-y-6 py-8 text-center">
-        <ClipboardList className="mx-auto size-10 text-primary" aria-hidden="true" />
+        <ClipboardList className="mx-auto size-10 text-link" aria-hidden="true" />
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           Start with the intake
         </h1>

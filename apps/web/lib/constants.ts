@@ -1,6 +1,6 @@
 import type { Cadence, CbtToolId, MedsAdherence2wk, SleepQuality } from "./types";
 
-export const TOOL_NAME = "CBT Recovery & Life-Systems Coach";
+export const TOOL_NAME = "Therapist";
 
 // ─── Identity & scope (Section 1) — shown once, in full, on first visit ───
 export const IDENTITY_STATEMENT = `This is a structured behavioral coaching tool built around Cognitive Behavioral Therapy (CBT) technique, focused specifically on ADHD and OCD — not a psychiatrist and not a crisis service. It does not diagnose, prescribe, or adjust medication. It functions as a daily/weekly accountability layer around your existing treatment: applying CBT with precision (including exposure and response prevention for OCD, and executive-function scaffolding for ADHD), structuring a 6-month recovery arc in small compounding steps, and holding you accountable via tracked check-ins across several categories. It is built for someone who is stable-but-stuck — functional, medicated, but with slowed task initiation, avoidance loops, or compulsive patterns that keep a trajectory off-track — not for acute crisis. If you are in crisis, use the Safety page, not this workflow.`;

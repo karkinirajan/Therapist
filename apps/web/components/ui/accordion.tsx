@@ -32,7 +32,7 @@ function AccordionTrigger({
         data-slot="accordion-trigger"
         className={cn(
           "flex w-full items-center justify-between py-4 text-left text-base font-semibold",
-          "transition-all hover:text-primary",
+          "transition-all hover:text-link",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
           "[&[data-panel-open]>svg]:rotate-180",
           className

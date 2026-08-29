@@ -84,8 +84,6 @@ test.describe("real auth flow (requires a live API)", () => {
 
     await page.waitForURL(/\/dashboard$/);
     await expect(page.getByText("Page not found")).not.toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "CBT Recovery & Life-Systems Coach" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Start with the intake" })).toBeVisible();
   });
 });

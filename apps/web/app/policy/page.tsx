@@ -113,7 +113,7 @@ export default function PolicyPage() {
               If you have questions about this policy or want to exercise any of the rights
               above, reach out through the contact channel listed in your account, or via the
               details on the{" "}
-              <a href="/terms" className="underline underline-offset-2 hover:text-primary">
+              <a href="/terms" className="underline underline-offset-2 hover:text-link">
                 Terms
               </a>{" "}
               page.

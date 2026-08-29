@@ -97,7 +97,7 @@ export default function ProgressPage() {
                   className={cn(
                     "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
                     phase.index < data.phaseIndex && "border-success bg-success-muted text-success",
-                    phase.index === data.phaseIndex && "border-primary bg-primary/10 text-primary",
+                    phase.index === data.phaseIndex && "border-primary bg-primary/10 text-link",
                     phase.index > data.phaseIndex && "border-border text-muted-foreground",
                   )}
                 >

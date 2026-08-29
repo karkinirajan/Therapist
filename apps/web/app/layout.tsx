@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
+import { Footer } from "@/components/footer";
 import { Providers } from "@/lib/providers";
 
 // JetBrains Mono, used for the entire app — nav, footer, headings, body,
@@ -21,8 +22,8 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   applicationName: "Therapist",
   title: {
-    default: "CBT Recovery & Life-Systems Coach",
-    template: "%s | CBT Recovery",
+    default: "Therapist — CBT Accountability for ADHD & OCD",
+    template: "%s | Therapist",
   },
   description:
     "A structured CBT-based recovery and life-systems coaching tool for ADHD and OCD: intake, daily/weekly/monthly tracking, a 6-month roadmap, CBT and ERP technique guidelines, and progress tracking.",
@@ -52,17 +53,7 @@ export default function RootLayout({
             <main id="main-content" className="max-w-5xl px-4 py-8">
               {children}
             </main>
-            <footer className="max-w-5xl px-4 pb-10 pt-4 text-left text-xs text-muted-foreground">
-              Not a substitute for your prescriber. In a crisis, use{" "}
-              <a href="/safety" className="underline underline-offset-2">
-                Safety
-              </a>
-              , not this workflow. See the{" "}
-              <a href="/policy" className="underline underline-offset-2">
-                Privacy Policy
-              </a>{" "}
-              for what&apos;s collected and how it&apos;s stored.
-            </footer>
+            <Footer />
           </div>
         </Providers>
       </body>

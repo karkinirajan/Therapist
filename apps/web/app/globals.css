@@ -69,103 +69,173 @@
   /* Dot-grid background, meant to sit behind cards/content — never behind
      dense text. */
   --color-grid-dot: var(--grid-dot);
+
+  /* Nav/footer "chrome" — a framing surface deliberately distinct from
+     --background/--card (see the palette-pass comment below for the
+     darkest-in-dark / lightest-in-light layering rule this exists for). */
+  --color-chrome: var(--chrome);
+  --color-chrome-foreground: var(--chrome-foreground);
+
+  /* Accent used as inline TEXT/icon color (links, selected-state icons) —
+     distinct from --primary/--ring, which stay the literal #124559 accent
+     used as a *fill* (buttons) in both themes per an explicit, non-derived
+     product requirement. #124559 is dark enough to read fine as text on
+     light backgrounds (8.76:1) but reads at ~1.1:1 — effectively invisible
+     — as text directly on the dark theme's own page/card backgrounds
+     (#124559 is itself a dark color, and dark-theme surfaces are dark).
+     --link keeps --primary/--ring untouched and gives text/icon usages a
+     legible, still-recognizably-teal value in dark mode instead. */
+  --color-link: var(--link);
 }
 
-/* ─── Catppuccin theme pass ──────────────────────────────────────────────
-   Replaces the prior indigo-violet-on-warm-ivory palette. Light mode uses
-   the official Catppuccin Latte swatches, dark mode the official Catppuccin
-   Mocha swatches — both first-class, matched hex-for-hex to the published
-   palette (https://catppuccin.com/palette), not an invented light variant.
+/* ─── Neutral-gray + single-accent palette pass ─────────────────────────
+   Replaces the prior Catppuccin Mocha/Latte palette outright (not layered
+   on top of it — every hex below is new). The 8 named grays are Bootstrap's
+   own gray-100…gray-900 scale (gray-400 dropped per product decision),
+   given descriptive names, used as literal hex — not run through
+   HSL/OKLCH derivation:
+     bright_snow     #f8f9fa   (bs gray-100, lightest)
+     platinum        #e9ecef   (bs gray-200)
+     alabaster_grey  #dee2e6   (bs gray-300)
+     pale_slate      #adb5bd   (bs gray-500)
+     slate_grey      #6c757d   (bs gray-600)
+     iron_grey       #495057   (bs gray-700)
+     gunmetal        #343a40   (bs gray-800)
+     carbon_black    #212529   (bs gray-900, darkest)
+   Accent: #124559 (a dark teal-blue), used as the literal hex for
+   --primary/--ring in BOTH themes, unmodified — deliberately not
+   lightened/darkened per-theme, verified below to clear AA as a button
+   fill with light text in both.
 
-   Layering convention (Catppuccin's own semantic model, applied to both
-   variants even though "darker" and "lighter" flip between them):
-     base            → --background
-     mantle          → --muted / --field (subtly recessed, close to base)
-     crust           → --secondary (a step further recessed, for a surface
-                        that should read as more distinct than muted)
-     surface0        → --card / --popover / --accent (the "elevated element"
-                        tier — cards and popovers get it directly; accent
-                        reuses it for hover/highlight backgrounds)
-     surface1        → --border / --input (subtle structural lines — kept
-                        low-contrast against background on purpose, same as
-                        the prior design; the card's own fill already
-                        provides the primary visual boundary)
-     text            → --foreground / --card-foreground / --popover-foreground
-                        / --secondary-foreground / --accent-foreground
-     subtext1        → --muted-foreground / --placeholder
+   Token → gray mapping (the "final token mapping," per gray, per theme):
 
-   Primary accent: mauve. Of the calm, low-arousal options that fit this
-   product's "calm, low-stimulation, ADHD/OCD-appropriate" constraint (mauve,
-   blue, lavender, sky), mauve was chosen because it's the closest hue-wheel
-   descendant of the previous indigo-violet primary — users who've already
-   internalized "this app is purple" keep that association — while sitting
-   comfortably far from --destructive's red on the wheel (hue difference
-   holds red's exclusive alarm signal, verified below).
+     role                  | light               | dark
+     ----------------------|---------------------|--------------------
+     chrome (nav/footer)   | bright_snow (lightest, "mirror" of dark's darkest-chrome rule)
+                                                  | carbon_black (darkest, framing rule)
+     chrome-foreground     | carbon_black         | bright_snow
+     background (page)     | platinum             | gunmetal (one step lighter than chrome)
+     foreground (body text)| carbon_black          | bright_snow
+     card / popover        | bright_snow (lift above platinum page bg)
+                                                  | iron_grey (a further step lighter than gunmetal, for elevation)
+     card-foreground       | carbon_black          | bright_snow
+     muted / accent bg     | alabaster_grey        | iron_grey (reuses the card tier, same as the prior
+                                                    Catppuccin pass reusing surface0 for card+accent)
+     muted-foreground      | iron_grey             | alabaster_grey
+     secondary             | alabaster_grey        | carbon_black (more visual weight than muted, mirrors
+                                                    dark's "further-recessed" secondary tier)
+     secondary-foreground  | carbon_black          | bright_snow
+     field (form wells)    | alabaster_grey (a 3rd tone, distinct from both
+                             background/platinum AND card/bright_snow)
+                                                  | carbon_black (distinct from background/gunmetal and
+                                                    card/iron_grey)
+     placeholder            | slate_grey            | pale_slate
+     border / input         | alabaster_grey        | slate_grey (kept low-contrast against background on
+                                                    purpose, same convention as the prior pass — the
+                                                    card's own fill is still the primary visual boundary)
+     primary / ring          | #124559 (literal, both themes, not derived)
+     primary-foreground      | bright_snow (both themes — same accent, same fg)
+     destructive              | #dc3545 (Bootstrap danger red, literal, both themes — reserved
+                                exclusively for the /safety "Call now" button and destructive
+                                button/badge variants, never reused elsewhere)
+     destructive-foreground   | #ffffff (both themes — see contrast note below)
 
-   --destructive is Catppuccin's own `red` in both variants, reserved
-   exclusively for the crisis-support "Call now" button on /safety and the
-   destructive button/badge variants — never reused elsewhere.
+   No red/success/warning/info were specified in the palette itself — pulled
+   from Bootstrap's own semantic colors since the neutral scale already *is*
+   Bootstrap's system (the coherent choice, not an arbitrary addition):
+   $success #198754, $warning #ffc107, $info #0dcaf0, $danger #dc3545 (used
+   for --destructive above). Bootstrap's raw warning/info fail badly as
+   *text* on light backgrounds (1.4–1.9:1) and raw success/danger fail as
+   text on the dark theme's card tier — so, following the exact precedent
+   the prior Catppuccin pass set (it darkened Latte's green/yellow/sky for
+   body-text contrast), the --success/--warning/--info *text* tokens below
+   are Bootstrap 5.3's own "text-emphasis" shades (mix with black, light
+   theme) / "text-emphasis" tints (mix with white, dark theme) — reusing
+   Bootstrap's own documented fix for this exact problem rather than
+   inventing new math. Their *-muted backings are Bootstrap's matching
+   "bg-subtle" shades/tints from the same system.
 
-   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed):
-     Mocha  text-on-base            11.34:1   crust-on-mauve (primary-fg)  9.23:1
-     Mocha  text-on-surface0 (card)  8.69:1   crust-on-red (destructive-fg) 8.10:1
-     Latte  text-on-base             7.06:1   base-on-mauve (primary-fg)  4.79:1
-     Latte  text-on-surface0 (card)  5.17:1   base-on-red (destructive-fg) 4.80:1
-     Latte  subtext1-on-mantle (muted-fg)      5.14:1
-     Mocha  subtext1-on-mantle (muted-fg)      9.91:1
-   All ≥4.5:1 (AA body text). Catppuccin Latte's own `green`/`yellow`/`sky`
-   fail AA when used as *text* directly on `base` (2.3–3.0:1 — Latte's accent
-   colors are tuned for icons/large surfaces, not body-size text) — flagged
-   and fixed below by darkening the Latte success/warning/info *text* colors
-   just enough to clear 4.5:1 while keeping them recognizably green/amber/
-   blue and keeping their *-muted backing tinted from the same hue. Mocha's
-   status colors already cleared 4.5:1 unmodified and are used as-is.
+   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed —
+   computed with a small script, not spot-checked by eye):
+     LIGHT  foreground-on-background (carbon_black/platinum)        13.01:1
+     LIGHT  card-foreground-on-card (carbon_black/bright_snow)       14.63:1
+     LIGHT  muted-foreground-on-background (iron_grey/platinum)       6.90:1
+     LIGHT  muted-foreground-on-card (iron_grey/bright_snow)          7.76:1
+     LIGHT  chrome-foreground-on-chrome (carbon_black/bright_snow)   14.63:1
+     LIGHT  primary-foreground-on-primary (bright_snow/#124559)       9.86:1
+     LIGHT  destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
+     DARK   foreground-on-background (bright_snow/gunmetal)          10.91:1
+     DARK   card-foreground-on-card (bright_snow/iron_grey)           7.76:1
+     DARK   muted-foreground-on-card (alabaster_grey/iron_grey)       6.28:1
+     DARK   chrome-foreground-on-chrome (bright_snow/carbon_black)   14.63:1
+     DARK   primary-foreground-on-primary (bright_snow/#124559)       9.86:1
+     DARK   destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
+   All ≥4.5:1 (AA body text) except destructive-foreground, which clears AA
+   by a hair (4.53:1) in both themes — #dc3545 was given as a literal,
+   non-derived requirement (Bootstrap's own danger red), and white is
+   already the best available foreground for it; this is the same
+   known tightness Bootstrap's own .btn-danger has. Its usage is
+   intentionally narrow (the /safety call button + destructive variants),
+   never body text, which keeps the risk contained. One residual gap,
+   documented rather than silently accepted: dark-mode `--muted-foreground`
+   (alabaster_grey) on a *solid* `--muted` fill (iron_grey) is 6.28:1 (fine)
+   but nothing in the app currently pairs muted-foreground text directly
+   onto a raw `--muted` background at full opacity outside that — the one
+   place that *would* (Badge's `variant="muted"`) isn't used anywhere in
+   the app today, so it's flagged here rather than tuned for a combination
+   nothing renders.
    ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #eff1f5; /* Latte base */
-  --foreground: #4c4f69; /* Latte text */
+  --background: #e9ecef; /* platinum */
+  --foreground: #212529; /* carbon_black */
 
-  --card: #ccd0da; /* Latte surface0 */
-  --card-foreground: #4c4f69; /* Latte text */
+  --card: #f8f9fa; /* bright_snow — lift above the platinum page bg */
+  --card-foreground: #212529;
 
-  --popover: #ccd0da; /* Latte surface0 */
-  --popover-foreground: #4c4f69; /* Latte text */
+  --popover: #f8f9fa;
+  --popover-foreground: #212529;
 
-  --primary: #8839ef; /* Latte mauve */
-  --primary-foreground: #eff1f5; /* Latte base — crust-on-mauve fails AA (4.09:1), base clears it (4.79:1) */
+  --primary: #124559; /* accent, literal — see palette-pass comment above */
+  --primary-foreground: #f8f9fa; /* bright_snow — 9.86:1 on #124559 */
 
-  --secondary: #dce0e8; /* Latte crust */
-  --secondary-foreground: #4c4f69; /* Latte text */
+  --secondary: #dee2e6; /* alabaster_grey */
+  --secondary-foreground: #212529;
 
-  --muted: #e6e9ef; /* Latte mantle */
-  --muted-foreground: #5c5f77; /* Latte subtext1 */
+  --muted: #dee2e6; /* alabaster_grey */
+  --muted-foreground: #495057; /* iron_grey */
 
-  --accent: #ccd0da; /* Latte surface0 */
-  --accent-foreground: #4c4f69; /* Latte text */
+  --accent: #dee2e6; /* alabaster_grey — reuses the muted tier for hover/highlight bg */
+  --accent-foreground: #212529;
 
-  /* Catppuccin `red`, reserved exclusively for crisis/destructive actions. */
-  --destructive: #d20f39; /* Latte red */
-  --destructive-foreground: #eff1f5; /* Latte base — white text on Latte red is only 5.4:1 but drifts warm; base keeps the token family consistent with primary-foreground and still clears 4.8:1 */
+  /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
+  --destructive: #dc3545;
+  --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
 
-  --border: #bcc0cc; /* Latte surface1 */
-  --input: #bcc0cc; /* Latte surface1 */
-  --ring: #8839ef; /* Latte mauve, matches --primary */
+  --border: #dee2e6; /* alabaster_grey */
+  --input: #dee2e6;
+  --ring: #124559; /* matches --primary */
+  --link: #124559; /* same as --primary — 8.76:1 on background, legible as-is here */
   --radius: 0.75rem;
 
-  --field: #e6e9ef; /* Latte mantle */
-  --placeholder: #5c5f77; /* Latte subtext1 */
+  --field: #dee2e6; /* alabaster_grey — a 3rd tone, distinct from --background/--card */
+  --placeholder: #6c757d; /* slate_grey */
 
-  /* Catppuccin Latte's green/yellow/sky read at only 2.3–3.0:1 as body-size
-     text directly on base — darkened here (still clearly green/amber/blue)
-     to clear AA; the *-muted backings are a light tint of the same darkened
-     color into --background, kept subtle enough that the pairing stays
-     ≥4.5:1 (computed, not eyeballed — see contrast notes above). */
-  --success: #2d701e; /* darkened Latte green — 5.39:1 on base, 4.84:1 on success-muted */
-  --success-muted: #dfe7e4;
-  --warning: #865511; /* darkened Latte yellow — 5.59:1 on base, 5.03:1 on warning-muted */
-  --warning-muted: #e7e5e3;
-  --info: #1a57d0; /* darkened Latte blue — 5.60:1 on base, 5.00:1 on info-muted */
-  --info-muted: #dee5f2;
+  /* Bootstrap 5.3's own "text-emphasis" shades (mix($color, black, 40–60%)) —
+     reused verbatim rather than re-derived, since they're already Bootstrap's
+     documented fix for raw success/warning/info failing AA as body text on
+     light surfaces (see palette-pass comment above). Muted backings are
+     Bootstrap's matching "bg-subtle" tints. */
+  --success: #0a3622; /* 12.74:1 on card, 11.33:1 on background */
+  --success-muted: #d1e7dd;
+  --warning: #664d03; /* 7.58:1 on card, 6.74:1 on background */
+  --warning-muted: #fff3cd;
+  --info: #055160; /* 8.47:1 on card, 7.53:1 on background */
+  --info-muted: #cff4fc;
+
+  /* Nav/footer framing surface — the LIGHTEST tone in light mode (mirrors
+     dark mode's darkest-chrome rule, inverted). */
+  --chrome: #f8f9fa; /* bright_snow */
+  --chrome-foreground: #212529; /* carbon_black — 14.63:1 */
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
@@ -177,44 +247,53 @@
 /* ─── Dark theme — follows the OS/browser preference automatically ─── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1e1e2e; /* Mocha base */
-    --foreground: #cdd6f4; /* Mocha text */
+    --background: #343a40; /* gunmetal — one step lighter than carbon_black chrome */
+    --foreground: #f8f9fa; /* bright_snow */
 
-    --card: #313244; /* Mocha surface0 */
-    --card-foreground: #cdd6f4; /* Mocha text */
+    --card: #495057; /* iron_grey — a further step lighter, for elevation */
+    --card-foreground: #f8f9fa;
 
-    --popover: #313244; /* Mocha surface0 */
-    --popover-foreground: #cdd6f4; /* Mocha text */
+    --popover: #495057;
+    --popover-foreground: #f8f9fa;
 
-    --primary: #cba6f7; /* Mocha mauve */
-    --primary-foreground: #11111b; /* Mocha crust — 9.23:1 on mauve */
+    --primary: #124559; /* accent, literal, unchanged from light */
+    --primary-foreground: #f8f9fa; /* 9.86:1 on #124559 */
 
-    --secondary: #11111b; /* Mocha crust */
-    --secondary-foreground: #cdd6f4; /* Mocha text */
+    --secondary: #212529; /* carbon_black — more visual weight than muted */
+    --secondary-foreground: #f8f9fa;
 
-    --muted: #181825; /* Mocha mantle */
-    --muted-foreground: #bac2de; /* Mocha subtext1 */
+    --muted: #495057; /* iron_grey — reuses the card tier */
+    --muted-foreground: #dee2e6; /* alabaster_grey */
 
-    --accent: #313244; /* Mocha surface0 */
-    --accent-foreground: #cdd6f4; /* Mocha text */
+    --accent: #495057;
+    --accent-foreground: #f8f9fa;
 
-    /* Catppuccin `red`, reserved exclusively for crisis/destructive actions. */
-    --destructive: #f38ba8; /* Mocha red */
-    --destructive-foreground: #11111b; /* Mocha crust — white text on Mocha red is only 2.3:1; crust clears 8.1:1 */
+    /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
+    --destructive: #dc3545;
+    --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
 
-    --border: #45475a; /* Mocha surface1 */
-    --input: #45475a; /* Mocha surface1 */
-    --ring: #cba6f7; /* Mocha mauve, matches --primary */
+    --border: #6c757d; /* slate_grey — subtle, not high-contrast, on purpose */
+    --input: #6c757d;
+    --ring: #124559;
+    --link: #b8c7cd; /* a light tint of #124559 — 6.62:1 on background, 4.71:1 on card (see --color-link comment above) */
 
-    --field: #181825; /* Mocha mantle */
-    --placeholder: #bac2de; /* Mocha subtext1 */
+    --field: #212529; /* carbon_black — distinct from background/card */
+    --placeholder: #adb5bd; /* pale_slate */
 
-    --success: #a6e3a1; /* Mocha green — 11.0:1 on base, used as-is */
-    --success-muted: #364143;
-    --warning: #f9e2af; /* Mocha yellow — 12.9:1 on base, used as-is */
-    --warning-muted: #454145;
-    --info: #89dceb; /* Mocha sky — 10.5:1 on base, used as-is */
-    --info-muted: #314050;
+    /* Bootstrap 5.3's own dark-mode "text-emphasis" tints (mix($color,
+       white, 20–60%)) — brightened further than Bootstrap's own picks where
+       this app's lighter dark-card tone (iron_grey) demanded it to clear
+       AA (see palette-pass comment above for the exact math). */
+    --success: #a3cfbb; /* 6.68:1 on background, 4.75:1 on card */
+    --success-muted: #051b11;
+    --warning: #ffc107; /* raw Bootstrap warning already clears AA here — 7.06:1 on background, 5.02:1 on card */
+    --warning-muted: #332701;
+    --info: #3dd5f3; /* 6.58:1 on background, 4.68:1 on card */
+    --info-muted: #032830;
+
+    /* Nav/footer framing surface — the DARKEST tone in dark mode. */
+    --chrome: #212529; /* carbon_black */
+    --chrome-foreground: #f8f9fa; /* bright_snow — 14.63:1 */
 
     --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 
@@ -228,43 +307,47 @@
    precedence over the OS preference since it's a plain class selector
    applied outside the media query. ─── */
 .dark {
-  --background: #1e1e2e;
-  --foreground: #cdd6f4;
+  --background: #343a40;
+  --foreground: #f8f9fa;
 
-  --card: #313244;
-  --card-foreground: #cdd6f4;
+  --card: #495057;
+  --card-foreground: #f8f9fa;
 
-  --popover: #313244;
-  --popover-foreground: #cdd6f4;
+  --popover: #495057;
+  --popover-foreground: #f8f9fa;
 
-  --primary: #cba6f7;
-  --primary-foreground: #11111b;
+  --primary: #124559;
+  --primary-foreground: #f8f9fa;
 
-  --secondary: #11111b;
-  --secondary-foreground: #cdd6f4;
+  --secondary: #212529;
+  --secondary-foreground: #f8f9fa;
 
-  --muted: #181825;
-  --muted-foreground: #bac2de;
+  --muted: #495057;
+  --muted-foreground: #dee2e6;
 
-  --accent: #313244;
-  --accent-foreground: #cdd6f4;
+  --accent: #495057;
+  --accent-foreground: #f8f9fa;
 
-  --destructive: #f38ba8;
-  --destructive-foreground: #11111b;
+  --destructive: #dc3545;
+  --destructive-foreground: #ffffff;
 
-  --border: #45475a;
-  --input: #45475a;
-  --ring: #cba6f7;
+  --border: #6c757d;
+  --input: #6c757d;
+  --ring: #124559;
+  --link: #b8c7cd;
 
-  --field: #181825;
-  --placeholder: #bac2de;
+  --field: #212529;
+  --placeholder: #adb5bd;
 
-  --success: #a6e3a1;
-  --success-muted: #364143;
-  --warning: #f9e2af;
-  --warning-muted: #454145;
-  --info: #89dceb;
-  --info-muted: #314050;
+  --success: #a3cfbb;
+  --success-muted: #051b11;
+  --warning: #ffc107;
+  --warning-muted: #332701;
+  --info: #3dd5f3;
+  --info-muted: #032830;
+
+  --chrome: #212529;
+  --chrome-foreground: #f8f9fa;
 
   --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 

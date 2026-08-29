@@ -7,7 +7,7 @@ export function RequireBaselineNotice() {
   return (
     <Card className="max-w-md">
       <CardHeader className="items-center text-center">
-        <ClipboardList className="mb-2 size-8 text-primary" />
+        <ClipboardList className="mb-2 size-8 text-link" />
         <CardTitle>Start with the intake</CardTitle>
         <CardDescription>
           This tool builds your baseline and 6-month roadmap from a short first-session intake.

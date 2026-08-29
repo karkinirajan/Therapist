@@ -31,7 +31,7 @@ export default function TermsPage() {
               psychiatric medication based on anything in this app. Decisions about your
               treatment belong to your prescriber or therapist — use this tool to support that
               relationship, not to override it. If you are in crisis, go to the{" "}
-              <a href="/safety" className="underline underline-offset-2 hover:text-primary">
+              <a href="/safety" className="underline underline-offset-2 hover:text-link">
                 Safety
               </a>{" "}
               page, not this workflow.

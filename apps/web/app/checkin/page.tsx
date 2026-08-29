@@ -286,7 +286,7 @@ export default function CheckinPage() {
                     className={cn(
                       "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
                       homeworkStatus === o.value
-                        ? "border-primary bg-primary/10 text-primary"
+                        ? "border-primary bg-primary/10 text-link"
                         : "border-border text-muted-foreground hover:bg-muted",
                     )}
                   >

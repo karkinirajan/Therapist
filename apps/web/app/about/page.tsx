@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Compass, Layers, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
@@ -22,6 +23,30 @@ export default function AboutPage() {
             A CBT-based accountability layer for ADHD and OCD, built to work alongside real
             treatment — not instead of it.
           </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+            <Layers className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">6 tracked categories</p>
+              <p className="text-xs text-muted-foreground">Daily or weekly, your choice.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+            <Compass className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">6-month roadmap</p>
+              <p className="text-xs text-muted-foreground">Phased, and gated by real metrics.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Never a replacement</p>
+              <p className="text-xs text-muted-foreground">Sits alongside your real treatment.</p>
+            </div>
+          </div>
         </div>
 
         <Card>
@@ -56,7 +81,7 @@ export default function AboutPage() {
               motivation, disorganized time, avoidance loops, or a trajectory that feels off
               track. It is deliberately not built for acute crisis — if that&apos;s where you
               are right now, the{" "}
-              <a href="/safety" className="underline underline-offset-2 hover:text-primary">
+              <a href="/safety" className="underline underline-offset-2 hover:text-link">
                 Safety
               </a>{" "}
               page is the right place, not a check-in form.

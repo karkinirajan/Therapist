@@ -1,169 +1,215 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, X } from "lucide-react";
-import { useRecoveryData, computeStreaks, isCheckinOverdue, weeksSinceStart } from "@/lib/storage";
-import { IDENTITY_STATEMENT, ROADMAP_PHASES } from "@/lib/constants";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ArrowRight,
+  Brain,
+  Calendar,
+  ClipboardCheck,
+  ListChecks,
+  Moon,
+  ShieldCheck,
+  Target,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { StatCard } from "@/components/stat-card";
-import { formatDate } from "@/lib/utils";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function DashboardPage() {
-  const { data, update, ready } = useRecoveryData();
+export const metadata: Metadata = {
+  title: "Therapist — CBT Accountability for ADHD & OCD",
+  description:
+    "A structured CBT-based accountability platform for ADHD and OCD: intake, daily/weekly tracking across 6 categories, and a gated 6-month roadmap — built to work alongside your existing treatment.",
+  robots: { index: true, follow: true },
+};
 
-  if (!ready) return null;
+const CATEGORIES: { icon: React.ComponentType<{ className?: string }>; name: string; description: string }[] = [
+  {
+    icon: Moon,
+    name: "Sleep & medication",
+    description: "Timing-sensitive tracking — missed or shifted doses show up fast in focus and mood.",
+  },
+  {
+    icon: Zap,
+    name: "Executive function",
+    description: "Task initiation, externalized capture, and time-blocking scaffolds for ADHD.",
+  },
+  {
+    icon: ShieldCheck,
+    name: "Compulsion & ERP",
+    description: "Move up a fear/compulsion hierarchy in small, defined exposure steps.",
+  },
+  {
+    icon: Brain,
+    name: "Mood & anxiety",
+    description: "Daily numbers that make a trend visible instead of relying on memory.",
+  },
+  {
+    icon: Target,
+    name: "Behavioral activation",
+    description: "Scheduled, graded reward-generating activity — motivation follows action.",
+  },
+  {
+    icon: ListChecks,
+    name: "Distortion awareness",
+    description: "Name the cognitive distortion, test it against evidence, replace it.",
+  },
+];
 
-  const { baseline, logs, phaseIndex, introAcknowledged } = data;
+const LOOP_STEPS: { icon: React.ComponentType<{ className?: string }>; title: string; description: string }[] = [
+  {
+    icon: ClipboardCheck,
+    title: "Intake",
+    description: "A one-time baseline snapshot that builds your tracking setup and roadmap.",
+  },
+  {
+    icon: Calendar,
+    title: "Daily tracking",
+    description: "Quick, structured check-ins across the categories that matter for your patterns.",
+  },
+  {
+    icon: Target,
+    title: "Gated roadmap",
+    description: "A phased 6-month plan — each phase has a real metric, and skipping ahead isn't allowed.",
+  },
+];
 
-  if (!baseline) {
-    return (
-      <div className="max-w-xl space-y-6 py-8 text-center">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-          CBT Recovery &amp; Life-Systems Coach
-        </h1>
-        <p className="text-sm leading-relaxed text-muted-foreground">{IDENTITY_STATEMENT}</p>
-        <Button asChild size="lg">
-          <Link href="/intake">
-            Start the first-session intake <ArrowRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const sortedLogs = [...logs].sort((a, b) => b.date.localeCompare(a.date));
-  const lastLog = sortedLogs[0] ?? null;
-  const streaks = computeStreaks(logs);
-  const phase = ROADMAP_PHASES[phaseIndex];
-  const weeks = weeksSinceStart(baseline.createdAt);
-  const overdue = isCheckinOverdue(lastLog?.date ?? null, baseline.cadence);
-
+export default function LandingPage() {
   return (
-    <div className="space-y-6">
-      {!introAcknowledged && (
-        <Alert className="relative pr-10">
-          <AlertTitle>What this tool is — and isn&apos;t</AlertTitle>
-          <AlertDescription>{IDENTITY_STATEMENT}</AlertDescription>
-          <button
-            type="button"
-            aria-label="Dismiss"
-            className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-            onClick={() => update((d) => ({ ...d, introAcknowledged: true }))}
-          >
-            <X className="size-4" />
-          </button>
-        </Alert>
-      )}
-
-      {overdue.overdue && (
-        <Alert variant="warning">
-          <AlertTriangle />
-          <AlertTitle>Check-in gap</AlertTitle>
-          <AlertDescription>
-            It&apos;s been {overdue.daysSince} days since your last check-in (cadence: every{" "}
-            {overdue.expectedDays} day{overdue.expectedDays > 1 ? "s" : ""}). Your next check-in
-            opens by addressing that gap directly — what got in the way is CBT material too.{" "}
-            <Link href="/checkin" className="font-medium underline underline-offset-2">
-              Check in now
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Week {weeks} · Phase {phase.index + 1} — {phase.name}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <StatCard
-          label="Last mood"
-          value={lastLog ? `${lastLog.mood}/10` : "—"}
-          sub={lastLog ? formatDate(lastLog.date) : "No check-ins yet"}
-        />
-        <StatCard label="Last anxiety" value={lastLog ? `${lastLog.anxiety}/10` : "—"} />
-        <StatCard
-          label="Streak"
-          value={String(streaks.current)}
-          sub={`Longest: ${streaks.longest}`}
-          tone={streaks.current > 0 ? "success" : "default"}
-        />
-        <StatCard
-          label="Meds adherence"
-          value={`${streaks.medsAdherencePctRecent}%`}
-          sub="Last 8 check-ins"
-          tone={streaks.medsAdherencePctRecent >= 90 ? "success" : "warning"}
-        />
-      </div>
-
-      {lastLog?.nextHomework && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Current homework</CardTitle>
-            <CardDescription>
-              {lastLog.nextHomework}
-              {lastLog.nextHomeworkDue ? ` — due by ${lastLog.nextHomeworkDue}` : ""}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Check in</CardTitle>
-            <CardDescription>Quick numbers, one CBT tool, one homework action.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <Link href="/checkin">Start check-in</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Roadmap</CardTitle>
-            <CardDescription>
-              Phase {phase.index + 1} of {ROADMAP_PHASES.length} — {phase.goal}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/roadmap">View roadmap</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {sortedLogs.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Recent check-ins</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {sortedLogs.slice(0, 3).map((log) => (
-              <div
-                key={log.id}
-                className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm"
-              >
-                <span className="text-muted-foreground">{formatDate(log.date)}</span>
-                <span>
-                  Mood {log.mood}/10 · Anxiety {log.anxiety}/10 · Meds {log.meds ? "Y" : "N"}
-                </span>
-              </div>
-            ))}
-            <Button asChild variant="link" className="px-0">
-              <Link href="/progress">
-                See full history <ArrowRight className="size-3.5" />
+    <div className="-mx-4 -my-8">
+      {/* ─── Hero ─── */}
+      <section className="bg-grid px-4 py-16 sm:px-6 sm:py-24">
+        <div className="max-w-3xl space-y-6">
+          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-link">
+            CBT-based accountability, built for ADHD &amp; OCD
+          </span>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
+            Structure the days willpower alone can&apos;t carry.
+          </h1>
+          <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            Therapist is a structured accountability layer for people managing ADHD and/or OCD who
+            are stable but stuck — functional, maybe already medicated or in therapy, but with
+            slowed motivation, disorganized time, or avoidance loops keeping a trajectory off
+            track. It sits alongside your real treatment. It never replaces it.
+          </p>
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Button asChild size="lg">
+              <Link href="/signup">
+                Get started <ArrowRight className="size-4" />
               </Link>
             </Button>
-          </CardContent>
-        </Card>
-      )}
+            <Button asChild size="lg" variant="outline">
+              <Link href="/login">Log in</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Core loop ─── */}
+      <section className="px-4 py-14 sm:px-6">
+        <div className="max-w-5xl space-y-8">
+          <div className="max-w-2xl space-y-2">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+              One loop, repeated deliberately
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground">
+              No improvising. The same structure, every cycle.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {LOOP_STEPS.map((step, i) => (
+              <Card key={step.title} className="relative">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <step.icon className="size-5 text-link" aria-hidden="true" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Step {i + 1}
+                    </span>
+                  </div>
+                  <CardTitle className="text-lg">{step.title}</CardTitle>
+                  <CardDescription>{step.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 6 tracking categories ─── */}
+      <section className="bg-grid px-4 py-14 sm:px-6">
+        <div className="max-w-5xl space-y-8">
+          <div className="max-w-2xl space-y-2">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+              Six categories, tracked with precision
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground">
+              Daily or weekly, on a cadence you choose. Each category feeds the roadmap that runs
+              off your actual logged data — not vague intentions.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map((c) => (
+              <Card key={c.name}>
+                <CardHeader>
+                  <c.icon className="size-5 text-link" aria-hidden="true" />
+                  <CardTitle className="text-base">{c.name}</CardTitle>
+                  <CardDescription>{c.description}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Methodology ─── */}
+      <section className="px-4 py-14 sm:px-6">
+        <div className="max-w-3xl space-y-6">
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            Built on CBT and ERP, not vibes
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Every check-in applies one real Cognitive Behavioral Therapy technique with
+            precision — cognitive restructuring, behavioral activation, graded exposure and
+            response prevention (ERP) for OCD, and executive-function scaffolding for ADHD. The
+            6-month roadmap is a hard gate: you can&apos;t silently skip ahead because a day felt
+            good, and a rough stretch doesn&apos;t erase progress already logged. Each phase has
+            its own metric, and moving forward means actually meeting it.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            This is not a psychiatrist, a therapist, or a crisis service. It does not diagnose,
+            prescribe, or adjust medication — see the{" "}
+            <Link href="/about" className="underline underline-offset-2 hover:text-link">
+              About
+            </Link>{" "}
+            page for the full picture, or{" "}
+            <Link href="/safety" className="underline underline-offset-2 hover:text-link">
+              Safety
+            </Link>{" "}
+            if you need help right now.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── Closing CTA ─── */}
+      <section className="bg-grid px-4 py-16 sm:px-6 sm:py-20">
+        <div className="max-w-2xl space-y-5 text-center sm:mx-auto sm:text-center">
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            Start with the intake. It only runs once.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Your baseline snapshot builds the tracking and roadmap that everything else runs
+            from.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg">
+              <Link href="/signup">
+                Create your account <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/about">Read more about it</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
