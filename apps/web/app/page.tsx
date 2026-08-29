@@ -77,15 +77,15 @@ export default function LandingPage() {
     <div className="-mx-4 -my-8">
       {/* ─── Hero ─── */}
       <section className="bg-grid px-4 py-16 sm:px-6 sm:py-24">
-        <div className="max-w-3xl space-y-6">
-          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-link">
+        <div className="flex max-w-2xl flex-col items-start space-y-6">
+          <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-link">
             CBT-based accountability, built for ADHD &amp; OCD
           </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">
-            Structure the days willpower alone can&apos;t carry.
+          <h1 className="text-2xl font-extrabold uppercase tracking-widest text-foreground sm:text-4xl">
+            STRUCTURE THE DAYS WILLPOWER ALONE CAN&apos;T CARRY.
           </h1>
-          <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Therapist is a structured accountability layer for people managing ADHD and/or OCD who
+          <p className="text-lg leading-relaxed text-muted-foreground">
+            <span className="font-extrabold uppercase tracking-widest text-foreground"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span> is a structured accountability layer for people managing ADHD and/or OCD who
             are stable but stuck — functional, maybe already medicated or in therapy, but with
             slowed motivation, disorganized time, or avoidance loops keeping a trajectory off
             track. It sits alongside your real treatment. It never replaces it.
@@ -105,7 +105,7 @@ export default function LandingPage() {
 
       {/* ─── Core loop ─── */}
       <section className="px-4 py-14 sm:px-6">
-        <div className="max-w-5xl space-y-8">
+        <div className="max-w-7xl space-y-8">
           <div className="max-w-2xl space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
               One loop, repeated deliberately
@@ -135,7 +135,7 @@ export default function LandingPage() {
 
       {/* ─── 6 tracking categories ─── */}
       <section className="bg-grid px-4 py-14 sm:px-6">
-        <div className="max-w-5xl space-y-8">
+        <div className="max-w-7xl space-y-8">
           <div className="max-w-2xl space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
               Six categories, tracked with precision
@@ -161,7 +161,7 @@ export default function LandingPage() {
 
       {/* ─── Methodology ─── */}
       <section className="px-4 py-14 sm:px-6">
-        <div className="max-w-3xl space-y-6">
+        <div className="max-w-2xl space-y-6">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
             Built on CBT and ERP, not vibes
           </h2>
@@ -190,7 +190,7 @@ export default function LandingPage() {
 
       {/* ─── Closing CTA ─── */}
       <section className="bg-grid px-4 py-16 sm:px-6 sm:py-20">
-        <div className="max-w-2xl space-y-5 text-center sm:mx-auto sm:text-center">
+        <div className="flex max-w-2xl flex-col items-start space-y-5">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
             Start with the intake. It only runs once.
           </h2>
@@ -198,7 +198,7 @@ export default function LandingPage() {
             Your baseline snapshot builds the tracking and roadmap that everything else runs
             from.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
               <Link href="/signup">
                 Create your account <ArrowRight className="size-4" />
