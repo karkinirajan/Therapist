@@ -26,6 +26,19 @@ class Settings(BaseSettings):
 
     cors_allow_origins: list[str] = ["http://localhost:3000"]
 
+    # Overrides the `Secure` cookie flag's default (environment == "production").
+    # Needed for a production deployment served over plain HTTP without a
+    # domain/TLS yet (e.g. a bare EC2 IP) — browsers silently drop `Secure`
+    # cookies set over an insecure connection, which breaks refresh/logout
+    # entirely. Leave unset once real TLS is in front of the app.
+    cookie_secure_override: bool | None = None
+
+    @property
+    def cookie_secure(self) -> bool:
+        if self.cookie_secure_override is not None:
+            return self.cookie_secure_override
+        return self.environment == "production"
+
 
 @lru_cache
 def get_settings() -> Settings:
