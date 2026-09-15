@@ -104,154 +104,135 @@
   --color-link: var(--link);
 }
 
-/* ─── Neutral-gray + single-accent palette pass ─────────────────────────
-   Replaces the prior Catppuccin Mocha/Latte palette outright (not layered
-   on top of it — every hex below is new). The 8 named grays are Bootstrap's
-   own gray-100…gray-900 scale (gray-400 dropped per product decision),
-   given descriptive names, used as literal hex — not run through
-   HSL/OKLCH derivation:
-     bright_snow     #f8f9fa   (bs gray-100, lightest)
-     platinum        #e9ecef   (bs gray-200)
-     alabaster_grey  #dee2e6   (bs gray-300)
-     pale_slate      #adb5bd   (bs gray-500)
-     slate_grey      #6c757d   (bs gray-600)
-     iron_grey       #495057   (bs gray-700)
-     gunmetal        #343a40   (bs gray-800)
-     carbon_black    #212529   (bs gray-900, darkest)
-   Accent: #124559 (a dark teal-blue), used as the literal hex for
-   --primary/--ring in BOTH themes, unmodified — deliberately not
-   lightened/darkened per-theme, verified below to clear AA as a button
-   fill with light text in both.
+/* ─── Teal/cyan palette pass ─────────────────────────────────────────────
+   Replaces the prior neutral-gray + #124559-accent palette outright — every
+   hex below comes from a single caller-supplied 4-scale teal/cyan palette
+   (stormy_teal, teal, strong_cyan, alice_blue), each running 100 (darkest)
+   through 900 (lightest), literal hex, not run through HSL/OKLCH derivation:
+     stormy_teal  DEFAULT #037682  100 #01171a  200 #012f34  300 #02464e
+                  400 #035d67  500 #037682  600 #05b7cb  700 #22e4f9
+                  800 #6cedfb  900 #b5f6fd
+     teal         DEFAULT #0a7f8a  100 #02191c  200 #043337  300 #064c53
+                  400 #08666e  500 #0a7f8a  600 #0fbdcd  700 #35e0f0
+                  800 #78eaf5  900 #bcf5fa
+     strong_cyan  DEFAULT #2fced6  100 #092a2b  200 #115357  300 #1a7d82
+                  400 #22a7ae  500 #2fced6  600 #58d7de  700 #82e1e6
+                  800 #acebef  900 #d5f5f7
+     alice_blue   DEFAULT #effaff  100 #004463  200 #0087c6  300 #2abbff
+                  400 #8ddbff  500 #effaff  600 #f3fbff  700 #f6fcff
+                  800 #f9fdff  900 #fcfeff
+   Destructive red (#dc3545) is the one deliberate carve-out — kept as-is,
+   reserved for the /safety "Call now" button and destructive variants, per
+   explicit product instruction to replace everything else with this
+   palette but leave the critical/destructive color alone.
 
-   Token → gray mapping (the "final token mapping," per gray, per theme):
+   Token → swatch mapping:
 
-     role                  | light               | dark
-     ----------------------|---------------------|--------------------
-     chrome (nav/footer)   | bright_snow (lightest, "mirror" of dark's darkest-chrome rule)
-                                                  | carbon_black (darkest, framing rule)
-     chrome-foreground     | carbon_black         | bright_snow
-     background (page)     | platinum             | gunmetal (one step lighter than chrome)
-     foreground (body text)| carbon_black          | bright_snow
-     card / popover        | bright_snow (lift above platinum page bg)
-                                                  | iron_grey (a further step lighter than gunmetal, for elevation)
-     card-foreground       | carbon_black          | bright_snow
-     muted / accent bg     | alabaster_grey        | iron_grey (reuses the card tier, same as the prior
-                                                    Catppuccin pass reusing surface0 for card+accent)
-     muted-foreground      | iron_grey             | alabaster_grey
-     secondary             | alabaster_grey        | carbon_black (more visual weight than muted, mirrors
-                                                    dark's "further-recessed" secondary tier)
-     secondary-foreground  | carbon_black          | bright_snow
-     field (form wells)    | alabaster_grey (a 3rd tone, distinct from both
-                             background/platinum AND card/bright_snow)
-                                                  | carbon_black (distinct from background/gunmetal and
-                                                    card/iron_grey)
-     placeholder            | slate_grey            | pale_slate
-     border / input         | alabaster_grey        | slate_grey (kept low-contrast against background on
-                                                    purpose, same convention as the prior pass — the
-                                                    card's own fill is still the primary visual boundary)
-     primary / ring          | #124559 (literal, both themes, not derived)
-     primary-foreground      | bright_snow (both themes — same accent, same fg)
-     destructive              | #dc3545 (Bootstrap danger red, literal, both themes — reserved
-                                exclusively for the /safety "Call now" button and destructive
-                                button/badge variants, never reused elsewhere)
-     destructive-foreground   | #ffffff (both themes — see contrast note below)
+     role                  | light                          | dark
+     ----------------------|--------------------------------|--------------------
+     chrome (nav/footer)   | alice_blue-900 (lightest)       | stormy_teal-100 (darkest)
+     chrome-foreground     | teal-100                        | alice_blue-900
+     background (page)     | alice_blue-500/DEFAULT          | stormy_teal-200 (one step lighter than chrome)
+     foreground (body text)| teal-100                        | alice_blue-900
+     card / popover        | alice_blue-800 / alice_blue-900 | stormy_teal-300 / stormy_teal-400 (elevation)
+     card-foreground       | teal-100                        | alice_blue-900
+     muted / accent bg     | strong_cyan-900 (pale cyan wash)| teal-200 (reuses card tier)
+     muted-foreground      | teal-400                        | strong_cyan-900
+     secondary             | strong_cyan-900                 | stormy_teal-100 (more visual weight than muted)
+     secondary-foreground  | teal-100                        | alice_blue-900
+     field (form wells)    | strong_cyan-900 (a 3rd tone)    | stormy_teal-100
+     placeholder            | teal-500/DEFAULT                | strong_cyan-400
+     border / input          | strong_cyan-800                 | teal-300 (kept low-contrast on purpose)
+     primary / ring          | stormy_teal-500/DEFAULT (literal, both themes, not derived)
+     primary-foreground      | alice_blue-900 (both themes)
+     link                    | teal-400 (light — darkened one step off DEFAULT to clear AA)
+                                                              | strong_cyan-600 (dark — lightened for contrast
+                                                                on the dark background, same convention the
+                                                                prior pass used for --link)
+     destructive              | #dc3545 (unchanged, literal, both themes — see note above)
+     destructive-foreground   | #ffffff (unchanged, both themes)
 
-   No red/success/warning/info were specified in the palette itself — pulled
-   from Bootstrap's own semantic colors since the neutral scale already *is*
-   Bootstrap's system (the coherent choice, not an arbitrary addition):
-   $success #198754, $warning #ffc107, $info #0dcaf0, $danger #dc3545 (used
-   for --destructive above). Bootstrap's raw warning/info fail badly as
-   *text* on light backgrounds (1.4–1.9:1) and raw success/danger fail as
-   text on the dark theme's card tier — so, following the exact precedent
-   the prior Catppuccin pass set (it darkened Latte's green/yellow/sky for
-   body-text contrast), the --success/--warning/--info *text* tokens below
-   are Bootstrap 5.3's own "text-emphasis" shades (mix with black, light
-   theme) / "text-emphasis" tints (mix with white, dark theme) — reusing
-   Bootstrap's own documented fix for this exact problem rather than
-   inventing new math. Their *-muted backings are Bootstrap's matching
-   "bg-subtle" shades/tints from the same system.
+   No separate success/warning/info hue exists in this palette (it's a
+   single teal/cyan family, not a multi-hue system) — those three status
+   tokens are differentiated by shade/depth within the same family
+   (stormy_teal/teal/strong_cyan respectively) rather than by hue. This is
+   a real reduction in at-a-glance semantic distinctiveness versus the
+   prior red/yellow/blue-ish trio, accepted here because the instruction
+   was to replace the palette entirely except the destructive red — flagged
+   here rather than silently smoothed over.
 
-   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed —
-   computed with a small script, not spot-checked by eye):
-     LIGHT  foreground-on-background (carbon_black/platinum)        13.01:1
-     LIGHT  card-foreground-on-card (carbon_black/bright_snow)       14.63:1
-     LIGHT  muted-foreground-on-background (iron_grey/platinum)       6.90:1
-     LIGHT  muted-foreground-on-card (iron_grey/bright_snow)          7.76:1
-     LIGHT  chrome-foreground-on-chrome (carbon_black/bright_snow)   14.63:1
-     LIGHT  primary-foreground-on-primary (bright_snow/#124559)       9.86:1
-     LIGHT  destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
-     DARK   foreground-on-background (bright_snow/gunmetal)          10.91:1
-     DARK   card-foreground-on-card (bright_snow/iron_grey)           7.76:1
-     DARK   muted-foreground-on-card (alabaster_grey/iron_grey)       6.28:1
-     DARK   chrome-foreground-on-chrome (bright_snow/carbon_black)   14.63:1
-     DARK   primary-foreground-on-primary (bright_snow/#124559)       9.86:1
+   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed):
+     LIGHT  foreground-on-background (teal-100/alice_blue-500)      17.08:1
+     LIGHT  card-foreground-on-card (teal-100/alice_blue-800)       17.72:1
+     LIGHT  muted-foreground-on-background (teal-400/alice_blue-500) 6.31:1
+     LIGHT  muted-foreground-on-muted (teal-400/strong_cyan-900)     5.81:1
+     LIGHT  chrome-foreground-on-chrome (teal-100/alice_blue-900)   17.92:1
+     LIGHT  primary-foreground-on-primary (alice_blue-900/#037682)   5.30:1
+     LIGHT  link-on-background (teal-400/alice_blue-500)             6.31:1
+     LIGHT  link-on-card (teal-400/alice_blue-800)                   6.54:1
+     LIGHT  destructive-foreground-on-destructive (#ffffff/#dc3545)  4.53:1
+     DARK   foreground-on-background (alice_blue-900/stormy_teal-200) 14.24:1
+     DARK   card-foreground-on-card (alice_blue-900/stormy_teal-300)  10.44:1
+     DARK   muted-foreground-on-muted (strong_cyan-900/teal-200)      11.89:1
+     DARK   chrome-foreground-on-chrome (alice_blue-900/stormy_teal-100) 18.23:1
+     DARK   primary-foreground-on-primary (alice_blue-900/#037682)    5.30:1
+     DARK   link-on-background (strong_cyan-600/stormy_teal-200)      8.36:1
+     DARK   link-on-card (strong_cyan-600/stormy_teal-300)            6.13:1
      DARK   destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
-   All ≥4.5:1 (AA body text) except destructive-foreground, which clears AA
-   by a hair (4.53:1) in both themes — #dc3545 was given as a literal,
-   non-derived requirement (Bootstrap's own danger red), and white is
-   already the best available foreground for it; this is the same
-   known tightness Bootstrap's own .btn-danger has. Its usage is
-   intentionally narrow (the /safety call button + destructive variants),
-   never body text, which keeps the risk contained. One residual gap,
-   documented rather than silently accepted: dark-mode `--muted-foreground`
-   (alabaster_grey) on a *solid* `--muted` fill (iron_grey) is 6.28:1 (fine)
-   but nothing in the app currently pairs muted-foreground text directly
-   onto a raw `--muted` background at full opacity outside that — the one
-   place that *would* (Badge's `variant="muted"`) isn't used anywhere in
-   the app today, so it's flagged here rather than tuned for a combination
-   nothing renders.
+   All ≥4.5:1 (AA body text). destructive-foreground clears AA by the same
+   hair (4.53:1) it always has — unchanged from before, since that pair is
+   the explicit carve-out from this palette swap.
    ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #dee2e6; /* alabaster_grey */
-  --foreground: #212529; /* carbon_black */
+  --background: #effaff; /* alice_blue DEFAULT/500 */
+  --foreground: #02191c; /* teal-100 */
 
-  --card: #e9ecef; /* platinum — lift above the alabaster_grey page bg */
-  --card-foreground: #212529;
+  --card: #f9fdff; /* alice_blue-800 — lift above the alice_blue-500 page bg */
+  --card-foreground: #02191c;
 
-  --popover: #f8f9fa;
-  --popover-foreground: #212529;
+  --popover: #fcfeff; /* alice_blue-900 */
+  --popover-foreground: #02191c;
 
-  --primary: #124559; /* accent, literal — see palette-pass comment above */
-  --primary-foreground: #f8f9fa; /* bright_snow — 9.86:1 on #124559 */
+  --primary: #037682; /* stormy_teal DEFAULT/500, literal — see palette-pass comment above */
+  --primary-foreground: #fcfeff; /* alice_blue-900 — 5.30:1 on #037682 */
 
-  --secondary: #dee2e6; /* alabaster_grey */
-  --secondary-foreground: #212529;
+  --secondary: #d5f5f7; /* strong_cyan-900 */
+  --secondary-foreground: #02191c;
 
-  --muted: #dee2e6; /* alabaster_grey */
-  --muted-foreground: #495057; /* iron_grey */
+  --muted: #d5f5f7; /* strong_cyan-900 */
+  --muted-foreground: #08666e; /* teal-400 */
 
-  --accent: #dee2e6; /* alabaster_grey — reuses the muted tier for hover/highlight bg */
-  --accent-foreground: #212529;
+  --accent: #d5f5f7; /* strong_cyan-900 — reuses the muted tier for hover/highlight bg */
+  --accent-foreground: #02191c;
 
-  /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
+  /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions —
+     the one deliberate carve-out from this palette (see comment above). */
   --destructive: #dc3545;
   --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
 
-  --border: #dee2e6; /* alabaster_grey */
-  --input: #dee2e6;
-  --ring: #124559; /* matches --primary */
-  --link: #124559; /* same as --primary — 8.76:1 on background, legible as-is here */
+  --border: #acebef; /* strong_cyan-800 */
+  --input: #acebef;
+  --ring: #037682; /* matches --primary */
+  --link: #08666e; /* teal-400 — 6.31:1 on background, darkened one step off DEFAULT to clear AA */
   --radius: 0.75rem;
 
-  --field: #dee2e6; /* alabaster_grey — a 3rd tone, distinct from --background/--card */
-  --placeholder: #6c757d; /* slate_grey */
+  --field: #d5f5f7; /* strong_cyan-900 — a 3rd tone, distinct from --background/--card */
+  --placeholder: #0a7f8a; /* teal DEFAULT/500 */
 
-  /* Bootstrap 5.3's own "text-emphasis" shades (mix($color, black, 40–60%)) —
-     reused verbatim rather than re-derived, since they're already Bootstrap's
-     documented fix for raw success/warning/info failing AA as body text on
-     light surfaces (see palette-pass comment above). Muted backings are
-     Bootstrap's matching "bg-subtle" tints. */
-  --success: #0a3622; /* 12.74:1 on card, 11.33:1 on background */
-  --success-muted: #d1e7dd;
-  --warning: #664d03; /* 7.58:1 on card, 6.74:1 on background */
-  --warning-muted: #fff3cd;
-  --info: #055160; /* 8.47:1 on card, 7.53:1 on background */
-  --info-muted: #cff4fc;
+  /* No separate success/warning/info hue in this palette — differentiated by
+     shade/depth within the same teal/cyan family instead (see palette-pass
+     comment above for the accepted tradeoff). */
+  --success: #043337; /* teal-200 — dark enough for AA body text on light surfaces */
+  --success-muted: #bcf5fa; /* teal-900 */
+  --warning: #012f34; /* stormy_teal-200 */
+  --warning-muted: #6cedfb; /* stormy_teal-800 */
+  --info: #115357; /* strong_cyan-200 */
+  --info-muted: #acebef; /* strong_cyan-800 */
 
   /* Nav/footer framing surface — the LIGHTEST tone in light mode (mirrors
      dark mode's darkest-chrome rule, inverted). */
-  --chrome: #f8f9fa; /* bright_snow */
-  --chrome-foreground: #212529; /* carbon_black — 14.63:1 */
+  --chrome: #fcfeff; /* alice_blue-900 */
+  --chrome-foreground: #02191c; /* teal-100 — 17.92:1 */
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
@@ -263,53 +244,54 @@
 /* ─── Dark theme — follows the OS/browser preference automatically ─── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #212529; /* carbon_black */
-    --foreground: #f8f9fa; /* bright_snow */
+    --background: #012f34; /* stormy_teal-200 */
+    --foreground: #fcfeff; /* alice_blue-900 */
 
-    --card: #343a40; /* gunmetal — a further step lighter, for elevation */
-    --card-foreground: #f8f9fa;
+    --card: #02464e; /* stormy_teal-300 — a further step lighter, for elevation */
+    --card-foreground: #fcfeff;
 
-    --popover: #495057;
-    --popover-foreground: #f8f9fa;
+    --popover: #035d67; /* stormy_teal-400 */
+    --popover-foreground: #fcfeff;
 
-    --primary: #124559; /* accent, literal, unchanged from light */
-    --primary-foreground: #f8f9fa; /* 9.86:1 on #124559 */
+    --primary: #037682; /* accent, literal, unchanged from light */
+    --primary-foreground: #fcfeff; /* 5.30:1 on #037682 */
 
-    --secondary: #212529; /* carbon_black — more visual weight than muted */
-    --secondary-foreground: #f8f9fa;
+    --secondary: #01171a; /* stormy_teal-100 — more visual weight than muted */
+    --secondary-foreground: #fcfeff;
 
-    --muted: #495057; /* iron_grey — reuses the card tier */
-    --muted-foreground: #dee2e6; /* alabaster_grey */
+    --muted: #043337; /* teal-200 — reuses the card tier */
+    --muted-foreground: #d5f5f7; /* strong_cyan-900 */
 
-    --accent: #495057;
-    --accent-foreground: #f8f9fa;
+    --accent: #043337;
+    --accent-foreground: #fcfeff;
 
-    /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
+    /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions —
+       the one deliberate carve-out from this palette (see comment above). */
     --destructive: #dc3545;
     --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
 
-    --border: #6c757d; /* slate_grey — subtle, not high-contrast, on purpose */
-    --input: #6c757d;
-    --ring: #124559;
-    --link: #b8c7cd; /* a light tint of #124559 — 6.62:1 on background, 4.71:1 on card (see --color-link comment above) */
+    --border: #064c53; /* teal-300 — subtle, not high-contrast, on purpose */
+    --input: #064c53;
+    --ring: #037682;
+    --link: #58d7de; /* strong_cyan-600 — 8.36:1 on background, 6.13:1 on card */
 
-    --field: #212529; /* carbon_black — distinct from background/card */
-    --placeholder: #adb5bd; /* pale_slate */
+    --field: #01171a; /* stormy_teal-100 — distinct from background/card */
+    --placeholder: #22a7ae; /* strong_cyan-400 */
 
-    /* Bootstrap 5.3's own dark-mode "text-emphasis" tints (mix($color,
-       white, 20–60%)) — brightened further than Bootstrap's own picks where
-       this app's lighter dark-card tone (iron_grey) demanded it to clear
-       AA (see palette-pass comment above for the exact math). */
-    --success: #a3cfbb; /* 6.68:1 on background, 4.75:1 on card */
-    --success-muted: #051b11;
-    --warning: #ffc107; /* raw Bootstrap warning already clears AA here — 7.06:1 on background, 5.02:1 on card */
-    --warning-muted: #332701;
-    --info: #3dd5f3; /* 6.58:1 on background, 4.68:1 on card */
-    --info-muted: #032830;
+    /* No separate success/warning/info hue in this palette — differentiated by
+       shade/depth within the same teal/cyan family (see palette-pass comment
+       above), brightened for dark-mode contrast the same way the prior pass
+       brightened its own status tints. */
+    --success: #bcf5fa; /* teal-900 */
+    --success-muted: #043337; /* teal-200 */
+    --warning: #6cedfb; /* stormy_teal-800 */
+    --warning-muted: #012f34; /* stormy_teal-200 */
+    --info: #acebef; /* strong_cyan-800 */
+    --info-muted: #115357; /* strong_cyan-200 */
 
     /* Nav/footer framing surface — the DARKEST tone in dark mode. */
-    --chrome: #212529; /* carbon_black */
-    --chrome-foreground: #f8f9fa; /* bright_snow — 14.63:1 */
+    --chrome: #01171a; /* stormy_teal-100 */
+    --chrome-foreground: #fcfeff; /* alice_blue-900 — 18.23:1 */
 
     --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 
@@ -323,47 +305,47 @@
    precedence over the OS preference since it's a plain class selector
    applied outside the media query. ─── */
 .dark {
-  --background: #212529;
-  --foreground: #f8f9fa;
+  --background: #012f34;
+  --foreground: #fcfeff;
 
-  --card: #343a40;
-  --card-foreground: #f8f9fa;
+  --card: #02464e;
+  --card-foreground: #fcfeff;
 
-  --popover: #495057;
-  --popover-foreground: #f8f9fa;
+  --popover: #035d67;
+  --popover-foreground: #fcfeff;
 
-  --primary: #124559;
-  --primary-foreground: #f8f9fa;
+  --primary: #037682;
+  --primary-foreground: #fcfeff;
 
-  --secondary: #212529;
-  --secondary-foreground: #f8f9fa;
+  --secondary: #01171a;
+  --secondary-foreground: #fcfeff;
 
-  --muted: #495057;
-  --muted-foreground: #dee2e6;
+  --muted: #043337;
+  --muted-foreground: #d5f5f7;
 
-  --accent: #495057;
-  --accent-foreground: #f8f9fa;
+  --accent: #043337;
+  --accent-foreground: #fcfeff;
 
   --destructive: #dc3545;
   --destructive-foreground: #ffffff;
 
-  --border: #6c757d;
-  --input: #6c757d;
-  --ring: #124559;
-  --link: #b8c7cd;
+  --border: #064c53;
+  --input: #064c53;
+  --ring: #037682;
+  --link: #58d7de;
 
-  --field: #212529;
-  --placeholder: #adb5bd;
+  --field: #01171a;
+  --placeholder: #22a7ae;
 
-  --success: #a3cfbb;
-  --success-muted: #051b11;
-  --warning: #ffc107;
-  --warning-muted: #332701;
-  --info: #3dd5f3;
-  --info-muted: #032830;
+  --success: #bcf5fa;
+  --success-muted: #043337;
+  --warning: #6cedfb;
+  --warning-muted: #012f34;
+  --info: #acebef;
+  --info-muted: #115357;
 
-  --chrome: #212529;
-  --chrome-foreground: #f8f9fa;
+  --chrome: #01171a;
+  --chrome-foreground: #fcfeff;
 
   --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
 

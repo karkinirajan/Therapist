@@ -85,7 +85,7 @@ export default function LandingPage() {
             STRUCTURE THE DAYS WILLPOWER ALONE CAN&apos;T CARRY.
           </h1>
           <p className="text-lg leading-relaxed text-muted-foreground">
-            <span className="font-extrabold uppercase tracking-widest text-foreground"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span> is a structured accountability layer for people managing ADHD and/or OCD who
+            <span className="font-extrabold uppercase tracking-widest text-foreground"><span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span></span> is a structured accountability layer for people managing ADHD and/or OCD who
             are stable but stuck — functional, maybe already medicated or in therapy, but with
             slowed motivation, disorganized time, or avoidance loops keeping a trajectory off
             track. It sits alongside your real treatment. It never replaces it.

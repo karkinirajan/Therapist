@@ -38,7 +38,7 @@ const AUTHED_LINKS = [
  * (a shape + a letter, not an illustration). */
 function Logomark() {
   return (
-    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-red-700 bg-[#124559] text-[#f8f9fa] dark:border-red-600">
+    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-[#22e4f9] bg-[#037682] text-[#fcfeff] dark:border-[#6cedfb]">
       <HeartHandshake className="size-3.5" />
     </div>
   );
@@ -59,7 +59,7 @@ export function Nav() {
           className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"
         >
           <Logomark />
-          <span className="uppercase font-extrabold tracking-widest"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span>
+          <span className="uppercase font-extrabold tracking-widest"><span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span></span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
