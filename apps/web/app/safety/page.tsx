@@ -22,7 +22,7 @@ const CALL_BUTTON_CLASS =
 
 export default function SafetyPage() {
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Safety</h1>
         <p className="text-base leading-relaxed text-muted-foreground">
