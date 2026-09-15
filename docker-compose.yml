@@ -75,6 +75,13 @@ services:
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-["http://localhost:3000"]}
+      # Overrides the refresh_token/oauth-state cookies' `Secure` flag, which
+      # otherwise defaults to true whenever ENVIRONMENT=production. Only set
+      # this to "false" for a production deploy still running over plain HTTP
+      # (e.g. a bare EC2 IP with no domain/TLS yet) — browsers silently drop
+      # `Secure` cookies set over an insecure connection, which breaks
+      # refresh/logout entirely. Leave unset once real TLS is in front.
+      COOKIE_SECURE: ${COOKIE_SECURE:-}
       # Bind 0.0.0.0, not the gunicorn.conf.py default of 127.0.0.1 —
       # Docker's own per-container network namespace means 127.0.0.1
       # inside this container is invisible to the `web` container, so

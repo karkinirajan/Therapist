@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import PostgresDsn
+from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,7 +31,15 @@ class Settings(BaseSettings):
     # domain/TLS yet (e.g. a bare EC2 IP) — browsers silently drop `Secure`
     # cookies set over an insecure connection, which breaks refresh/logout
     # entirely. Leave unset once real TLS is in front of the app.
-    cookie_secure_override: bool | None = None
+    cookie_secure_override: bool | None = Field(default=None, validation_alias="COOKIE_SECURE")
+
+    @field_validator("cookie_secure_override", mode="before")
+    @classmethod
+    def _blank_env_means_unset(cls, value: object) -> object:
+        # Compose's `${COOKIE_SECURE:-}` interpolation passes an empty string,
+        # not an absent var, when unset in .env — treat that the same as unset
+        # rather than a bool-parse error.
+        return None if value == "" else value
 
     @property
     def cookie_secure(self) -> bool:
