@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 // from components/ui/button.tsx — that module is a Client Component, and this page stays a
 // Server Component so it can export page-specific metadata.
 const CALL_BUTTON_CLASS =
-  "inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-transparent bg-destructive px-8 py-3 text-center text-base leading-tight font-medium text-destructive-foreground transition-all outline-none select-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px min-h-12 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+  "inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-md border border-transparent bg-destructive px-8 py-3 text-center text-base leading-tight font-medium text-destructive-foreground transition-all outline-none select-none hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px min-h-12 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
 export default function SafetyPage() {
   return (

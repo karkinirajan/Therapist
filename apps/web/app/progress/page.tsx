@@ -95,7 +95,7 @@ export default function ProgressPage() {
               <div key={phase.index} className="flex flex-1 items-center gap-2">
                 <div
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                    "flex size-8 shrink-0 items-center justify-center rounded-md border text-xs font-semibold",
                     phase.index < data.phaseIndex && "border-success bg-success-muted text-success",
                     phase.index === data.phaseIndex && "border-primary bg-primary/10 text-link",
                     phase.index > data.phaseIndex && "border-border text-muted-foreground",

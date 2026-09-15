@@ -21,8 +21,24 @@
      in a proportional font — mitigated via generous line-height/leading on
      body copy rather than by reverting to a proportional font (see the
      `body` rule and prose-heavy pages under app/(about|policy|terms|faq)). */
-  --font-sans: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
-  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: var(--font-sans-vars), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: var(--font-display-vars), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-vars), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Reduce all text sizes by 2px (0.125rem) globally */
+  --text-xs: 0.625rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.125rem;
+  --text-2xl: 1.375rem;
+  --text-3xl: 1.75rem;
+  --text-4xl: 2.125rem;
+  --text-5xl: 2.875rem;
+  --text-6xl: 3.625rem;
+  --text-7xl: 4.375rem;
+  --text-8xl: 5.875rem;
+  --text-9xl: 7.875rem;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -186,10 +202,10 @@
    nothing renders.
    ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #e9ecef; /* platinum */
+  --background: #dee2e6; /* alabaster_grey */
   --foreground: #212529; /* carbon_black */
 
-  --card: #f8f9fa; /* bright_snow — lift above the platinum page bg */
+  --card: #e9ecef; /* platinum — lift above the alabaster_grey page bg */
   --card-foreground: #212529;
 
   --popover: #f8f9fa;
@@ -247,10 +263,10 @@
 /* ─── Dark theme — follows the OS/browser preference automatically ─── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #343a40; /* gunmetal — one step lighter than carbon_black chrome */
+    --background: #212529; /* carbon_black */
     --foreground: #f8f9fa; /* bright_snow */
 
-    --card: #495057; /* iron_grey — a further step lighter, for elevation */
+    --card: #343a40; /* gunmetal — a further step lighter, for elevation */
     --card-foreground: #f8f9fa;
 
     --popover: #495057;
@@ -307,10 +323,10 @@
    precedence over the OS preference since it's a plain class selector
    applied outside the media query. ─── */
 .dark {
-  --background: #343a40;
+  --background: #212529;
   --foreground: #f8f9fa;
 
-  --card: #495057;
+  --card: #343a40;
   --card-foreground: #f8f9fa;
 
   --popover: #495057;
@@ -383,7 +399,11 @@ body {
    their existing size/weight jump, keeping hierarchy legible at a glance. */
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
 
@@ -400,7 +420,7 @@ html {
   background: var(--foreground);
   color: var(--background);
   padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   transition: top 0.2s ease;
 }

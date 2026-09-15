@@ -32,20 +32,22 @@ export default function DashboardPage() {
 
   if (!baseline.data) {
     return (
-      <div className="max-w-xl space-y-6 py-8 text-center">
-        <ClipboardList className="mx-auto size-10 text-link" aria-hidden="true" />
+      <div className="max-w-7xl space-y-6 py-8">
+        <ClipboardList className="size-10 text-link" aria-hidden="true" />
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           Start with the intake
         </h1>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Your baseline snapshot builds the daily/weekly tracking and 6-month roadmap that
           everything else here runs from. It only runs once.
         </p>
-        <Button asChild size="lg">
-          <Link href="/intake">
-            Start the intake <ArrowRight className="size-4" />
-          </Link>
-        </Button>
+        <div className="flex justify-start">
+          <Button asChild size="lg">
+            <Link href="/intake">
+              Start the intake <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -283,8 +285,8 @@ function StatCardSkeleton() {
   return (
     <Card>
       <CardContent className="space-y-2 p-4">
-        <div className="h-3 w-16 animate-pulse rounded bg-muted" />
-        <div className="h-6 w-12 animate-pulse rounded bg-muted" />
+        <div className="h-3 w-16 animate-pulse rounded-md bg-muted" />
+        <div className="h-6 w-12 animate-pulse rounded-md bg-muted" />
       </CardContent>
     </Card>
   );
@@ -293,8 +295,8 @@ function StatCardSkeleton() {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6" role="status" aria-label="Loading dashboard">
-      <div className="h-16 animate-pulse rounded-lg border border-border bg-muted/40" />
-      <div className="h-8 w-40 animate-pulse rounded bg-muted" />
+      <div className="h-16 animate-pulse rounded-md border border-border bg-muted/40" />
+      <div className="h-8 w-40 animate-pulse rounded-md bg-muted" />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCardSkeleton />
         <StatCardSkeleton />

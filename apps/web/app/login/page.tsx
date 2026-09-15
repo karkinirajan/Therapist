@@ -98,7 +98,7 @@ export default function LoginPage() {
             <a href="/api/auth/google/start">Continue with Google</a>
           </Button>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <a href="/signup" className="font-medium text-foreground underline underline-offset-2">
               Sign up

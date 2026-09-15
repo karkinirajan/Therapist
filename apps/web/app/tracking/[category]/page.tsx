@@ -261,8 +261,8 @@ export default function TrackingCategoryPage({
   if (categories.isPending) {
     return (
       <div className="space-y-4" role="status" aria-label="Loading category">
-        <div className="h-8 w-56 animate-pulse rounded bg-muted" />
-        <div className="h-64 animate-pulse rounded-lg border border-border bg-muted/40" />
+        <div className="h-8 w-56 animate-pulse rounded-md bg-muted" />
+        <div className="h-64 animate-pulse rounded-md border border-border bg-muted/40" />
       </div>
     );
   }

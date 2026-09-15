@@ -15,14 +15,14 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        Something went wrong
-      </h1>
-      <p className="text-sm text-muted-foreground">
-        Your data is safe — it lives in this browser&apos;s local storage, not on this page.
-      </p>
-      <Button onClick={reset}>Try again</Button>
+    <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center gap-4 px-4">
+      <div className="max-w-2xl">
+        <h2 className="text-xl font-bold text-foreground">Something went wrong!</h2>
+        <p className="text-muted-foreground">{error.message || "An unexpected error occurred."}</p>
+      </div>
+      <div className="flex justify-start">
+        <Button onClick={() => reset()}>Try again</Button>
+      </div>
     </div>
   );
 }

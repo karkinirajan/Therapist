@@ -36,7 +36,7 @@ export function ScaleInput({
         step={1}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-primary"
+        className="h-2 w-full cursor-pointer appearance-none rounded-md bg-muted accent-primary"
         aria-label={label}
       />
       {(lowLabel || highLabel) && (

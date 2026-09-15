@@ -21,9 +21,9 @@ export default function RoadmapPage() {
   if (baseline.isPending || (baseline.data && roadmapState.isPending)) {
     return (
       <div className="space-y-4" role="status" aria-label="Loading roadmap">
-        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+        <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted/40" />
+          <div key={i} className="h-24 animate-pulse rounded-md border border-border bg-muted/40" />
         ))}
       </div>
     );

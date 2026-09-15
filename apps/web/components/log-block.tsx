@@ -18,7 +18,7 @@ export function LogBlock({ text }: { text: string }) {
   }
 
   return (
-    <div className="relative rounded-lg border border-border bg-muted/50">
+    <div className="relative rounded-md border border-border bg-muted/50">
       <pre className="overflow-x-auto whitespace-pre-wrap p-4 pr-14 font-mono text-xs leading-relaxed text-foreground">
         {text}
       </pre>

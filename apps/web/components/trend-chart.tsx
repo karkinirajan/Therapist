@@ -30,7 +30,7 @@ function pathFor(points: Point[], key: "mood" | "anxiety"): string {
 export function TrendChart({ points }: { points: Point[] }) {
   if (points.length < 2) {
     return (
-      <div className="flex h-[200px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+      <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
         Log at least two check-ins to see a trend.
       </div>
     );
@@ -66,10 +66,10 @@ export function TrendChart({ points }: { points: Point[] }) {
         <span>{first}</span>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2 rounded-full bg-primary" /> Mood
+            <span className="inline-block size-2 rounded-md bg-primary" /> Mood
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2 rounded-full bg-warning" /> Anxiety
+            <span className="inline-block size-2 rounded-md bg-warning" /> Anxiety
           </span>
         </div>
         <span>{last}</span>

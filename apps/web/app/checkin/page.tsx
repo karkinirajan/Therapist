@@ -73,8 +73,8 @@ export default function CheckinPage() {
   if (baseline.isPending) {
     return (
       <div className="max-w-2xl space-y-4" role="status" aria-label="Loading check-in">
-        <div className="h-8 w-40 animate-pulse rounded bg-muted" />
-        <div className="h-64 animate-pulse rounded-lg border border-border bg-muted/40" />
+        <div className="h-8 w-40 animate-pulse rounded-md bg-muted" />
+        <div className="h-64 animate-pulse rounded-md border border-border bg-muted/40" />
       </div>
     );
   }

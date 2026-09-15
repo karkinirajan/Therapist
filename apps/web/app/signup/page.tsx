@@ -115,7 +115,7 @@ export default function SignupPage() {
             <a href="/api/auth/google/start">Continue with Google</a>
           </Button>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <a href="/login" className="font-medium text-foreground underline underline-offset-2">
               Log in
