@@ -108,7 +108,7 @@ async def callback(
         exchange_code = build_exchange_code(result.user.id)
         params = urlencode({"code": exchange_code})
         response = RedirectResponse(
-            url=f"{settings.frontend_url}/auth/callback?{params}",
+            url=f"{settings.frontend_url}/auth/google/callback?{params}",
             status_code=status.HTTP_302_FOUND,
         )
 

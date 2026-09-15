@@ -39,6 +39,13 @@ CMD ["npm", "run", "dev"]
 # hoisted-node_modules layout, it works identically here. ----
 FROM deps AS builder
 COPY apps/web ./apps/web
+# next.config.ts's /auth/google/* rewrite destination is baked into
+# routes-manifest.json at build time (Next doesn't re-read process.env for
+# rewrites at container start), so it must match the actual Compose-internal
+# API address used at runtime (docker-compose.yml's `api` service DNS name),
+# not whatever happens to be in the build environment.
+ARG API_BASE_URL=http://api:8000
+ENV API_BASE_URL=${API_BASE_URL}
 RUN npm run build -w @therapist/web
 
 # ---- runtime: lean production image, standalone output only (no full
