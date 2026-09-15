@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LifeBuoy, Menu, X } from "lucide-react";
+import { LifeBuoy, Menu, X, HeartHandshake } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,32 +32,15 @@ const AUTHED_LINKS = [
   { href: "/account", label: "Account" },
 ];
 
-/** Small geometric wordmark — a rounded square in the accent color with a
+/** Small geometric wordmark — a rounded-sm square in the accent color with a
  * "T" for Therapist, matching app/icon.tsx's favicon so the same mark
  * appears both in the tab and in the nav. Kept deliberately simple
  * (a shape + a letter, not an illustration). */
 function Logomark() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="22"
-      height="22"
-      aria-hidden="true"
-      className="shrink-0 rounded-md"
-    >
-      <rect width="24" height="24" rx="6" fill="#124559" />
-      <text
-        x="12"
-        y="16.5"
-        textAnchor="middle"
-        fontSize="13"
-        fontWeight="700"
-        fontFamily="var(--font-sans)"
-        fill="#f8f9fa"
-      >
-        T
-      </text>
-    </svg>
+    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-red-700 bg-[#124559] text-[#f8f9fa] dark:border-red-600">
+      <HeartHandshake className="size-3.5" />
+    </div>
   );
 }
 
@@ -69,14 +52,14 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-chrome/95 backdrop-blur supports-[backdrop-filter]:bg-chrome/80">
-      {/* No `mx-auto` — matches the left-justified content column below it. */}
-      <div className="flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
+      {/* Centered with mx-auto and max-w-7xl to match the layout. */}
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
-          className="flex items-center gap-2 text-sm font-semibold tracking-tight text-chrome-foreground"
+          className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"
         >
           <Logomark />
-          Therapist
+          <span className="uppercase font-extrabold tracking-widest"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -87,7 +70,7 @@ export function Nav() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  "rounded-sm px-3 py-1.5 text-sm font-medium transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -102,16 +85,16 @@ export function Nav() {
         <div className="flex items-center gap-2">
           {!currentUser.data && (
             <>
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex rounded-sm">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Button asChild size="sm" className="hidden sm:inline-flex rounded-sm">
                 <Link href="/signup">Sign up</Link>
               </Button>
             </>
           )}
-          <Button asChild variant="destructive" size="sm" className="gap-1.5">
-            <Link href="/safety">
+          <Button asChild variant="destructive" size="sm" className="gap-1.5 bg-red-800 hover:bg-red-900 font-extrabold text-white rounded-sm border-transparent shadow-none">
+            <Link href="/safety" aria-label="Crisis Support">
               <LifeBuoy className="size-4" />
               <span className="hidden sm:inline">Crisis Support</span>
             </Link>
@@ -119,7 +102,7 @@ export function Nav() {
           <Button
             variant="ghost"
             size="icon-sm"
-            className="md:hidden"
+            className="md:hidden rounded-sm"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((o) => !o)}
           >
@@ -138,7 +121,7 @@ export function Nav() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "rounded-sm px-3 py-2 text-sm font-medium transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -150,10 +133,10 @@ export function Nav() {
           })}
           {!currentUser.data && (
             <div className="mt-1 flex gap-2 border-t border-border pt-2 sm:hidden">
-              <Button asChild variant="ghost" size="sm" className="flex-1" onClick={() => setOpen(false)}>
+              <Button asChild variant="ghost" size="sm" className="flex-1 rounded-sm" onClick={() => setOpen(false)}>
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="sm" className="flex-1" onClick={() => setOpen(false)}>
+              <Button asChild size="sm" className="flex-1 rounded-sm" onClick={() => setOpen(false)}>
                 <Link href="/signup">Sign up</Link>
               </Button>
             </div>

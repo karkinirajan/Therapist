@@ -126,7 +126,7 @@ const FAQS: { id: string; question: string; answer: React.ReactNode }[] = [
 export default function FaqPage() {
   return (
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
-      <div className="max-w-3xl space-y-6">
+      <div className="w-full space-y-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
             Frequently asked questions

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
-      <div className="max-w-3xl space-y-6">
+      <div className="w-full space-y-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">About</h1>
           <p className="text-base leading-relaxed text-muted-foreground">
@@ -26,21 +26,21 @@ export default function AboutPage() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
             <Layers className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold text-foreground">6 tracked categories</p>
               <p className="text-xs text-muted-foreground">Daily or weekly, your choice.</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
             <Compass className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold text-foreground">6-month roadmap</p>
               <p className="text-xs text-muted-foreground">Phased, and gated by real metrics.</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
             <ShieldCheck className="mt-0.5 size-5 shrink-0 text-link" aria-hidden="true" />
             <div>
               <p className="text-sm font-semibold text-foreground">Never a replacement</p>

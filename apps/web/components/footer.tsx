@@ -30,11 +30,11 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-chrome text-chrome-foreground">
-      {/* No `mx-auto` — matches the left-justified content column above it. */}
-      <div className="max-w-5xl space-y-8 px-4 py-10">
+      {/* Centered with mx-auto and max-w-7xl to match the layout. */}
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-[1.5fr_1fr_1fr]">
           <div className="space-y-2">
-            <span className="text-sm font-semibold tracking-tight">Therapist</span>
+            <span className="text-sm font-extrabold uppercase tracking-widest text-chrome-foreground"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               A structured, CBT-based accountability layer for ADHD and OCD — built to work
               alongside your existing treatment, not replace it.
@@ -46,10 +46,15 @@ export function Footer() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {section.title}
               </h2>
-              <ul className="space-y-1.5 text-sm">
+              <ul className="text-sm">
                 {section.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="underline-offset-2 hover:underline">
+                    {/* py-1.5 gives each link a ≥24px touch target (Lighthouse
+                        target-size) without changing the visual line spacing. */}
+                    <Link
+                      href={link.href}
+                      className="inline-block py-1.5 underline-offset-2 hover:underline"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -71,7 +76,7 @@ export function Footer() {
             </Link>{" "}
             for what&apos;s collected and how it&apos;s stored.
           </p>
-          <p>&copy; {year} Therapist. All rights reserved.</p>
+          <p>&copy; {year} <span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span>. All rights reserved.</p>
         </div>
       </div>
     </footer>
