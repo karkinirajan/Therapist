@@ -42,7 +42,7 @@ export default function LoginPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Welcome back</CardTitle>
+          <CardTitle as="h2" className="text-base">Welcome back</CardTitle>
           <CardDescription>Enter your email and password.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">

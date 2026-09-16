@@ -256,7 +256,7 @@ export default function CheckinPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Quick numbers</CardTitle>
+          <CardTitle as="h2" className="text-base">Quick numbers</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <ScaleInput label="Mood" value={mood} onChange={setMood} lowLabel="Low" highLabel="High" />
@@ -306,7 +306,7 @@ export default function CheckinPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">One thing worked, one thing didn&apos;t</CardTitle>
+          <CardTitle as="h2" className="text-base">One thing worked, one thing didn&apos;t</CardTitle>
           <CardDescription>Pull one real event from the gap since last time.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -323,7 +323,7 @@ export default function CheckinPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Apply one CBT tool</CardTitle>
+          <CardTitle as="h2" className="text-base">Apply one CBT tool</CardTitle>
           <CardDescription>Exactly one technique per check-in — not several.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -453,7 +453,7 @@ export default function CheckinPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pattern flagged this session</CardTitle>
+          <CardTitle as="h2" className="text-base">Pattern flagged this session</CardTitle>
           <CardDescription>Distortion or avoidance behavior, if any. Leave blank if none.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -467,7 +467,7 @@ export default function CheckinPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Next homework</CardTitle>
+          <CardTitle as="h2" className="text-base">Next homework</CardTitle>
           <CardDescription>One thing. Small, specific, time-bound.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -22,7 +22,7 @@ export default function TermsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Medical disclaimer</CardTitle>
+            <CardTitle as="h2" className="text-base">Medical disclaimer</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -41,7 +41,7 @@ export default function TermsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Acceptable use</CardTitle>
+            <CardTitle as="h2" className="text-base">Acceptable use</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -55,7 +55,7 @@ export default function TermsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Account responsibilities</CardTitle>
+            <CardTitle as="h2" className="text-base">Account responsibilities</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
@@ -71,7 +71,7 @@ export default function TermsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Limitation of liability</CardTitle>
+            <CardTitle as="h2" className="text-base">Limitation of liability</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -86,7 +86,7 @@ export default function TermsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Contact</CardTitle>
+            <CardTitle as="h2" className="text-base">Contact</CardTitle>
           </CardHeader>
           <CardContent className="text-base leading-relaxed text-foreground">
             <p>

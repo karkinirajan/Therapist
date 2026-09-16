@@ -25,7 +25,7 @@ export default function AccountPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Signed in as</CardTitle>
+          <CardTitle as="h2" className="text-base">Signed in as</CardTitle>
           <CardDescription>
             {currentUser.isPending && "Loading…"}
             {currentUser.isError && "Couldn't load your account."}

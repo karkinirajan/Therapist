@@ -78,7 +78,7 @@ export default function ProgressPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Mood &amp; anxiety trend</CardTitle>
+          <CardTitle as="h2" className="text-base">Mood &amp; anxiety trend</CardTitle>
         </CardHeader>
         <CardContent>
           <TrendChart points={sortedLogs.map((l) => ({ date: l.date, mood: l.mood, anxiety: l.anxiety }))} />
@@ -87,7 +87,7 @@ export default function ProgressPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Phase timeline</CardTitle>
+          <CardTitle as="h2" className="text-base">Phase timeline</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export default function ProgressPage() {
       {showReview && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">6-month review — cold, numbers-first</CardTitle>
+            <CardTitle as="h2" className="text-base">6-month review — cold, numbers-first</CardTitle>
             <CardDescription>
               First half vs. second half of the logged period, plus adherence and career-phase
               activity.
@@ -143,7 +143,7 @@ export default function ProgressPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Log history</CardTitle>
+          <CardTitle as="h2" className="text-base">Log history</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {sortedLogs.length === 0 && <p className="text-sm text-muted-foreground">No check-ins yet.</p>}
@@ -171,7 +171,7 @@ export default function ProgressPage() {
 
       <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-base">Data</CardTitle>
+          <CardTitle as="h2" className="text-base">Data</CardTitle>
           <CardDescription>
             Everything lives only in this browser&apos;s local storage. Export a backup
             periodically — clearing browser data clears this too.

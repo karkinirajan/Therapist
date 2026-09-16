@@ -177,7 +177,7 @@ export default function VoicePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">
+          <CardTitle as="h2" className="text-base">
             {session ? "Conversation in progress" : "Start a conversation"}
           </CardTitle>
           {quota.data && (

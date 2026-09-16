@@ -50,7 +50,7 @@ export default function SignupPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Create your account</CardTitle>
+          <CardTitle as="h2" className="text-base">Create your account</CardTitle>
           <CardDescription>It only takes a minute.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">

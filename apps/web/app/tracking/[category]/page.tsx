@@ -378,7 +378,7 @@ function CategoryEntryForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base capitalize">{cadence} entry</CardTitle>
+        <CardTitle as="h2" className="text-base capitalize">{cadence} entry</CardTitle>
         <CardDescription>
           Period start: {formatDate(periodStartFor(cadence))}
         </CardDescription>
@@ -569,7 +569,7 @@ function RecentEntries({ categoryKey, cadence }: { categoryKey: string; cadence:
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Recent {cadence} entries</CardTitle>
+        <CardTitle as="h2" className="text-base">Recent {cadence} entries</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {entries.isPending && <p className="text-sm text-muted-foreground">Loading…</p>}

@@ -51,7 +51,7 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">What this tool is</CardTitle>
+            <CardTitle as="h2" className="text-base">What this tool is</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Who it&apos;s for</CardTitle>
+            <CardTitle as="h2" className="text-base">Who it&apos;s for</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -91,7 +91,7 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">The philosophy</CardTitle>
+            <CardTitle as="h2" className="text-base">The philosophy</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -114,7 +114,7 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">In its own words: not a substitute for treatment</CardTitle>
+            <CardTitle as="h2" className="text-base">In its own words: not a substitute for treatment</CardTitle>
           </CardHeader>
           <CardContent className="text-base leading-relaxed text-foreground">
             <p>

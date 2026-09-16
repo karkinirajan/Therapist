@@ -23,9 +23,18 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
+/** Defaults to h3 (a Card nested under a page's own h2-sectioned content,
+ * the most common case — see app/page.tsx). Pages where Cards sit directly
+ * under the page's h1 with no h2 section wrapper (about/policy/terms/
+ * safety) pass `as="h2"` instead, so the heading order stays sequential
+ * rather than jumping from h1 straight to h3. */
+function CardTitle({
+  className,
+  as: Comp = "h3",
+  ...props
+}: React.ComponentProps<"h3"> & { as?: "h2" | "h3" }) {
   return (
-    <h3
+    <Comp
       data-slot="card-title"
       className={cn(
         "text-lg font-bold leading-tight tracking-tight",

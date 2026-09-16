@@ -42,7 +42,7 @@ function GoogleCallbackContent() {
     <div className="mx-auto max-w-md space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Signing you in with Google</CardTitle>
+          <CardTitle as="h2" className="text-base">Signing you in with Google</CardTitle>
           <CardDescription>Finishing the sign-in you started with Google.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
