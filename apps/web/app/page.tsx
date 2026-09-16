@@ -11,7 +11,7 @@ import {
   Target,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
@@ -76,7 +76,7 @@ export default function LandingPage() {
   return (
     <div className="-mx-4 -my-8">
       {/* ─── Hero ─── */}
-      <section className="px-4 py-16 sm:px-6 sm:py-24">
+      <section className="px-4 py-10 sm:px-6 sm:py-14">
         <div className="flex w-full flex-col items-start space-y-6">
           <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-link">
             CBT-based accountability, built for ADHD &amp; OCD
@@ -91,14 +91,12 @@ export default function LandingPage() {
             track. It sits alongside your real treatment. It never replaces it.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Button asChild size="lg">
-              <Link href="/signup">
-                Get started <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/login">Log in</Link>
-            </Button>
+            <Link href="/signup" className={buttonVariants({ size: "lg" })}>
+              Get started <ArrowRight className="size-4" />
+            </Link>
+            <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline" })}>
+              Log in
+            </Link>
           </div>
         </div>
       </section>
@@ -199,14 +197,12 @@ export default function LandingPage() {
             from.
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/signup">
-                Create your account <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/about">Read more about it</Link>
-            </Button>
+            <Link href="/signup" className={buttonVariants({ size: "lg" })}>
+              Create your account <ArrowRight className="size-4" />
+            </Link>
+            <Link href="/about" className={buttonVariants({ size: "lg", variant: "outline" })}>
+              Read more about it
+            </Link>
           </div>
         </div>
       </section>
