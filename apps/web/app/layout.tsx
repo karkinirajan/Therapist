@@ -71,8 +71,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fcfeff" },
-    { media: "(prefers-color-scheme: dark)", color: "#01171a" },
+    { media: "(prefers-color-scheme: light)", color: "#070707" },
+    { media: "(prefers-color-scheme: dark)", color: "#070707" },
   ],
 };
 
@@ -88,7 +88,7 @@ export default function RootLayout({
           <a href="#main-content" className="skip-link">
             Skip to main content
           </a>
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen bg-background bg-grid">
             <Nav />
             {/* Content is capped at max-w-7xl and centered in the viewport.
                 Full-width on mobile. */}

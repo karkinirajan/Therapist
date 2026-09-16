@@ -13,14 +13,14 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          // Matches --primary in globals.css (the #037682 stormy_teal
-          // accent, literal in both light and dark) — ImageResponse can't
+          // Matches --primary in globals.css (the #eb5e28 spicy_paprika
+          // accent, literal, no light/dark split) — ImageResponse can't
           // consume CSS custom properties, so this is kept in sync by hand
           // whenever the palette changes.
-          background: "#037682",
-          border: "2px solid #22e4f9",
+          background: "#eb5e28",
+          border: "2px solid #f39f7e",
           borderRadius: 6,
-          color: "#fcfeff",
+          color: "#070707",
           fontSize: 18,
           fontWeight: 700,
           fontFamily: "sans-serif",

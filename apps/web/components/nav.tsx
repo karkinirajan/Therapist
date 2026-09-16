@@ -38,7 +38,7 @@ const AUTHED_LINKS = [
  * (a shape + a letter, not an illustration). */
 function Logomark() {
   return (
-    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-[#22e4f9] bg-[#037682] text-[#fcfeff] dark:border-[#6cedfb]">
+    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-[#f39f7e] bg-[#eb5e28] text-[#070707]">
       <HeartHandshake className="size-3.5" />
     </div>
   );
@@ -53,7 +53,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-chrome/95 backdrop-blur supports-[backdrop-filter]:bg-chrome/80">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
           className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"

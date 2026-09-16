@@ -76,7 +76,7 @@ export default function LandingPage() {
   return (
     <div className="-mx-4 -my-8">
       {/* ─── Hero ─── */}
-      <section className="bg-grid px-4 py-16 sm:px-6 sm:py-24">
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
         <div className="flex w-full flex-col items-start space-y-6">
           <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-link">
             CBT-based accountability, built for ADHD &amp; OCD
@@ -134,7 +134,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── 6 tracking categories ─── */}
-      <section className="bg-grid px-4 py-14 sm:px-6">
+      <section className="px-4 py-14 sm:px-6">
         <div className="max-w-7xl space-y-8">
           <div className="w-full space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
@@ -189,7 +189,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Closing CTA ─── */}
-      <section className="bg-grid px-4 py-16 sm:px-6 sm:py-20">
+      <section className="px-4 py-16 sm:px-6 sm:py-20">
         <div className="flex w-full flex-col items-start space-y-5">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
             Start with the intake. It only runs once.

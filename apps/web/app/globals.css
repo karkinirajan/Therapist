@@ -74,12 +74,18 @@
   --color-info: var(--info);
   --color-info-muted: var(--info-muted);
 
+  /* Capped scale: nothing in the app may render more rounded than "md" —
+     lg/xl/2xl all clamp to the same value as md instead of continuing to
+     grow, so any element (present or future) that reaches for a bigger
+     radius class is silently held at the max instead of visibly breaking
+     the "mostly sm, never more than md" rule. --radius-full is exempt —
+     it's for genuinely circular/pill elements, not corner rounding. */
   --radius-xs: calc(var(--radius) * 0.5);
   --radius-sm: calc(var(--radius) * 0.75);
   --radius-md: calc(var(--radius) * 0.875);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
-  --radius-2xl: calc(var(--radius) * 2);
+  --radius-lg: calc(var(--radius) * 0.875);
+  --radius-xl: calc(var(--radius) * 0.875);
+  --radius-2xl: calc(var(--radius) * 0.875);
   --radius-full: 9999px;
 
   /* Dot-grid background, meant to sit behind cards/content — never behind
@@ -104,250 +110,261 @@
   --color-link: var(--link);
 }
 
-/* ─── Teal/cyan palette pass ─────────────────────────────────────────────
-   Replaces the prior neutral-gray + #124559-accent palette outright — every
-   hex below comes from a single caller-supplied 4-scale teal/cyan palette
-   (stormy_teal, teal, strong_cyan, alice_blue), each running 100 (darkest)
-   through 900 (lightest), literal hex, not run through HSL/OKLCH derivation:
-     stormy_teal  DEFAULT #037682  100 #01171a  200 #012f34  300 #02464e
-                  400 #035d67  500 #037682  600 #05b7cb  700 #22e4f9
-                  800 #6cedfb  900 #b5f6fd
-     teal         DEFAULT #0a7f8a  100 #02191c  200 #043337  300 #064c53
-                  400 #08666e  500 #0a7f8a  600 #0fbdcd  700 #35e0f0
-                  800 #78eaf5  900 #bcf5fa
-     strong_cyan  DEFAULT #2fced6  100 #092a2b  200 #115357  300 #1a7d82
-                  400 #22a7ae  500 #2fced6  600 #58d7de  700 #82e1e6
-                  800 #acebef  900 #d5f5f7
-     alice_blue   DEFAULT #effaff  100 #004463  200 #0087c6  300 #2abbff
-                  400 #8ddbff  500 #effaff  600 #f3fbff  700 #f6fcff
-                  800 #f9fdff  900 #fcfeff
-   Destructive red (#dc3545) is the one deliberate carve-out — kept as-is,
-   reserved for the /safety "Call now" button and destructive variants, per
-   explicit product instruction to replace everything else with this
-   palette but leave the critical/destructive color alone.
+/* ─── Warm carbon/paprika palette pass ───────────────────────────────────
+   Replaces the prior teal/cyan palette outright — every hex below comes
+   from a single caller-supplied 5-scale warm-neutral + single-accent
+   palette (floral_white, dust_grey, charcoal_brown, carbon_black,
+   spicy_paprika), each running 100 (darkest) through 900 (lightest),
+   literal hex, not run through HSL/OKLCH derivation:
+     floral_white   DEFAULT #fffcf2  100 #634c00  200 #c69800  300 #ffcd2a
+                    400 #ffe48d  500 #fffcf2  600 #fffcf3  700 #fffdf6
+                    800 #fffef9  900 #fffefc
+     dust_grey      DEFAULT #ccc5b9  100 #2d2821  200 #5a5141  300 #877962
+                    400 #ab9f8b  500 #ccc5b9  600 #d6d0c6  700 #e0dcd4
+                    800 #eae8e3  900 #f5f3f1
+     charcoal_brown DEFAULT #403d39  100 #0d0c0c  200 #1a1917  300 #272523
+                    400 #34312e  500 #403d39  600 #6a655e  700 #928c84
+                    800 #b6b2ad  900 #dbd9d6
+     carbon_black   DEFAULT #252422  100 #070707  200 #0f0e0e  300 #161615
+                    400 #1e1d1b  500 #252422  600 #53514c  700 #807d76
+                    800 #aba8a4  900 #d5d4d1
+     spicy_paprika  DEFAULT #eb5e28  100 #321205  200 #652309  300 #97350e
+                    400 #ca4713  500 #eb5e28  600 #ef7f53  700 #f39f7e
+                    800 #f7bfa9  900 #fbdfd4
+   Explicit product instruction this pass: background black, text white,
+   and — unlike the prior two palette passes — no light/dark split. :root,
+   the prefers-color-scheme dark media query, and the .dark class all carry
+   the *same* black-background values, so the site reads as black-on-white
+   unconditionally rather than switching to a lighter theme under a
+   light-OS preference. Destructive is darkened one step per instruction
+   ("a bit more dark-red") from the prior pass's #dc3545 to #a4161a — still
+   literal, still the one hue-carve-out reserved for the /safety "Call now"
+   button and destructive variants.
 
-   Token → swatch mapping:
+   Token → swatch mapping (same values in all three theme blocks):
 
-     role                  | light                          | dark
-     ----------------------|--------------------------------|--------------------
-     chrome (nav/footer)   | alice_blue-900 (lightest)       | stormy_teal-100 (darkest)
-     chrome-foreground     | teal-100                        | alice_blue-900
-     background (page)     | alice_blue-500/DEFAULT          | stormy_teal-200 (one step lighter than chrome)
-     foreground (body text)| teal-100                        | alice_blue-900
-     card / popover        | alice_blue-800 / alice_blue-900 | stormy_teal-300 / stormy_teal-400 (elevation)
-     card-foreground       | teal-100                        | alice_blue-900
-     muted / accent bg     | strong_cyan-900 (pale cyan wash)| teal-200 (reuses card tier)
-     muted-foreground      | teal-400                        | strong_cyan-900
-     secondary             | strong_cyan-900                 | stormy_teal-100 (more visual weight than muted)
-     secondary-foreground  | teal-100                        | alice_blue-900
-     field (form wells)    | strong_cyan-900 (a 3rd tone)    | stormy_teal-100
-     placeholder            | teal-500/DEFAULT                | strong_cyan-400
-     border / input          | strong_cyan-800                 | teal-300 (kept low-contrast on purpose)
-     primary / ring          | stormy_teal-500/DEFAULT (literal, both themes, not derived)
-     primary-foreground      | alice_blue-900 (both themes)
-     link                    | teal-400 (light — darkened one step off DEFAULT to clear AA)
-                                                              | strong_cyan-600 (dark — lightened for contrast
-                                                                on the dark background, same convention the
-                                                                prior pass used for --link)
-     destructive              | #dc3545 (unchanged, literal, both themes — see note above)
-     destructive-foreground   | #ffffff (unchanged, both themes)
+     role                   | swatch
+     -----------------------|---------------------------------------------
+     chrome (nav/footer)    | carbon_black-100 (darkest, framing)
+     chrome-foreground      | floral_white-900
+     background (page)      | carbon_black-200 (one step lighter than chrome)
+     foreground (body text) | floral_white-900
+     card                   | charcoal_brown-300 (elevation over background)
+     popover                | charcoal_brown-400 (further elevation)
+     muted / accent bg      | charcoal_brown-400 (reuses popover tier)
+     muted-foreground       | dust_grey-700
+     secondary              | charcoal_brown-200 (more visual weight than muted)
+     secondary-foreground   | floral_white-900
+     field (form wells)     | charcoal_brown-200 (a 3rd tone, distinct from card)
+     placeholder             | dust_grey-400
+     border / input           | charcoal_brown-600 (kept low-contrast on purpose,
+                                not a text pairing — no AA requirement applies)
+     primary / ring           | spicy_paprika-500/DEFAULT (literal, the palette's
+                                only saturated hue)
+     primary-foreground       | carbon_black-100 (dark text — white on this
+                                orange only clears 3.41:1, below AA; black
+                                clears 5.91:1)
+     link                     | spicy_paprika-600 (lightened one step off
+                                DEFAULT for legibility as inline text)
+     destructive               | #a4161a (darkened from the prior pass's
+                                #dc3545 per explicit "a bit more dark-red"
+                                instruction — literal, not derived)
+     destructive-foreground    | #ffffff
 
-   No separate success/warning/info hue exists in this palette (it's a
-   single teal/cyan family, not a multi-hue system) — those three status
-   tokens are differentiated by shade/depth within the same family
-   (stormy_teal/teal/strong_cyan respectively) rather than by hue. This is
-   a real reduction in at-a-glance semantic distinctiveness versus the
-   prior red/yellow/blue-ish trio, accepted here because the instruction
-   was to replace the palette entirely except the destructive red — flagged
-   here rather than silently smoothed over.
+   No separate success/warning/info hue exists in this palette either (one
+   accent hue, not a multi-hue system) — warning reuses floral_white-300
+   (an actual gold/amber, the closest thing to a real "warning" color this
+   palette has), success and info are differentiated by depth within the
+   neutral dust_grey/spicy_paprika families instead of by hue. Flagged here
+   rather than silently smoothed over, same as the prior pass.
+
+   Border radius: capped globally in the @theme block above (radius-lg/xl/
+   2xl all clamp to radius-md) per explicit instruction that nothing in the
+   app should read more rounded than "md" — most interactive primitives
+   (button, input, textarea, checkbox, switch, badge) were additionally
+   turned down to rounded-sm directly in their own files, leaving Card/
+   Alert at rounded-md as the one deliberately-larger tier ("at max md").
 
    Contrast, verified via relative-luminance WCAG 2 math (not eyeballed):
-     LIGHT  foreground-on-background (teal-100/alice_blue-500)      17.08:1
-     LIGHT  card-foreground-on-card (teal-100/alice_blue-800)       17.72:1
-     LIGHT  muted-foreground-on-background (teal-400/alice_blue-500) 6.31:1
-     LIGHT  muted-foreground-on-muted (teal-400/strong_cyan-900)     5.81:1
-     LIGHT  chrome-foreground-on-chrome (teal-100/alice_blue-900)   17.92:1
-     LIGHT  primary-foreground-on-primary (alice_blue-900/#037682)   5.30:1
-     LIGHT  link-on-background (teal-400/alice_blue-500)             6.31:1
-     LIGHT  link-on-card (teal-400/alice_blue-800)                   6.54:1
-     LIGHT  destructive-foreground-on-destructive (#ffffff/#dc3545)  4.53:1
-     DARK   foreground-on-background (alice_blue-900/stormy_teal-200) 14.24:1
-     DARK   card-foreground-on-card (alice_blue-900/stormy_teal-300)  10.44:1
-     DARK   muted-foreground-on-muted (strong_cyan-900/teal-200)      11.89:1
-     DARK   chrome-foreground-on-chrome (alice_blue-900/stormy_teal-100) 18.23:1
-     DARK   primary-foreground-on-primary (alice_blue-900/#037682)    5.30:1
-     DARK   link-on-background (strong_cyan-600/stormy_teal-200)      8.36:1
-     DARK   link-on-card (strong_cyan-600/stormy_teal-300)            6.13:1
-     DARK   destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
-   All ≥4.5:1 (AA body text). destructive-foreground clears AA by the same
-   hair (4.53:1) it always has — unchanged from before, since that pair is
-   the explicit carve-out from this palette swap.
+     foreground-on-background (floral_white-900/carbon_black-200)   19.12:1
+     card-foreground-on-card (floral_white-900/charcoal_brown-300)  15.15:1
+     popover-foreground-on-popover (floral_white-900/charcoal_brown-400) 12.82:1
+     muted-foreground-on-background (dust_grey-700/carbon_black-200) 14.10:1
+     muted-foreground-on-muted (dust_grey-700/charcoal_brown-400)     9.45:1
+     primary-foreground-on-primary (carbon_black-100/#eb5e28)         5.91:1
+     link-on-background (spicy_paprika-600/carbon_black-200)          7.19:1
+     link-on-card (spicy_paprika-600/charcoal_brown-300)              5.69:1
+     chrome-foreground-on-chrome (floral_white-900/carbon_black-100) 19.99:1
+     placeholder-on-field (dust_grey-400/charcoal_brown-200)          6.75:1
+     destructive-foreground-on-destructive (#ffffff/#a4161a)          7.75:1
+     success-on-background (dust_grey-500/carbon_black-200)          11.25:1
+     warning-on-background (floral_white-300/carbon_black-200)       12.87:1
+     info-on-background (spicy_paprika-700/carbon_black-200)          9.24:1
+   All ≥4.5:1 AA (most well past it) — destructive-foreground in particular
+   improved from the prior pass's 4.53:1 to 7.75:1 as a side effect of
+   darkening it, not just a coincidence of the instruction.
    ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #effaff; /* alice_blue DEFAULT/500 */
-  --foreground: #02191c; /* teal-100 */
+  --background: #0f0e0e; /* carbon_black-200 */
+  --foreground: #fffefc; /* floral_white-900 */
 
-  --card: #f9fdff; /* alice_blue-800 — lift above the alice_blue-500 page bg */
-  --card-foreground: #02191c;
+  --card: #272523; /* charcoal_brown-300 — lift above the carbon_black-200 page bg */
+  --card-foreground: #fffefc;
 
-  --popover: #fcfeff; /* alice_blue-900 */
-  --popover-foreground: #02191c;
+  --popover: #34312e; /* charcoal_brown-400 */
+  --popover-foreground: #fffefc;
 
-  --primary: #037682; /* stormy_teal DEFAULT/500, literal — see palette-pass comment above */
-  --primary-foreground: #fcfeff; /* alice_blue-900 — 5.30:1 on #037682 */
+  --primary: #eb5e28; /* spicy_paprika DEFAULT/500, literal — see palette-pass comment above */
+  --primary-foreground: #070707; /* carbon_black-100 — 5.91:1 on #eb5e28 (white only clears 3.41:1) */
 
-  --secondary: #d5f5f7; /* strong_cyan-900 */
-  --secondary-foreground: #02191c;
+  --secondary: #1a1917; /* charcoal_brown-200 */
+  --secondary-foreground: #fffefc;
 
-  --muted: #d5f5f7; /* strong_cyan-900 */
-  --muted-foreground: #08666e; /* teal-400 */
+  --muted: #34312e; /* charcoal_brown-400 */
+  --muted-foreground: #e0dcd4; /* dust_grey-700 */
 
-  --accent: #d5f5f7; /* strong_cyan-900 — reuses the muted tier for hover/highlight bg */
-  --accent-foreground: #02191c;
+  --accent: #34312e; /* charcoal_brown-400 — reuses the muted tier for hover/highlight bg */
+  --accent-foreground: #fffefc;
 
-  /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions —
-     the one deliberate carve-out from this palette (see comment above). */
-  --destructive: #dc3545;
-  --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
+  /* Darkened from the prior pass's #dc3545 per explicit "a bit more
+     dark-red" instruction — literal, the one deliberate hue carve-out from
+     this palette, reserved exclusively for crisis/destructive actions. */
+  --destructive: #a4161a;
+  --destructive-foreground: #ffffff; /* 7.75:1 — see contrast note above */
 
-  --border: #acebef; /* strong_cyan-800 */
-  --input: #acebef;
-  --ring: #037682; /* matches --primary */
-  --link: #08666e; /* teal-400 — 6.31:1 on background, darkened one step off DEFAULT to clear AA */
+  --border: #6a655e; /* charcoal_brown-600 */
+  --input: #6a655e;
+  --ring: #eb5e28; /* matches --primary */
+  --link: #ef7f53; /* spicy_paprika-600 — 7.19:1 on background */
   --radius: 0.75rem;
 
-  --field: #d5f5f7; /* strong_cyan-900 — a 3rd tone, distinct from --background/--card */
-  --placeholder: #0a7f8a; /* teal DEFAULT/500 */
+  --field: #1a1917; /* charcoal_brown-200 — a 3rd tone, distinct from --background/--card */
+  --placeholder: #ab9f8b; /* dust_grey-400 */
 
-  /* No separate success/warning/info hue in this palette — differentiated by
-     shade/depth within the same teal/cyan family instead (see palette-pass
-     comment above for the accepted tradeoff). */
-  --success: #043337; /* teal-200 — dark enough for AA body text on light surfaces */
-  --success-muted: #bcf5fa; /* teal-900 */
-  --warning: #012f34; /* stormy_teal-200 */
-  --warning-muted: #6cedfb; /* stormy_teal-800 */
-  --info: #115357; /* strong_cyan-200 */
-  --info-muted: #acebef; /* strong_cyan-800 */
+  /* No separate success/warning/info hue in this palette — warning reuses
+     the one genuine amber/gold in the scale (floral_white-300); success and
+     info are differentiated by depth within the neutral/accent families
+     instead of by hue (see palette-pass comment above for the tradeoff). */
+  --success: #ccc5b9; /* dust_grey-500/DEFAULT */
+  --success-muted: #1a1917; /* charcoal_brown-200 */
+  --warning: #ffcd2a; /* floral_white-300 — genuine gold/amber */
+  --warning-muted: #272523; /* charcoal_brown-300 */
+  --info: #f39f7e; /* spicy_paprika-700 */
+  --info-muted: #34312e; /* charcoal_brown-400 */
 
-  /* Nav/footer framing surface — the LIGHTEST tone in light mode (mirrors
-     dark mode's darkest-chrome rule, inverted). */
-  --chrome: #fcfeff; /* alice_blue-900 */
-  --chrome-foreground: #02191c; /* teal-100 — 17.92:1 */
+  /* Nav/footer framing surface — the darkest tone, unconditionally (no
+     light/dark split this pass — see comment above). */
+  --chrome: #070707; /* carbon_black-100 */
+  --chrome-foreground: #fffefc; /* floral_white-900 — 19.99:1 */
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
   --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-/* ─── Dark theme — follows the OS/browser preference automatically ─── */
+/* No prefers-color-scheme override this pass — background black / text
+   white is unconditional per explicit instruction, so the dark-media query
+   just repeats :root's own values rather than diverging from them. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #012f34; /* stormy_teal-200 */
-    --foreground: #fcfeff; /* alice_blue-900 */
+    --background: #0f0e0e;
+    --foreground: #fffefc;
 
-    --card: #02464e; /* stormy_teal-300 — a further step lighter, for elevation */
-    --card-foreground: #fcfeff;
+    --card: #272523;
+    --card-foreground: #fffefc;
 
-    --popover: #035d67; /* stormy_teal-400 */
-    --popover-foreground: #fcfeff;
+    --popover: #34312e;
+    --popover-foreground: #fffefc;
 
-    --primary: #037682; /* accent, literal, unchanged from light */
-    --primary-foreground: #fcfeff; /* 5.30:1 on #037682 */
+    --primary: #eb5e28;
+    --primary-foreground: #070707;
 
-    --secondary: #01171a; /* stormy_teal-100 — more visual weight than muted */
-    --secondary-foreground: #fcfeff;
+    --secondary: #1a1917;
+    --secondary-foreground: #fffefc;
 
-    --muted: #043337; /* teal-200 — reuses the card tier */
-    --muted-foreground: #d5f5f7; /* strong_cyan-900 */
+    --muted: #34312e;
+    --muted-foreground: #e0dcd4;
 
-    --accent: #043337;
-    --accent-foreground: #fcfeff;
+    --accent: #34312e;
+    --accent-foreground: #fffefc;
 
-    /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions —
-       the one deliberate carve-out from this palette (see comment above). */
-    --destructive: #dc3545;
-    --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
+    --destructive: #a4161a;
+    --destructive-foreground: #ffffff;
 
-    --border: #064c53; /* teal-300 — subtle, not high-contrast, on purpose */
-    --input: #064c53;
-    --ring: #037682;
-    --link: #58d7de; /* strong_cyan-600 — 8.36:1 on background, 6.13:1 on card */
+    --border: #6a655e;
+    --input: #6a655e;
+    --ring: #eb5e28;
+    --link: #ef7f53;
 
-    --field: #01171a; /* stormy_teal-100 — distinct from background/card */
-    --placeholder: #22a7ae; /* strong_cyan-400 */
+    --field: #1a1917;
+    --placeholder: #ab9f8b;
 
-    /* No separate success/warning/info hue in this palette — differentiated by
-       shade/depth within the same teal/cyan family (see palette-pass comment
-       above), brightened for dark-mode contrast the same way the prior pass
-       brightened its own status tints. */
-    --success: #bcf5fa; /* teal-900 */
-    --success-muted: #043337; /* teal-200 */
-    --warning: #6cedfb; /* stormy_teal-800 */
-    --warning-muted: #012f34; /* stormy_teal-200 */
-    --info: #acebef; /* strong_cyan-800 */
-    --info-muted: #115357; /* strong_cyan-200 */
+    --success: #ccc5b9;
+    --success-muted: #1a1917;
+    --warning: #ffcd2a;
+    --warning-muted: #272523;
+    --info: #f39f7e;
+    --info-muted: #34312e;
 
-    /* Nav/footer framing surface — the DARKEST tone in dark mode. */
-    --chrome: #01171a; /* stormy_teal-100 */
-    --chrome-foreground: #fcfeff; /* alice_blue-900 — 18.23:1 */
+    --chrome: #070707;
+    --chrome-foreground: #fffefc;
 
-    --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+    --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
     color-scheme: dark;
   }
 }
 
-/* ─── Dark theme — explicit override via `.dark` on <html>, for whenever an
-   in-app theme toggle exists (account settings, not yet built). Mirrors the
-   prefers-color-scheme values above so both mechanisms agree. Takes
-   precedence over the OS preference since it's a plain class selector
-   applied outside the media query. ─── */
+/* ─── `.dark` class override — for whenever an in-app theme toggle exists
+   (account settings, not yet built). Same values as :root this pass (see
+   comment above), kept as its own block so a future toggle has somewhere
+   to diverge from without touching :root's own defaults. ─── */
 .dark {
-  --background: #012f34;
-  --foreground: #fcfeff;
+  --background: #0f0e0e;
+  --foreground: #fffefc;
 
-  --card: #02464e;
-  --card-foreground: #fcfeff;
+  --card: #272523;
+  --card-foreground: #fffefc;
 
-  --popover: #035d67;
-  --popover-foreground: #fcfeff;
+  --popover: #34312e;
+  --popover-foreground: #fffefc;
 
-  --primary: #037682;
-  --primary-foreground: #fcfeff;
+  --primary: #eb5e28;
+  --primary-foreground: #070707;
 
-  --secondary: #01171a;
-  --secondary-foreground: #fcfeff;
+  --secondary: #1a1917;
+  --secondary-foreground: #fffefc;
 
-  --muted: #043337;
-  --muted-foreground: #d5f5f7;
+  --muted: #34312e;
+  --muted-foreground: #e0dcd4;
 
-  --accent: #043337;
-  --accent-foreground: #fcfeff;
+  --accent: #34312e;
+  --accent-foreground: #fffefc;
 
-  --destructive: #dc3545;
+  --destructive: #a4161a;
   --destructive-foreground: #ffffff;
 
-  --border: #064c53;
-  --input: #064c53;
-  --ring: #037682;
-  --link: #58d7de;
+  --border: #6a655e;
+  --input: #6a655e;
+  --ring: #eb5e28;
+  --link: #ef7f53;
 
-  --field: #01171a;
-  --placeholder: #22a7ae;
+  --field: #1a1917;
+  --placeholder: #ab9f8b;
 
-  --success: #bcf5fa;
-  --success-muted: #043337;
-  --warning: #6cedfb;
-  --warning-muted: #012f34;
-  --info: #acebef;
-  --info-muted: #115357;
+  --success: #ccc5b9;
+  --success-muted: #1a1917;
+  --warning: #ffcd2a;
+  --warning-muted: #272523;
+  --info: #f39f7e;
+  --info-muted: #34312e;
 
-  --chrome: #01171a;
-  --chrome-foreground: #fcfeff;
+  --chrome: #070707;
+  --chrome-foreground: #fffefc;
 
-  --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
   color-scheme: dark;
 }
@@ -416,9 +433,9 @@ html {
   outline-offset: 2px;
 }
 
-/* Subtle dot-grid, meant to sit behind cards/content on marketing & legal
-   pages — never directly behind dense text (apply to an outer wrapper, put
-   text on an opaque --card/--background surface on top). */
+/* Subtle dot-grid — applied once, site-wide, on the root layout wrapper
+   (see app/layout.tsx) rather than per-page. Never directly behind dense
+   text (text sits on an opaque --card/--popover surface on top). */
 .bg-grid {
   background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
   background-size: 24px 24px;

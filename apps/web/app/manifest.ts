@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "A structured CBT-based accountability platform for ADHD and OCD.",
     start_url: "/",
     display: "standalone",
-    background_color: "#012f34",
-    theme_color: "#037682",
+    background_color: "#0f0e0e",
+    theme_color: "#eb5e28",
     icons: [{ src: "/icon", sizes: "32x32", type: "image/png" }],
   };
 }

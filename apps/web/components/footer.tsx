@@ -31,7 +31,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-chrome text-chrome-foreground">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-10">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-14">
         <div className="grid gap-8 sm:grid-cols-[1.5fr_1fr_1fr]">
           <div className="space-y-2">
             <span className="text-sm font-extrabold uppercase tracking-widest text-chrome-foreground"><span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span></span>
