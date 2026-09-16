@@ -4,9 +4,11 @@ from app.models.exposure_hierarchy_item import ExposureHierarchyItem
 from app.models.oauth_identity import OAuthIdentity, OAuthProvider
 from app.models.refresh_token import RefreshToken
 from app.models.roadmap_phase_history import RoadmapPhaseHistory
+from app.models.therapy_session import TherapySession, TherapySessionStatus
 from app.models.tracking_category import TrackingCategory
 from app.models.tracking_entry import TrackingCadence, TrackingEntry
 from app.models.user import User
+from app.models.user_memory_profile import UserMemoryProfile
 from app.models.user_roadmap_state import UserRoadmapState
 
 __all__ = [
@@ -21,9 +23,12 @@ __all__ = [
     "RefreshToken",
     "RoadmapPhaseHistory",
     "SleepQuality",
+    "TherapySession",
+    "TherapySessionStatus",
     "TrackingCadence",
     "TrackingCategory",
     "TrackingEntry",
     "User",
+    "UserMemoryProfile",
     "UserRoadmapState",
 ]

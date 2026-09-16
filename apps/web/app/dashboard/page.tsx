@@ -157,7 +157,7 @@ function DashboardContent({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Check in</CardTitle>
@@ -177,6 +177,17 @@ function DashboardContent({
           <CardContent>
             <Button asChild variant="outline" className="w-full">
               <Link href="/roadmap">View roadmap</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Voice Check-In</CardTitle>
+            <CardDescription>Talk it through — a CBT-style spoken conversation.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/voice">Start talking</Link>
             </Button>
           </CardContent>
         </Card>

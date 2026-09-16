@@ -32,7 +32,11 @@ const securityHeaders = [
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    // microphone=(self) — required for the voice therapy feature's
+    // SpeechRecognition capture. Was microphone=() (blocked entirely)
+    // before that feature existed; camera/geolocation stay blocked, this
+    // app has no use for either.
+    value: "camera=(), microphone=(self), geolocation=()",
   },
   ...(isDev
     ? []

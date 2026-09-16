@@ -26,6 +26,18 @@ class Settings(BaseSettings):
 
     cors_allow_origins: list[str] = ["http://localhost:3000"]
 
+    # Voice therapy feature — optional, same blank-default-means-disabled
+    # convention as the Google OAuth settings above. Free-tier keys; see
+    # DEPLOYMENT.md / the voice-feature plan for provider setup.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = ""
+    # Daily per-user caps — the real cost/abuse backstop, independent of
+    # whatever quota the upstream free tiers happen to allow.
+    voice_daily_session_limit: int = 5
+    voice_daily_turn_limit: int = 60
+
     # Overrides the `Secure` cookie flag's default (environment == "production").
     # Needed for a production deployment served over plain HTTP without a
     # domain/TLS yet (e.g. a bare EC2 IP) — browsers silently drop `Secure`

@@ -26,6 +26,7 @@ const ANON_LINKS = [
 const AUTHED_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/checkin", label: "Check-in" },
+  { href: "/voice", label: "Voice Check-In" },
   { href: "/roadmap", label: "Roadmap" },
   { href: "/tools", label: "CBT Tools" },
   { href: "/progress", label: "Progress" },
