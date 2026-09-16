@@ -6,7 +6,18 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import get_settings
 from app.core.rate_limit import limiter
-from app.routers import auth, baseline, checkin, hierarchy, me, oauth, roadmap, tracking
+from app.routers import (
+    auth,
+    baseline,
+    checkin,
+    hierarchy,
+    me,
+    oauth,
+    roadmap,
+    tracking,
+    voice,
+    voice_ws,
+)
 
 settings = get_settings()
 
@@ -37,6 +48,8 @@ app.include_router(checkin.router)
 app.include_router(hierarchy.router)
 app.include_router(roadmap.router)
 app.include_router(me.router)
+app.include_router(voice.router)
+app.include_router(voice_ws.router)
 
 
 @app.get("/health")

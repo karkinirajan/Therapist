@@ -1,20 +1,13 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
- * Plain redirect proxy to FastAPI's Google OAuth authorize endpoint.
- * No body/cookie forwarding needed — this is a straight 307 so the
- * browser's top-level navigation lands on Google's consent screen.
+ * Redirects the browser to /auth/google/authorize on this app's own origin
+ * (never the internal API origin directly — browsers can't resolve the
+ * Compose-internal API_BASE_URL, e.g. http://api:8000). next.config.ts's
+ * rewrite forwards that request to FastAPI server-side.
  */
-export function GET() {
-  const apiBaseUrl = process.env.API_BASE_URL;
-  if (!apiBaseUrl) {
-    return NextResponse.json(
-      { detail: "API_BASE_URL is not configured." },
-      { status: 500 },
-    );
-  }
-  return NextResponse.redirect(
-    `${apiBaseUrl.replace(/\/$/, "")}/auth/google/authorize`,
-    { status: 307 },
-  );
+export function GET(request: NextRequest) {
+  return NextResponse.redirect(new URL("/auth/google/authorize", request.url), {
+    status: 307,
+  });
 }

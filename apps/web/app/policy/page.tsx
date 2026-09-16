@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PolicyPage() {
   return (
-    <div className="-mx-4 -my-8 bg-grid px-4 py-12 sm:px-6 sm:py-16">
+    <div className="-mx-4 -my-8 px-4 py-12 sm:px-6 sm:py-16">
       <div className="w-full space-y-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
@@ -24,7 +24,7 @@ export default function PolicyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">What we collect</CardTitle>
+            <CardTitle as="h2" className="text-base">What we collect</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
@@ -45,7 +45,7 @@ export default function PolicyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">How it&apos;s stored</CardTitle>
+            <CardTitle as="h2" className="text-base">How it&apos;s stored</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -67,7 +67,7 @@ export default function PolicyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Your rights</CardTitle>
+            <CardTitle as="h2" className="text-base">Your rights</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <ul className="list-inside list-disc space-y-1.5">
@@ -89,7 +89,7 @@ export default function PolicyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">What this is not</CardTitle>
+            <CardTitle as="h2" className="text-base">What this is not</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed text-foreground">
             <p>
@@ -106,7 +106,7 @@ export default function PolicyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Questions about this policy</CardTitle>
+            <CardTitle as="h2" className="text-base">Questions about this policy</CardTitle>
           </CardHeader>
           <CardContent className="text-base leading-relaxed text-foreground">
             <p>

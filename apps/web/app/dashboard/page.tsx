@@ -157,10 +157,10 @@ function DashboardContent({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Check in</CardTitle>
+            <CardTitle as="h2" className="text-base">Check in</CardTitle>
             <CardDescription>Quick numbers, one CBT tool, one homework action.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -171,7 +171,7 @@ function DashboardContent({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Roadmap</CardTitle>
+            <CardTitle as="h2" className="text-base">Roadmap</CardTitle>
             <CardDescription>Your 6-month phased plan.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -180,11 +180,22 @@ function DashboardContent({
             </Button>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle as="h2" className="text-base">Voice Check-In</CardTitle>
+            <CardDescription>Talk it through — a CBT-style spoken conversation.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/voice">Start talking</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tracking categories</CardTitle>
+          <CardTitle as="h2" className="text-base">Tracking categories</CardTitle>
           <CardDescription>Daily, weekly, and monthly logs across all 6 categories.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -235,7 +246,7 @@ function DashboardContent({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recent check-ins</CardTitle>
+          <CardTitle as="h2" className="text-base">Recent check-ins</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {recentCheckins.isPending && (

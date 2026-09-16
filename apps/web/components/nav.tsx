@@ -26,6 +26,7 @@ const ANON_LINKS = [
 const AUTHED_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/checkin", label: "Check-in" },
+  { href: "/voice", label: "Voice Check-In" },
   { href: "/roadmap", label: "Roadmap" },
   { href: "/tools", label: "CBT Tools" },
   { href: "/progress", label: "Progress" },
@@ -38,7 +39,7 @@ const AUTHED_LINKS = [
  * (a shape + a letter, not an illustration). */
 function Logomark() {
   return (
-    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-red-700 bg-[#124559] text-[#f8f9fa] dark:border-red-600">
+    <div className="flex size-[22px] shrink-0 items-center justify-center rounded-sm border border-[#f39f7e] bg-[#eb5e28] text-[#070707]">
       <HeartHandshake className="size-3.5" />
     </div>
   );
@@ -53,13 +54,13 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-chrome/95 backdrop-blur supports-[backdrop-filter]:bg-chrome/80">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
           className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"
         >
           <Logomark />
-          <span className="uppercase font-extrabold tracking-widest"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span>
+          <span className="text-base uppercase font-extrabold tracking-widest"><span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span></span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -70,7 +71,7 @@ export function Nav() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-sm px-3 py-1.5 text-sm font-medium transition-colors",
+                  "rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -121,7 +122,7 @@ export function Nav() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "rounded-sm px-3 py-2 text-sm font-medium transition-colors",
+                  "rounded-sm px-3 py-2 text-sm font-semibold transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",

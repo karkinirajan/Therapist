@@ -19,13 +19,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 REFRESH_COOKIE_NAME = "refresh_token"
 REFRESH_COOKIE_PATH = "/auth"
 
-# `Secure` cookies are only ever sent by browsers/HTTP clients over TLS, so we
-# only set the flag in production - local dev and tests run the API over plain
-# HTTP (http://localhost:8000), and a Secure cookie there would simply never be
-# echoed back, breaking refresh/logout entirely.
-_COOKIE_SECURE = get_settings().environment == "production"
-
-
 def _set_refresh_cookie(response: Response, raw_refresh_token: str, max_age_seconds: int) -> None:
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,
@@ -33,7 +26,7 @@ def _set_refresh_cookie(response: Response, raw_refresh_token: str, max_age_seco
         max_age=max_age_seconds,
         path=REFRESH_COOKIE_PATH,
         httponly=True,
-        secure=_COOKIE_SECURE,
+        secure=get_settings().cookie_secure,
         samesite="lax",
     )
 

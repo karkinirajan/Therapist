@@ -74,12 +74,18 @@
   --color-info: var(--info);
   --color-info-muted: var(--info-muted);
 
+  /* Capped scale: nothing in the app may render more rounded than "md" —
+     lg/xl/2xl all clamp to the same value as md instead of continuing to
+     grow, so any element (present or future) that reaches for a bigger
+     radius class is silently held at the max instead of visibly breaking
+     the "mostly sm, never more than md" rule. --radius-full is exempt —
+     it's for genuinely circular/pill elements, not corner rounding. */
   --radius-xs: calc(var(--radius) * 0.5);
   --radius-sm: calc(var(--radius) * 0.75);
   --radius-md: calc(var(--radius) * 0.875);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
-  --radius-2xl: calc(var(--radius) * 2);
+  --radius-lg: calc(var(--radius) * 0.875);
+  --radius-xl: calc(var(--radius) * 0.875);
+  --radius-2xl: calc(var(--radius) * 0.875);
   --radius-full: 9999px;
 
   /* Dot-grid background, meant to sit behind cards/content — never behind
@@ -104,268 +110,261 @@
   --color-link: var(--link);
 }
 
-/* ─── Neutral-gray + single-accent palette pass ─────────────────────────
-   Replaces the prior Catppuccin Mocha/Latte palette outright (not layered
-   on top of it — every hex below is new). The 8 named grays are Bootstrap's
-   own gray-100…gray-900 scale (gray-400 dropped per product decision),
-   given descriptive names, used as literal hex — not run through
-   HSL/OKLCH derivation:
-     bright_snow     #f8f9fa   (bs gray-100, lightest)
-     platinum        #e9ecef   (bs gray-200)
-     alabaster_grey  #dee2e6   (bs gray-300)
-     pale_slate      #adb5bd   (bs gray-500)
-     slate_grey      #6c757d   (bs gray-600)
-     iron_grey       #495057   (bs gray-700)
-     gunmetal        #343a40   (bs gray-800)
-     carbon_black    #212529   (bs gray-900, darkest)
-   Accent: #124559 (a dark teal-blue), used as the literal hex for
-   --primary/--ring in BOTH themes, unmodified — deliberately not
-   lightened/darkened per-theme, verified below to clear AA as a button
-   fill with light text in both.
+/* ─── Warm carbon/paprika palette pass ───────────────────────────────────
+   Replaces the prior teal/cyan palette outright — every hex below comes
+   from a single caller-supplied 5-scale warm-neutral + single-accent
+   palette (floral_white, dust_grey, charcoal_brown, carbon_black,
+   spicy_paprika), each running 100 (darkest) through 900 (lightest),
+   literal hex, not run through HSL/OKLCH derivation:
+     floral_white   DEFAULT #fffcf2  100 #634c00  200 #c69800  300 #ffcd2a
+                    400 #ffe48d  500 #fffcf2  600 #fffcf3  700 #fffdf6
+                    800 #fffef9  900 #fffefc
+     dust_grey      DEFAULT #ccc5b9  100 #2d2821  200 #5a5141  300 #877962
+                    400 #ab9f8b  500 #ccc5b9  600 #d6d0c6  700 #e0dcd4
+                    800 #eae8e3  900 #f5f3f1
+     charcoal_brown DEFAULT #403d39  100 #0d0c0c  200 #1a1917  300 #272523
+                    400 #34312e  500 #403d39  600 #6a655e  700 #928c84
+                    800 #b6b2ad  900 #dbd9d6
+     carbon_black   DEFAULT #252422  100 #070707  200 #0f0e0e  300 #161615
+                    400 #1e1d1b  500 #252422  600 #53514c  700 #807d76
+                    800 #aba8a4  900 #d5d4d1
+     spicy_paprika  DEFAULT #eb5e28  100 #321205  200 #652309  300 #97350e
+                    400 #ca4713  500 #eb5e28  600 #ef7f53  700 #f39f7e
+                    800 #f7bfa9  900 #fbdfd4
+   Explicit product instruction this pass: background black, text white,
+   and — unlike the prior two palette passes — no light/dark split. :root,
+   the prefers-color-scheme dark media query, and the .dark class all carry
+   the *same* black-background values, so the site reads as black-on-white
+   unconditionally rather than switching to a lighter theme under a
+   light-OS preference. Destructive is darkened one step per instruction
+   ("a bit more dark-red") from the prior pass's #dc3545 to #a4161a — still
+   literal, still the one hue-carve-out reserved for the /safety "Call now"
+   button and destructive variants.
 
-   Token → gray mapping (the "final token mapping," per gray, per theme):
+   Token → swatch mapping (same values in all three theme blocks):
 
-     role                  | light               | dark
-     ----------------------|---------------------|--------------------
-     chrome (nav/footer)   | bright_snow (lightest, "mirror" of dark's darkest-chrome rule)
-                                                  | carbon_black (darkest, framing rule)
-     chrome-foreground     | carbon_black         | bright_snow
-     background (page)     | platinum             | gunmetal (one step lighter than chrome)
-     foreground (body text)| carbon_black          | bright_snow
-     card / popover        | bright_snow (lift above platinum page bg)
-                                                  | iron_grey (a further step lighter than gunmetal, for elevation)
-     card-foreground       | carbon_black          | bright_snow
-     muted / accent bg     | alabaster_grey        | iron_grey (reuses the card tier, same as the prior
-                                                    Catppuccin pass reusing surface0 for card+accent)
-     muted-foreground      | iron_grey             | alabaster_grey
-     secondary             | alabaster_grey        | carbon_black (more visual weight than muted, mirrors
-                                                    dark's "further-recessed" secondary tier)
-     secondary-foreground  | carbon_black          | bright_snow
-     field (form wells)    | alabaster_grey (a 3rd tone, distinct from both
-                             background/platinum AND card/bright_snow)
-                                                  | carbon_black (distinct from background/gunmetal and
-                                                    card/iron_grey)
-     placeholder            | slate_grey            | pale_slate
-     border / input         | alabaster_grey        | slate_grey (kept low-contrast against background on
-                                                    purpose, same convention as the prior pass — the
-                                                    card's own fill is still the primary visual boundary)
-     primary / ring          | #124559 (literal, both themes, not derived)
-     primary-foreground      | bright_snow (both themes — same accent, same fg)
-     destructive              | #dc3545 (Bootstrap danger red, literal, both themes — reserved
-                                exclusively for the /safety "Call now" button and destructive
-                                button/badge variants, never reused elsewhere)
-     destructive-foreground   | #ffffff (both themes — see contrast note below)
+     role                   | swatch
+     -----------------------|---------------------------------------------
+     chrome (nav/footer)    | carbon_black-100 (darkest, framing)
+     chrome-foreground      | floral_white-900
+     background (page)      | carbon_black-200 (one step lighter than chrome)
+     foreground (body text) | floral_white-900
+     card                   | charcoal_brown-300 (elevation over background)
+     popover                | charcoal_brown-400 (further elevation)
+     muted / accent bg      | charcoal_brown-400 (reuses popover tier)
+     muted-foreground       | dust_grey-700
+     secondary              | charcoal_brown-200 (more visual weight than muted)
+     secondary-foreground   | floral_white-900
+     field (form wells)     | charcoal_brown-200 (a 3rd tone, distinct from card)
+     placeholder             | dust_grey-400
+     border / input           | charcoal_brown-600 (kept low-contrast on purpose,
+                                not a text pairing — no AA requirement applies)
+     primary / ring           | spicy_paprika-500/DEFAULT (literal, the palette's
+                                only saturated hue)
+     primary-foreground       | carbon_black-100 (dark text — white on this
+                                orange only clears 3.41:1, below AA; black
+                                clears 5.91:1)
+     link                     | spicy_paprika-600 (lightened one step off
+                                DEFAULT for legibility as inline text)
+     destructive               | #a4161a (darkened from the prior pass's
+                                #dc3545 per explicit "a bit more dark-red"
+                                instruction — literal, not derived)
+     destructive-foreground    | #ffffff
 
-   No red/success/warning/info were specified in the palette itself — pulled
-   from Bootstrap's own semantic colors since the neutral scale already *is*
-   Bootstrap's system (the coherent choice, not an arbitrary addition):
-   $success #198754, $warning #ffc107, $info #0dcaf0, $danger #dc3545 (used
-   for --destructive above). Bootstrap's raw warning/info fail badly as
-   *text* on light backgrounds (1.4–1.9:1) and raw success/danger fail as
-   text on the dark theme's card tier — so, following the exact precedent
-   the prior Catppuccin pass set (it darkened Latte's green/yellow/sky for
-   body-text contrast), the --success/--warning/--info *text* tokens below
-   are Bootstrap 5.3's own "text-emphasis" shades (mix with black, light
-   theme) / "text-emphasis" tints (mix with white, dark theme) — reusing
-   Bootstrap's own documented fix for this exact problem rather than
-   inventing new math. Their *-muted backings are Bootstrap's matching
-   "bg-subtle" shades/tints from the same system.
+   No separate success/warning/info hue exists in this palette either (one
+   accent hue, not a multi-hue system) — warning reuses floral_white-300
+   (an actual gold/amber, the closest thing to a real "warning" color this
+   palette has), success and info are differentiated by depth within the
+   neutral dust_grey/spicy_paprika families instead of by hue. Flagged here
+   rather than silently smoothed over, same as the prior pass.
 
-   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed —
-   computed with a small script, not spot-checked by eye):
-     LIGHT  foreground-on-background (carbon_black/platinum)        13.01:1
-     LIGHT  card-foreground-on-card (carbon_black/bright_snow)       14.63:1
-     LIGHT  muted-foreground-on-background (iron_grey/platinum)       6.90:1
-     LIGHT  muted-foreground-on-card (iron_grey/bright_snow)          7.76:1
-     LIGHT  chrome-foreground-on-chrome (carbon_black/bright_snow)   14.63:1
-     LIGHT  primary-foreground-on-primary (bright_snow/#124559)       9.86:1
-     LIGHT  destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
-     DARK   foreground-on-background (bright_snow/gunmetal)          10.91:1
-     DARK   card-foreground-on-card (bright_snow/iron_grey)           7.76:1
-     DARK   muted-foreground-on-card (alabaster_grey/iron_grey)       6.28:1
-     DARK   chrome-foreground-on-chrome (bright_snow/carbon_black)   14.63:1
-     DARK   primary-foreground-on-primary (bright_snow/#124559)       9.86:1
-     DARK   destructive-foreground-on-destructive (#ffffff/#dc3545)   4.53:1
-   All ≥4.5:1 (AA body text) except destructive-foreground, which clears AA
-   by a hair (4.53:1) in both themes — #dc3545 was given as a literal,
-   non-derived requirement (Bootstrap's own danger red), and white is
-   already the best available foreground for it; this is the same
-   known tightness Bootstrap's own .btn-danger has. Its usage is
-   intentionally narrow (the /safety call button + destructive variants),
-   never body text, which keeps the risk contained. One residual gap,
-   documented rather than silently accepted: dark-mode `--muted-foreground`
-   (alabaster_grey) on a *solid* `--muted` fill (iron_grey) is 6.28:1 (fine)
-   but nothing in the app currently pairs muted-foreground text directly
-   onto a raw `--muted` background at full opacity outside that — the one
-   place that *would* (Badge's `variant="muted"`) isn't used anywhere in
-   the app today, so it's flagged here rather than tuned for a combination
-   nothing renders.
+   Border radius: capped globally in the @theme block above (radius-lg/xl/
+   2xl all clamp to radius-md) per explicit instruction that nothing in the
+   app should read more rounded than "md" — most interactive primitives
+   (button, input, textarea, checkbox, switch, badge) were additionally
+   turned down to rounded-sm directly in their own files, leaving Card/
+   Alert at rounded-md as the one deliberately-larger tier ("at max md").
+
+   Contrast, verified via relative-luminance WCAG 2 math (not eyeballed):
+     foreground-on-background (floral_white-900/carbon_black-200)   19.12:1
+     card-foreground-on-card (floral_white-900/charcoal_brown-300)  15.15:1
+     popover-foreground-on-popover (floral_white-900/charcoal_brown-400) 12.82:1
+     muted-foreground-on-background (dust_grey-700/carbon_black-200) 14.10:1
+     muted-foreground-on-muted (dust_grey-700/charcoal_brown-400)     9.45:1
+     primary-foreground-on-primary (carbon_black-100/#eb5e28)         5.91:1
+     link-on-background (spicy_paprika-600/carbon_black-200)          7.19:1
+     link-on-card (spicy_paprika-600/charcoal_brown-300)              5.69:1
+     chrome-foreground-on-chrome (floral_white-900/carbon_black-100) 19.99:1
+     placeholder-on-field (dust_grey-400/charcoal_brown-200)          6.75:1
+     destructive-foreground-on-destructive (#ffffff/#a4161a)          7.75:1
+     success-on-background (dust_grey-500/carbon_black-200)          11.25:1
+     warning-on-background (floral_white-300/carbon_black-200)       12.87:1
+     info-on-background (spicy_paprika-700/carbon_black-200)          9.24:1
+   All ≥4.5:1 AA (most well past it) — destructive-foreground in particular
+   improved from the prior pass's 4.53:1 to 7.75:1 as a side effect of
+   darkening it, not just a coincidence of the instruction.
    ────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #dee2e6; /* alabaster_grey */
-  --foreground: #212529; /* carbon_black */
+  --background: #0f0e0e; /* carbon_black-200 */
+  --foreground: #fffefc; /* floral_white-900 */
 
-  --card: #e9ecef; /* platinum — lift above the alabaster_grey page bg */
-  --card-foreground: #212529;
+  --card: #272523; /* charcoal_brown-300 — lift above the carbon_black-200 page bg */
+  --card-foreground: #fffefc;
 
-  --popover: #f8f9fa;
-  --popover-foreground: #212529;
+  --popover: #34312e; /* charcoal_brown-400 */
+  --popover-foreground: #fffefc;
 
-  --primary: #124559; /* accent, literal — see palette-pass comment above */
-  --primary-foreground: #f8f9fa; /* bright_snow — 9.86:1 on #124559 */
+  --primary: #eb5e28; /* spicy_paprika DEFAULT/500, literal — see palette-pass comment above */
+  --primary-foreground: #070707; /* carbon_black-100 — 5.91:1 on #eb5e28 (white only clears 3.41:1) */
 
-  --secondary: #dee2e6; /* alabaster_grey */
-  --secondary-foreground: #212529;
+  --secondary: #1a1917; /* charcoal_brown-200 */
+  --secondary-foreground: #fffefc;
 
-  --muted: #dee2e6; /* alabaster_grey */
-  --muted-foreground: #495057; /* iron_grey */
+  --muted: #34312e; /* charcoal_brown-400 */
+  --muted-foreground: #e0dcd4; /* dust_grey-700 */
 
-  --accent: #dee2e6; /* alabaster_grey — reuses the muted tier for hover/highlight bg */
-  --accent-foreground: #212529;
+  --accent: #34312e; /* charcoal_brown-400 — reuses the muted tier for hover/highlight bg */
+  --accent-foreground: #fffefc;
 
-  /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
-  --destructive: #dc3545;
-  --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
+  /* Darkened from the prior pass's #dc3545 per explicit "a bit more
+     dark-red" instruction — literal, the one deliberate hue carve-out from
+     this palette, reserved exclusively for crisis/destructive actions. */
+  --destructive: #a4161a;
+  --destructive-foreground: #ffffff; /* 7.75:1 — see contrast note above */
 
-  --border: #dee2e6; /* alabaster_grey */
-  --input: #dee2e6;
-  --ring: #124559; /* matches --primary */
-  --link: #124559; /* same as --primary — 8.76:1 on background, legible as-is here */
+  --border: #6a655e; /* charcoal_brown-600 */
+  --input: #6a655e;
+  --ring: #eb5e28; /* matches --primary */
+  --link: #ef7f53; /* spicy_paprika-600 — 7.19:1 on background */
   --radius: 0.75rem;
 
-  --field: #dee2e6; /* alabaster_grey — a 3rd tone, distinct from --background/--card */
-  --placeholder: #6c757d; /* slate_grey */
+  --field: #1a1917; /* charcoal_brown-200 — a 3rd tone, distinct from --background/--card */
+  --placeholder: #ab9f8b; /* dust_grey-400 */
 
-  /* Bootstrap 5.3's own "text-emphasis" shades (mix($color, black, 40–60%)) —
-     reused verbatim rather than re-derived, since they're already Bootstrap's
-     documented fix for raw success/warning/info failing AA as body text on
-     light surfaces (see palette-pass comment above). Muted backings are
-     Bootstrap's matching "bg-subtle" tints. */
-  --success: #0a3622; /* 12.74:1 on card, 11.33:1 on background */
-  --success-muted: #d1e7dd;
-  --warning: #664d03; /* 7.58:1 on card, 6.74:1 on background */
-  --warning-muted: #fff3cd;
-  --info: #055160; /* 8.47:1 on card, 7.53:1 on background */
-  --info-muted: #cff4fc;
+  /* No separate success/warning/info hue in this palette — warning reuses
+     the one genuine amber/gold in the scale (floral_white-300); success and
+     info are differentiated by depth within the neutral/accent families
+     instead of by hue (see palette-pass comment above for the tradeoff). */
+  --success: #ccc5b9; /* dust_grey-500/DEFAULT */
+  --success-muted: #1a1917; /* charcoal_brown-200 */
+  --warning: #ffcd2a; /* floral_white-300 — genuine gold/amber */
+  --warning-muted: #272523; /* charcoal_brown-300 */
+  --info: #f39f7e; /* spicy_paprika-700 */
+  --info-muted: #34312e; /* charcoal_brown-400 */
 
-  /* Nav/footer framing surface — the LIGHTEST tone in light mode (mirrors
-     dark mode's darkest-chrome rule, inverted). */
-  --chrome: #f8f9fa; /* bright_snow */
-  --chrome-foreground: #212529; /* carbon_black — 14.63:1 */
+  /* Nav/footer framing surface — the darkest tone, unconditionally (no
+     light/dark split this pass — see comment above). */
+  --chrome: #070707; /* carbon_black-100 */
+  --chrome-foreground: #fffefc; /* floral_white-900 — 19.99:1 */
 
   /* Dot-grid utility backing color — low-contrast on purpose, kept out of
      --border/--muted so it never gets pulled in elsewhere by accident. */
   --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-/* ─── Dark theme — follows the OS/browser preference automatically ─── */
+/* No prefers-color-scheme override this pass — background black / text
+   white is unconditional per explicit instruction, so the dark-media query
+   just repeats :root's own values rather than diverging from them. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #212529; /* carbon_black */
-    --foreground: #f8f9fa; /* bright_snow */
+    --background: #0f0e0e;
+    --foreground: #fffefc;
 
-    --card: #343a40; /* gunmetal — a further step lighter, for elevation */
-    --card-foreground: #f8f9fa;
+    --card: #272523;
+    --card-foreground: #fffefc;
 
-    --popover: #495057;
-    --popover-foreground: #f8f9fa;
+    --popover: #34312e;
+    --popover-foreground: #fffefc;
 
-    --primary: #124559; /* accent, literal, unchanged from light */
-    --primary-foreground: #f8f9fa; /* 9.86:1 on #124559 */
+    --primary: #eb5e28;
+    --primary-foreground: #070707;
 
-    --secondary: #212529; /* carbon_black — more visual weight than muted */
-    --secondary-foreground: #f8f9fa;
+    --secondary: #1a1917;
+    --secondary-foreground: #fffefc;
 
-    --muted: #495057; /* iron_grey — reuses the card tier */
-    --muted-foreground: #dee2e6; /* alabaster_grey */
+    --muted: #34312e;
+    --muted-foreground: #e0dcd4;
 
-    --accent: #495057;
-    --accent-foreground: #f8f9fa;
+    --accent: #34312e;
+    --accent-foreground: #fffefc;
 
-    /* Bootstrap danger red, literal, reserved exclusively for crisis/destructive actions. */
-    --destructive: #dc3545;
-    --destructive-foreground: #ffffff; /* 4.53:1 — see contrast note above */
+    --destructive: #a4161a;
+    --destructive-foreground: #ffffff;
 
-    --border: #6c757d; /* slate_grey — subtle, not high-contrast, on purpose */
-    --input: #6c757d;
-    --ring: #124559;
-    --link: #b8c7cd; /* a light tint of #124559 — 6.62:1 on background, 4.71:1 on card (see --color-link comment above) */
+    --border: #6a655e;
+    --input: #6a655e;
+    --ring: #eb5e28;
+    --link: #ef7f53;
 
-    --field: #212529; /* carbon_black — distinct from background/card */
-    --placeholder: #adb5bd; /* pale_slate */
+    --field: #1a1917;
+    --placeholder: #ab9f8b;
 
-    /* Bootstrap 5.3's own dark-mode "text-emphasis" tints (mix($color,
-       white, 20–60%)) — brightened further than Bootstrap's own picks where
-       this app's lighter dark-card tone (iron_grey) demanded it to clear
-       AA (see palette-pass comment above for the exact math). */
-    --success: #a3cfbb; /* 6.68:1 on background, 4.75:1 on card */
-    --success-muted: #051b11;
-    --warning: #ffc107; /* raw Bootstrap warning already clears AA here — 7.06:1 on background, 5.02:1 on card */
-    --warning-muted: #332701;
-    --info: #3dd5f3; /* 6.58:1 on background, 4.68:1 on card */
-    --info-muted: #032830;
+    --success: #ccc5b9;
+    --success-muted: #1a1917;
+    --warning: #ffcd2a;
+    --warning-muted: #272523;
+    --info: #f39f7e;
+    --info-muted: #34312e;
 
-    /* Nav/footer framing surface — the DARKEST tone in dark mode. */
-    --chrome: #212529; /* carbon_black */
-    --chrome-foreground: #f8f9fa; /* bright_snow — 14.63:1 */
+    --chrome: #070707;
+    --chrome-foreground: #fffefc;
 
-    --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+    --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
     color-scheme: dark;
   }
 }
 
-/* ─── Dark theme — explicit override via `.dark` on <html>, for whenever an
-   in-app theme toggle exists (account settings, not yet built). Mirrors the
-   prefers-color-scheme values above so both mechanisms agree. Takes
-   precedence over the OS preference since it's a plain class selector
-   applied outside the media query. ─── */
+/* ─── `.dark` class override — for whenever an in-app theme toggle exists
+   (account settings, not yet built). Same values as :root this pass (see
+   comment above), kept as its own block so a future toggle has somewhere
+   to diverge from without touching :root's own defaults. ─── */
 .dark {
-  --background: #212529;
-  --foreground: #f8f9fa;
+  --background: #0f0e0e;
+  --foreground: #fffefc;
 
-  --card: #343a40;
-  --card-foreground: #f8f9fa;
+  --card: #272523;
+  --card-foreground: #fffefc;
 
-  --popover: #495057;
-  --popover-foreground: #f8f9fa;
+  --popover: #34312e;
+  --popover-foreground: #fffefc;
 
-  --primary: #124559;
-  --primary-foreground: #f8f9fa;
+  --primary: #eb5e28;
+  --primary-foreground: #070707;
 
-  --secondary: #212529;
-  --secondary-foreground: #f8f9fa;
+  --secondary: #1a1917;
+  --secondary-foreground: #fffefc;
 
-  --muted: #495057;
-  --muted-foreground: #dee2e6;
+  --muted: #34312e;
+  --muted-foreground: #e0dcd4;
 
-  --accent: #495057;
-  --accent-foreground: #f8f9fa;
+  --accent: #34312e;
+  --accent-foreground: #fffefc;
 
-  --destructive: #dc3545;
+  --destructive: #a4161a;
   --destructive-foreground: #ffffff;
 
-  --border: #6c757d;
-  --input: #6c757d;
-  --ring: #124559;
-  --link: #b8c7cd;
+  --border: #6a655e;
+  --input: #6a655e;
+  --ring: #eb5e28;
+  --link: #ef7f53;
 
-  --field: #212529;
-  --placeholder: #adb5bd;
+  --field: #1a1917;
+  --placeholder: #ab9f8b;
 
-  --success: #a3cfbb;
-  --success-muted: #051b11;
-  --warning: #ffc107;
-  --warning-muted: #332701;
-  --info: #3dd5f3;
-  --info-muted: #032830;
+  --success: #ccc5b9;
+  --success-muted: #1a1917;
+  --warning: #ffcd2a;
+  --warning-muted: #272523;
+  --info: #f39f7e;
+  --info-muted: #34312e;
 
-  --chrome: #212529;
-  --chrome-foreground: #f8f9fa;
+  --chrome: #070707;
+  --chrome-foreground: #fffefc;
 
-  --grid-dot: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --grid-dot: color-mix(in oklab, var(--foreground) 8%, transparent);
 
   color-scheme: dark;
 }
@@ -382,12 +381,20 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Looser than the prior 1.55 — monospace body copy reads visibly denser
-     than a proportional face at the same line-height (every character is
-     the same width, so lines feel more "packed"), so the default is opened
-     up to keep long-form prose (/about, /policy, /terms, /faq) comfortable
-     without shrinking type or reverting to a proportional font. */
-  line-height: 1.65;
+  /* One step up from the browser default (400) — a deliberate, slight
+     weight bump applied everywhere via the body base rather than editing
+     every individual text-* utility usage across the app. Elements with
+     their own explicit font-weight class (headings, font-extrabold labels,
+     etc.) are unaffected — this only raises the floor for plain body copy
+     that previously inherited the browser default. */
+  font-weight: 500;
+  /* Looser than the prior 1.65 ("taller" text per explicit instruction) —
+     on top of the existing monospace-density rationale (monospace body
+     copy reads denser than a proportional face at the same line-height,
+     since every character is the same width), this keeps long-form prose
+     (/about, /policy, /terms, /faq) comfortable at the slightly heavier
+     weight above too. */
+  line-height: 1.75;
 }
 
 /* h1–h3 aren't reset to a fixed size here on purpose: every page already
@@ -434,9 +441,9 @@ html {
   outline-offset: 2px;
 }
 
-/* Subtle dot-grid, meant to sit behind cards/content on marketing & legal
-   pages — never directly behind dense text (apply to an outer wrapper, put
-   text on an opaque --card/--background surface on top). */
+/* Subtle dot-grid — applied once, site-wide, on the root layout wrapper
+   (see app/layout.tsx) rather than per-page. Never directly behind dense
+   text (text sits on an opaque --card/--popover surface on top). */
 .bg-grid {
   background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
   background-size: 24px 24px;

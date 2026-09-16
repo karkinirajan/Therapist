@@ -32,7 +32,11 @@ const securityHeaders = [
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    // microphone=(self) — required for the voice therapy feature's
+    // SpeechRecognition capture. Was microphone=() (blocked entirely)
+    // before that feature existed; camera/geolocation stay blocked, this
+    // app has no use for either.
+    value: "camera=(), microphone=(self), geolocation=()",
   },
   ...(isDev
     ? []
@@ -63,6 +67,22 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../.."),
   headers: () =>
     Promise.resolve([{ source: "/(.*)", headers: securityHeaders }]),
+  // Google's OAuth redirect_uri (registered in Google Cloud Console) has to
+  // be a real, browser-reachable URL under this app's own public origin —
+  // FastAPI can't be that URL directly, since it's never publicly exposed
+  // (see deploy/ec2/nginx.conf's comment). This rewrite makes
+  // /auth/google/authorize and /auth/google/callback resolve on this app's
+  // origin for the browser, while Next's own server proxies the actual
+  // request to FastAPI's API_BASE_URL (which only needs to be reachable
+  // server-to-server, e.g. the Compose-internal http://api:8000 - never
+  // resolvable from the browser itself).
+  rewrites: () =>
+    Promise.resolve([
+      {
+        source: "/auth/google/:path*",
+        destination: `${process.env.API_BASE_URL ?? "http://localhost:8000"}/auth/google/:path*`,
+      },
+    ]),
   experimental: {
     optimizePackageImports: ["lucide-react", "@base-ui/react"],
   },

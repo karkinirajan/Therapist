@@ -17,17 +17,30 @@ services:
 
   api:
     restart: unless-stopped
+    # Loopback-only publish — needed so Nginx (running on the host, not in
+    # this Compose network) can reach FastAPI directly for the voice
+    # feature's WebSocket endpoint, which Next.js Route Handlers can't
+    # proxy (no WS upgrade passthrough). Still never reachable from the
+    # public internet directly — only via Nginx's reverse proxy, same
+    # posture as the rest of the API. See deploy/ec2/nginx.conf's
+    # /voice/ws location block.
+    ports:
+      - "127.0.0.1:8000:8000"
     environment:
       ENVIRONMENT: production
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-therapist}:${POSTGRES_PASSWORD:?Set a real POSTGRES_PASSWORD in your root .env before running in production}@postgres:5432/${POSTGRES_DB:-therapist}
       JWT_SECRET: ${JWT_SECRET:?Set a real random JWT_SECRET in your root .env before running in production — python3 -c "import secrets; print(secrets.token_urlsafe(48))"}
       FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL in your root .env to your real production frontend origin}
       CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:?Set CORS_ALLOW_ORIGINS in your root .env to a JSON array matching FRONTEND_URL exactly}
+      # Bumped from the base file's default of 2 — each open voice
+      # WebSocket holds a worker's event loop for the whole conversation,
+      # unlike the short HTTP requests the default was sized for.
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-4}
     deploy:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 1G
 
   web:
     restart: unless-stopped

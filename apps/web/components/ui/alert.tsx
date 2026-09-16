@@ -36,9 +36,14 @@ function Alert({
   );
 }
 
-function AlertTitle({ className, ...props }: React.ComponentProps<"h5">) {
+// A `div`, not a heading — the Alert container already has `role="alert"`
+// for screen-reader announcement, and alerts appear at wildly varying
+// nesting depths across the app (a fixed heading level here would be wrong
+// in most of them), so this doesn't participate in the page's heading
+// outline at all rather than guessing a level.
+function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <h5
+    <div
       data-slot="alert-title"
       className={cn("mb-1 font-medium leading-none tracking-tight", className)}
       {...props}

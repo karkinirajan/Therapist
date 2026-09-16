@@ -5,9 +5,9 @@ export const contentType = "image/png";
 
 // Static social-preview image (OG/Twitter card) for every page that doesn't
 // override it. Colors are hardcoded to match --background/--foreground/
-// --primary in globals.css (dark theme values) — ImageResponse can't consume
-// CSS custom properties, so this is kept in sync by hand whenever the
-// palette changes, same as app/icon.tsx.
+// --primary in globals.css (warm carbon/paprika palette, no light/dark split) —
+// ImageResponse can't consume CSS custom properties, so this is kept in
+// sync by hand whenever the palette changes, same as app/icon.tsx.
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -20,8 +20,8 @@ export default function OpengraphImage() {
           alignItems: "flex-start",
           justifyContent: "center",
           padding: "80px",
-          background: "#212529",
-          color: "#f8f9fa",
+          background: "#0f0e0e",
+          color: "#fffefc",
           fontFamily: "sans-serif",
         }}
       >
@@ -40,8 +40,8 @@ export default function OpengraphImage() {
               justifyContent: "center",
               width: 56,
               height: 56,
-              background: "#124559",
-              border: "2px solid #b91c1c",
+              background: "#eb5e28",
+              border: "2px solid #f39f7e",
               borderRadius: 12,
             }}
           >
@@ -51,7 +51,7 @@ export default function OpengraphImage() {
               height="30"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#f8f9fa"
+              stroke="#070707"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -66,7 +66,7 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", fontSize: 56, fontWeight: 700, lineHeight: 1.15, maxWidth: 900 }}>
           Structure the days willpower alone can&apos;t carry.
         </div>
-        <div style={{ display: "flex", fontSize: 28, color: "#adb5bd", marginTop: 24, maxWidth: 820 }}>
+        <div style={{ display: "flex", fontSize: 28, color: "#e0dcd4", marginTop: 24, maxWidth: 820 }}>
           CBT-based accountability, built for ADHD &amp; OCD.
         </div>
       </div>

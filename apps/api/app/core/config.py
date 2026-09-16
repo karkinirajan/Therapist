@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import PostgresDsn
+from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +25,39 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
 
     cors_allow_origins: list[str] = ["http://localhost:3000"]
+
+    # Voice therapy feature — optional, same blank-default-means-disabled
+    # convention as the Google OAuth settings above. Free-tier keys; see
+    # DEPLOYMENT.md / the voice-feature plan for provider setup.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = ""
+    # Daily per-user caps — the real cost/abuse backstop, independent of
+    # whatever quota the upstream free tiers happen to allow.
+    voice_daily_session_limit: int = 5
+    voice_daily_turn_limit: int = 60
+
+    # Overrides the `Secure` cookie flag's default (environment == "production").
+    # Needed for a production deployment served over plain HTTP without a
+    # domain/TLS yet (e.g. a bare EC2 IP) — browsers silently drop `Secure`
+    # cookies set over an insecure connection, which breaks refresh/logout
+    # entirely. Leave unset once real TLS is in front of the app.
+    cookie_secure_override: bool | None = Field(default=None, validation_alias="COOKIE_SECURE")
+
+    @field_validator("cookie_secure_override", mode="before")
+    @classmethod
+    def _blank_env_means_unset(cls, value: object) -> object:
+        # Compose's `${COOKIE_SECURE:-}` interpolation passes an empty string,
+        # not an absent var, when unset in .env — treat that the same as unset
+        # rather than a bool-parse error.
+        return None if value == "" else value
+
+    @property
+    def cookie_secure(self) -> bool:
+        if self.cookie_secure_override is not None:
+            return self.cookie_secure_override
+        return self.environment == "production"
 
 
 @lru_cache

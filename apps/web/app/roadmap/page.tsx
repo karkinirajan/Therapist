@@ -114,7 +114,7 @@ export default function RoadmapPage() {
               <CardHeader className="flex-row items-start justify-between space-y-0">
                 <div>
                   <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">
+                    <CardTitle as="h2" className="text-base">
                       Phase {phase.index + 1} — {phase.name}
                     </CardTitle>
                     {status === "completed" && <CheckCircle2 className="size-4 text-success" />}

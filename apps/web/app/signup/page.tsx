@@ -40,7 +40,7 @@ export default function SignupPage() {
         : null;
 
   return (
-    <div className="max-w-md space-y-6">
+    <div className="mx-auto max-w-md space-y-6">
       <div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Sign up</h1>
         <p className="text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ export default function SignupPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Create your account</CardTitle>
+          <CardTitle as="h2" className="text-base">Create your account</CardTitle>
           <CardDescription>It only takes a minute.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">

@@ -297,7 +297,7 @@ export default function TrackingCategoryPage({
   const fields = CATEGORY_FORMS[category.key]?.[cadence] ?? [];
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">{category.label}</h1>
         <p className="text-sm text-muted-foreground">{category.description}</p>
@@ -378,7 +378,7 @@ function CategoryEntryForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base capitalize">{cadence} entry</CardTitle>
+        <CardTitle as="h2" className="text-base capitalize">{cadence} entry</CardTitle>
         <CardDescription>
           Period start: {formatDate(periodStartFor(cadence))}
         </CardDescription>
@@ -569,7 +569,7 @@ function RecentEntries({ categoryKey, cadence }: { categoryKey: string; cadence:
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Recent {cadence} entries</CardTitle>
+        <CardTitle as="h2" className="text-base">Recent {cadence} entries</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {entries.isPending && <p className="text-sm text-muted-foreground">Loading…</p>}

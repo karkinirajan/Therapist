@@ -22,7 +22,7 @@ const CALL_BUTTON_CLASS =
 
 export default function SafetyPage() {
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Safety</h1>
         <p className="text-base leading-relaxed text-muted-foreground">
@@ -32,7 +32,7 @@ export default function SafetyPage() {
 
       <Card className="border-destructive/40 bg-destructive/5">
         <CardHeader>
-          <CardTitle className="text-destructive">Call now</CardTitle>
+          <CardTitle as="h2" className="text-destructive">Call now</CardTitle>
           <CardDescription>{CRISIS.helplineNote}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -53,7 +53,7 @@ export default function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">When this page is for you</CardTitle>
+          <CardTitle as="h2" className="text-base">When this page is for you</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-inside list-disc space-y-1.5 text-sm text-foreground">
@@ -71,7 +71,7 @@ export default function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">What happens on a genuine trigger</CardTitle>
+          <CardTitle as="h2" className="text-base">What happens on a genuine trigger</CardTitle>
         </CardHeader>
         <CardContent>
           <ol className="list-inside list-decimal space-y-2 text-sm text-foreground">
@@ -84,7 +84,7 @@ export default function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Medication</CardTitle>
+          <CardTitle as="h2" className="text-base">Medication</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-foreground">{MEDICATION_RULE}</p>
@@ -93,7 +93,7 @@ export default function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">What this tool is</CardTitle>
+          <CardTitle as="h2" className="text-base">What this tool is</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-foreground">

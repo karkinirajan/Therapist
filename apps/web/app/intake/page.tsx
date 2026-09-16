@@ -48,7 +48,7 @@ export default function IntakePage() {
 
   if (baseline.isPending) {
     return (
-      <div className="max-w-2xl space-y-4" role="status" aria-label="Loading intake">
+      <div className="mx-auto max-w-2xl space-y-4" role="status" aria-label="Loading intake">
         <div className="h-8 w-64 animate-pulse rounded-md bg-muted" />
         <div className="h-48 animate-pulse rounded-md border border-border bg-muted/40" />
       </div>
@@ -77,7 +77,7 @@ export default function IntakePage() {
 
   if (existing && !editing) {
     return (
-      <div className="max-w-2xl space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Baseline Snapshot</h1>
           <p className="text-sm text-muted-foreground">
@@ -132,7 +132,7 @@ export default function IntakePage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+    <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           First-session intake
@@ -153,7 +153,7 @@ export default function IntakePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">1. Current baseline</CardTitle>
+          <CardTitle as="h2" className="text-base">1. Current baseline</CardTitle>
           <CardDescription>Mood, anxiety, sleep, energy, medication adherence.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -195,7 +195,7 @@ export default function IntakePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">2. The three areas that feel off-track</CardTitle>
+          <CardTitle as="h2" className="text-base">2. The three areas that feel off-track</CardTitle>
           <CardDescription>One concrete recent example for each.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -234,7 +234,7 @@ export default function IntakePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">3. What&apos;s already working</CardTitle>
+          <CardTitle as="h2" className="text-base">3. What&apos;s already working</CardTitle>
           <CardDescription>
             From past treatment — so nothing solid gets rebuilt from scratch.
           </CardDescription>
@@ -251,7 +251,7 @@ export default function IntakePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">4. Non-negotiables</CardTitle>
+          <CardTitle as="h2" className="text-base">4. Non-negotiables</CardTitle>
           <CardDescription>
             Topics or approaches that have backfired before — generic positivity, over-scheduling
             that led to burnout, whatever applies.
@@ -268,7 +268,7 @@ export default function IntakePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">5. Check-in cadence</CardTitle>
+          <CardTitle as="h2" className="text-base">5. Check-in cadence</CardTitle>
           <CardDescription>Pick something realistic given the job.</CardDescription>
         </CardHeader>
         <CardContent>

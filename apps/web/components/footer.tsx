@@ -31,10 +31,10 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-chrome text-chrome-foreground">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-10">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-14">
         <div className="grid gap-8 sm:grid-cols-[1.5fr_1fr_1fr]">
           <div className="space-y-2">
-            <span className="text-sm font-extrabold uppercase tracking-widest text-chrome-foreground"><span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span></span>
+            <span className="text-sm font-extrabold uppercase tracking-widest text-chrome-foreground"><span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span></span>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               A structured, CBT-based accountability layer for ADHD and OCD — built to work
               alongside your existing treatment, not replace it.
@@ -76,7 +76,7 @@ export function Footer() {
             </Link>{" "}
             for what&apos;s collected and how it&apos;s stored.
           </p>
-          <p>&copy; {year} <span className="text-red-700 dark:text-red-600">T</span>HERAPIS<span className="text-red-700 dark:text-red-600">T</span>. All rights reserved.</p>
+          <p>&copy; {year} <span className="text-primary">T</span>HERAPIS<span className="text-primary">T</span>. All rights reserved.</p>
         </div>
       </div>
     </footer>

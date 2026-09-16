@@ -32,7 +32,6 @@ settings = get_settings()
 
 STATE_COOKIE_NAME = "google_oauth_state"
 STATE_COOKIE_PATH = "/auth/google"
-_COOKIE_SECURE = get_settings().environment == "production"
 
 
 @router.get("/authorize")
@@ -52,7 +51,7 @@ async def authorize(request: Request) -> RedirectResponse:
         max_age=600,
         path=STATE_COOKIE_PATH,
         httponly=True,
-        secure=_COOKIE_SECURE,
+        secure=settings.cookie_secure,
         samesite="lax",
     )
     return response
@@ -109,7 +108,7 @@ async def callback(
         exchange_code = build_exchange_code(result.user.id)
         params = urlencode({"code": exchange_code})
         response = RedirectResponse(
-            url=f"{settings.frontend_url}/auth/callback?{params}",
+            url=f"{settings.frontend_url}/auth/google/callback?{params}",
             status_code=status.HTTP_302_FOUND,
         )
 
