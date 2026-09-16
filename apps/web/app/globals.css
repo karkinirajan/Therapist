@@ -381,12 +381,20 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Looser than the prior 1.55 — monospace body copy reads visibly denser
-     than a proportional face at the same line-height (every character is
-     the same width, so lines feel more "packed"), so the default is opened
-     up to keep long-form prose (/about, /policy, /terms, /faq) comfortable
-     without shrinking type or reverting to a proportional font. */
-  line-height: 1.65;
+  /* One step up from the browser default (400) — a deliberate, slight
+     weight bump applied everywhere via the body base rather than editing
+     every individual text-* utility usage across the app. Elements with
+     their own explicit font-weight class (headings, font-extrabold labels,
+     etc.) are unaffected — this only raises the floor for plain body copy
+     that previously inherited the browser default. */
+  font-weight: 500;
+  /* Looser than the prior 1.65 ("taller" text per explicit instruction) —
+     on top of the existing monospace-density rationale (monospace body
+     copy reads denser than a proportional face at the same line-height,
+     since every character is the same width), this keeps long-form prose
+     (/about, /policy, /terms, /faq) comfortable at the slightly heavier
+     weight above too. */
+  line-height: 1.75;
 }
 
 /* h1–h3 aren't reset to a fixed size here on purpose: every page already
