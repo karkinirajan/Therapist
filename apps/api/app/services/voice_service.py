@@ -12,6 +12,7 @@ from app.models.user import User
 from app.repositories.therapy_session_repo import TherapySessionRepository
 from app.repositories.user_memory_profile_repo import UserMemoryProfileRepository
 from app.services import llm_client, voice_persona
+from app.services.llm_client import LlmNotConfiguredError, LlmQuotaExceededError, LlmRequestError
 
 settings = get_settings()
 
@@ -196,20 +197,31 @@ class VoiceService:
                 ),
             }
         ]
-        new_summary = await llm_client.complete(
-            system_prompt=summarization_prompt, history=history
-        )
+        # Summarization is a memory-quality enhancement, not a requirement for
+        # ending a session - a session must always be endable even if the LLM
+        # is unreachable/unconfigured/out of quota, rather than 500ing and
+        # leaving the user stuck in an "active" session they can't close.
+        try:
+            new_summary = await llm_client.complete(
+                system_prompt=summarization_prompt, history=history
+            )
+        except (LlmNotConfiguredError, LlmQuotaExceededError, LlmRequestError):
+            new_summary = None
 
-        if profile is None:
-            await self._profiles.create(
-                user_id=user.id, rolling_summary=new_summary.strip(), key_facts={}, session_count=1
-            )
-        else:
-            await self._profiles.update(
-                profile,
-                rolling_summary=new_summary.strip(),
-                session_count=profile.session_count + 1,
-            )
+        if new_summary is not None:
+            if profile is None:
+                await self._profiles.create(
+                    user_id=user.id,
+                    rolling_summary=new_summary.strip(),
+                    key_facts={},
+                    session_count=1,
+                )
+            else:
+                await self._profiles.update(
+                    profile,
+                    rolling_summary=new_summary.strip(),
+                    session_count=profile.session_count + 1,
+                )
 
         return await self._sessions.update(
             session, status=TherapySessionStatus.ended, ended_at=datetime.now(UTC)
