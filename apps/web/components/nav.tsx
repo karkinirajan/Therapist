@@ -54,7 +54,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-chrome/95 backdrop-blur supports-[backdrop-filter]:bg-chrome/80">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex min-h-24 max-w-7xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
           className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"
