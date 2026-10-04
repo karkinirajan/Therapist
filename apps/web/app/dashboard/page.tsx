@@ -218,7 +218,7 @@ function DashboardContent({
                   <li key={c.id}>
                     <Link
                       href={`/tracking/${c.key}`}
-                      className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
                     >
                       <span className="flex items-center gap-2">
                         {c.is_blocking ? (
@@ -271,7 +271,7 @@ function DashboardContent({
               {recentCheckins.data.map((log) => (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
                 >
                   <span className="text-muted-foreground">{formatDate(log.date)}</span>
                   <span>
@@ -279,7 +279,7 @@ function DashboardContent({
                   </span>
                 </div>
               ))}
-              <Button asChild variant="link" className="px-0">
+              <Button asChild variant="outline" className="w-full sm:w-fit mt-2 text-link hover:text-link">
                 <Link href="/progress">
                   See full history <ArrowRight className="size-3.5" />
                 </Link>
