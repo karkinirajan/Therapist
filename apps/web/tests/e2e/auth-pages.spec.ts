@@ -10,11 +10,10 @@ test.describe("/login", () => {
     await expect(page.getByRole("button", { name: "Log in" })).toBeVisible();
     // The "Continue with Google" control is a real <a> (see the comment in
     // login/page.tsx: it needs a full browser navigation, not a client-side
-    // route), but it's wrapped in <Button asChild>, and Base UI's Button
-    // primitive renders with `role="button"` even when the underlying
-    // element is an anchor — hence `getByRole("button", ...)` here, not
-    // "link", confirmed against the actual accessibility tree.
-    await expect(page.getByRole("button", { name: /continue with google/i })).toBeVisible();
+    // route). Button asChild now clones the child element directly instead
+    // of rendering through Base UI's Button primitive, so the accessible
+    // role matches the underlying <a>: "link", not "button".
+    await expect(page.getByRole("link", { name: /continue with google/i })).toBeVisible();
   });
 });
 
@@ -26,13 +25,9 @@ test.describe("/signup", () => {
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign up" })).toBeVisible();
-    // The "Continue with Google" control is a real <a> (see the comment in
-    // login/page.tsx: it needs a full browser navigation, not a client-side
-    // route), but it's wrapped in <Button asChild>, and Base UI's Button
-    // primitive renders with `role="button"` even when the underlying
-    // element is an anchor — hence `getByRole("button", ...)` here, not
-    // "link", confirmed against the actual accessibility tree.
-    await expect(page.getByRole("button", { name: /continue with google/i })).toBeVisible();
+    // Same role note as /login above: Button asChild clones the real <a>,
+    // so this is a "link", not a "button".
+    await expect(page.getByRole("link", { name: /continue with google/i })).toBeVisible();
   });
 });
 
@@ -51,29 +46,9 @@ test.describe("/signup", () => {
 test.describe("real auth flow (requires a live API)", () => {
   test.skip(!process.env.API_BASE_URL, "Set API_BASE_URL to run this against a live FastAPI backend.");
 
-  // BUG, verified against a real local FastAPI + Postgres instance while
-  // writing this test (not fixed here, per instructions — signup/page.tsx
-  // and login/page.tsx are existing route files): both call
-  // `router.push("/dashboard")` on success, but there is no
-  // `apps/web/app/dashboard/` route — the actual dashboard lives at `/`.
-  // `/dashboard` IS one of proxy.ts's PROTECTED_PREFIXES, so the cookie
-  // gate passes post-login (the browser lands on the URL, doesn't get
-  // bounced to /login), but Next.js has no page there, so it renders
-  // app/not-found.tsx ("Page not found") instead of the dashboard. Just
-  // asserting the URL (as a first draft of this test did) doesn't catch
-  // this — not-found still renders AT that URL — so this explicitly checks
-  // for real dashboard content and the absence of the not-found copy.
   test("signup redirects to the dashboard (not a 404) and sets a session cookie", async ({
     page,
   }) => {
-    // Marks this as a KNOWN, currently-failing test (Playwright's xfail
-    // equivalent) rather than silently letting CI go red for a bug this
-    // task was told to flag, not fix. If/when the redirect target is
-    // corrected to "/", this assertion starts passing and Playwright will
-    // report it as an *unexpected* pass, which is the signal to remove
-    // this `test.fail()` call.
-    test.fail(true, "BUG: post-signup/login redirect target '/dashboard' has no matching route (see comment below) — remove this test.fail() once fixed.");
-
     const email = `e2e-${Date.now()}@example.com`;
     const password = "correct-horse-battery-staple";
 

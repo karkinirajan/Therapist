@@ -23,7 +23,11 @@ test.describe("/ (public landing page, unauthenticated)", () => {
       page.getByRole("heading", { name: /structure the days willpower alone can.t carry/i }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Log in", exact: true })).toBeVisible();
+    // "Log in" appears both in the header nav and the hero CTAs — scope to
+    // <main> so the locator isn't ambiguous under Playwright's strict mode.
+    await expect(
+      page.getByRole("main").getByRole("link", { name: "Log in", exact: true }),
+    ).toBeVisible();
   });
 });
 
@@ -47,13 +51,13 @@ test.describe("header nav", () => {
       page.getByRole("heading", { name: /structure the days willpower alone can.t carry/i }),
     ).toBeVisible();
 
-    // Same Button-asChild-on-an-<a> role note as elsewhere in this suite:
-    // "Crisis Support" is exposed as role="button", not "link".
-    await page.getByRole("button", { name: /crisis support/i }).click();
+    // Button asChild clones the real <a>, so this is a "link", not a "button".
+    await page.getByRole("link", { name: /crisis support/i }).click();
     await expect(page).toHaveURL(/\/safety$/);
     await expect(page.getByRole("heading", { name: "Safety", exact: true })).toBeVisible();
 
-    await page.getByRole("link", { name: "Therapist", exact: true }).click();
+    // The wordmark's DOM text is "THERAPIST" (not CSS-uppercased).
+    await page.getByRole("link", { name: "THERAPIST", exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole("heading", { name: /structure the days willpower alone can.t carry/i }),

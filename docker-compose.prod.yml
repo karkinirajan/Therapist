@@ -32,6 +32,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set a real random JWT_SECRET in your root .env before running in production — python3 -c "import secrets; print(secrets.token_urlsafe(48))"}
       FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL in your root .env to your real production frontend origin}
       CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:?Set CORS_ALLOW_ORIGINS in your root .env to a JSON array matching FRONTEND_URL exactly}
+      RATE_LIMIT_STORAGE_URI: redis://redis:6379/0
       # Bumped from the base file's default of 2 — each open voice
       # WebSocket holds a worker's event loop for the whole conversation,
       # unlike the short HTTP requests the default was sized for.
@@ -46,6 +47,12 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+    # Loopback-only — same posture as `api` above. Nginx is the only thing
+    # that should reach this container from outside Docker's own network;
+    # publishing to all interfaces would let port 3000 bypass Nginx (and any
+    # host firewall) entirely over plain HTTP.
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     deploy:
       resources:
         limits:

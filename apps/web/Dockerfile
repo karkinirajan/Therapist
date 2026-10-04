@@ -46,6 +46,12 @@ COPY apps/web ./apps/web
 # not whatever happens to be in the build environment.
 ARG API_BASE_URL=http://api:8000
 ENV API_BASE_URL=${API_BASE_URL}
+# NEXT_PUBLIC_* vars are inlined into the client bundle at build time, not
+# read at runtime, so this has to be a build ARG (see docker-compose.yml's
+# web.build.args) rather than a plain `environment:` entry. Drives the
+# canonical URL in robots.ts/sitemap.ts/layout.tsx's metadataBase.
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 RUN npm run build -w @therapist/web
 
 # ---- runtime: lean production image, standalone output only (no full

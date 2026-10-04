@@ -24,6 +24,15 @@
 #     prod.yml additionally requiring real secrets instead of dev
 #     fallbacks. See DEPLOYMENT.md's "Path C — Docker Compose" section.
 services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -32,7 +41,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-therapist_dev_only}
       POSTGRES_DB: ${POSTGRES_DB:-therapist}
     ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      # Never expose Postgres beyond this host. Containers use the internal
+      # Compose network; local tools can still use localhost:${POSTGRES_PORT}.
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -70,6 +81,7 @@ services:
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
       ACCESS_TOKEN_TTL_MINUTES: ${ACCESS_TOKEN_TTL_MINUTES:-15}
       REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-30}
+      RATE_LIMIT_STORAGE_URI: ${RATE_LIMIT_STORAGE_URI:-redis://redis:6379/0}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
@@ -115,6 +127,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -125,6 +139,12 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       target: runtime
+      args:
+        # NEXT_PUBLIC_* vars are inlined into the client bundle at build
+        # time, not read at runtime — must be passed as a build arg, not
+        # just an `environment:` entry below. Drives robots.ts/sitemap.ts/
+        # layout.tsx's canonical URL and OG metadata.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     environment:
       NODE_ENV: production
       # Compose service DNS name, not localhost — see .env.example.

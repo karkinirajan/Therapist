@@ -9,6 +9,13 @@ Ordered checklist. Run everything from repo root unless noted. Replace `app.your
 - [ ] Allocate + associate an Elastic IP
 - [ ] Point DNS: A record `app.yourdomain.com` → Elastic IP
 
+### Cloudflare DNS (if the domain's nameservers are on Cloudflare)
+
+1. Cloudflare dashboard → the zone for the root domain (e.g. `kneeraazon.com`) → **DNS** → **Records** → **Add record**.
+2. Type `A`, Name = the subdomain only (e.g. `therapist`), IPv4 address = the Elastic IP, TTL = Auto.
+3. **Proxy status: DNS only (grey cloud), not Proxied (orange cloud)** — for the *first* certbot run. Certbot's HTTP-01 challenge needs Cloudflare to resolve straight to the EC2 box on port 80; the orange-cloud proxy intercepts that and issuance fails. Flip it to Proxied afterwards only if you've set up DNS-01 (`certbot-dns-cloudflare`) or Cloudflare's own TLS mode to Full (strict) — and keep it DNS-only regardless if the voice feature's `/voice/ws` WebSocket is in use, since Cloudflare's proxy idle-times long-lived connections.
+4. Save. Propagation is usually under a few minutes; confirm with `dig +short therapist.kneeraazon.com` before running certbot in step 5.
+
 ## 2. Provision the instance
 
 SSH in:
@@ -50,7 +57,7 @@ nano .env
 - `JWT_SECRET` — `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`
 - `FRONTEND_URL=https://app.yourdomain.com`
 - `CORS_ALLOW_ORIGINS=["https://app.yourdomain.com"]`
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI=https://app.yourdomain.com/api/auth/google-exchange` — only if Google sign-in is used
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI=https://app.yourdomain.com/auth/google/callback` — only if Google sign-in is used
 - `NEXT_PUBLIC_SITE_URL=https://app.yourdomain.com` (add this line — used by sitemap/OG/manifest)
 
 ## 4. Build and start the stack
