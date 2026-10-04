@@ -7,12 +7,18 @@ from app.core.deps import get_db
 from app.core.gating_deps import require_gate
 from app.core.rate_limit import limiter, user_key
 from app.models.user import User
-from app.schemas.voice import TherapySessionOut, TtsRequest, UserMemoryProfileOut, VoiceQuotaOut, VoiceSocketTicketOut
+from app.schemas.voice import (
+    TherapySessionOut,
+    TtsRequest,
+    UserMemoryProfileOut,
+    VoiceQuotaOut,
+    VoiceSocketTicketOut,
+)
 from app.services import tts_client
 from app.services.tts_client import TtsNotConfiguredError, TtsQuotaExceededError, TtsRequestError
 from app.services.voice_service import (
-    DailySessionQuotaExceededError,
     ActiveSessionExistsError,
+    DailySessionQuotaExceededError,
     SessionAlreadyEndedError,
     SessionNotFoundError,
     VoiceService,

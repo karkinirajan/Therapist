@@ -5,8 +5,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.therapy_session import TherapySession
-from app.models.therapy_session import TherapySessionStatus
+from app.models.therapy_session import TherapySession, TherapySessionStatus
 
 
 class TherapySessionRepository:

@@ -1,6 +1,7 @@
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from starlette.requests import Request
+
 from app.core.config import get_settings
 
 # Default key func is per-IP. Endpoints that also need a per-email limit pass an

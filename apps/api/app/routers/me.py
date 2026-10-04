@@ -10,13 +10,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, get_db
-from app.models.user import User
 from app.models.baseline import Baseline
 from app.models.checkin_log import CheckinLog
 from app.models.exposure_hierarchy_item import ExposureHierarchyItem
 from app.models.roadmap_phase_history import RoadmapPhaseHistory
-from app.models.tracking_entry import TrackingEntry
 from app.models.therapy_session import TherapySession
+from app.models.tracking_entry import TrackingEntry
+from app.models.user import User
 from app.models.user_memory_profile import UserMemoryProfile
 from app.models.user_roadmap_state import UserRoadmapState
 from app.schemas.gating import GateStateOut

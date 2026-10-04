@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 
