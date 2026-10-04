@@ -51,7 +51,7 @@ services:
     # that should reach this container from outside Docker's own network;
     # publishing to all interfaces would let port 3000 bypass Nginx (and any
     # host firewall) entirely over plain HTTP.
-    ports:
+    ports: !override
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
     deploy:
       resources:
