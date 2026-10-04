@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.therapy_session import TherapySession
+from app.models.therapy_session import TherapySessionStatus
 
 
 class TherapySessionRepository:
@@ -48,6 +49,15 @@ class TherapySessionRepository:
             .where(TherapySession.user_id == user_id, TherapySession.started_at >= since)
         )
         return int(result.scalar_one())
+
+    async def has_active_for_user(self, *, user_id: uuid.UUID) -> bool:
+        result = await self._db.execute(
+            select(TherapySession.id).where(
+                TherapySession.user_id == user_id,
+                TherapySession.status == TherapySessionStatus.active,
+            ).limit(1)
+        )
+        return result.scalar_one_or_none() is not None
 
     async def update(self, session: TherapySession, **fields: Any) -> TherapySession:
         for key, value in fields.items():

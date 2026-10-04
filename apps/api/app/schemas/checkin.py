@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import date as Date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -64,7 +64,7 @@ ToolData = Annotated[
 
 
 class CheckinCreate(BaseModel):
-    date: date
+    date: Date
     mood: int
     anxiety: int
     meds: bool
@@ -78,7 +78,7 @@ class CheckinCreate(BaseModel):
     pattern_flagged: str
     roadmap_phase_name: str
     next_homework: str
-    next_homework_due: date | None = None
+    next_homework_due: Date | None = None
 
 
 class CheckinOut(BaseModel):
@@ -86,7 +86,7 @@ class CheckinOut(BaseModel):
 
     id: uuid.UUID
     user_id: uuid.UUID
-    date: date
+    date: Date
     mood: int
     anxiety: int
     meds: bool
@@ -100,7 +100,7 @@ class CheckinOut(BaseModel):
     pattern_flagged: str
     roadmap_phase_name: str
     next_homework: str
-    next_homework_due: date | None
+    next_homework_due: Date | None
     streak_at_logging: int
     created_at: datetime
 

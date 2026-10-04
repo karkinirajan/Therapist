@@ -1,7 +1,10 @@
 import uuid
+import hashlib
+import secrets
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from datetime import timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +14,7 @@ from app.models.therapy_session import TherapySession, TherapySessionStatus
 from app.models.user import User
 from app.repositories.therapy_session_repo import TherapySessionRepository
 from app.repositories.user_memory_profile_repo import UserMemoryProfileRepository
+from app.repositories.voice_socket_ticket_repo import VoiceSocketTicketRepository
 from app.services import llm_client, voice_persona
 from app.services.llm_client import LlmNotConfiguredError, LlmQuotaExceededError, LlmRequestError
 
@@ -30,6 +34,10 @@ class DailySessionQuotaExceededError(Exception):
 
 
 class DailyTurnQuotaExceededError(Exception):
+    pass
+
+
+class ActiveSessionExistsError(Exception):
     pass
 
 
@@ -57,6 +65,7 @@ class VoiceService:
         self._db = db
         self._sessions = TherapySessionRepository(db)
         self._profiles = UserMemoryProfileRepository(db)
+        self._socket_tickets = VoiceSocketTicketRepository(db)
 
     async def _turns_used_today(self, user_id: uuid.UUID, since: datetime) -> int:
         result = await self._db.execute(
@@ -81,6 +90,8 @@ class VoiceService:
         )
 
     async def start_session(self, user: User) -> TherapySession:
+        if await self._sessions.has_active_for_user(user_id=user.id):
+            raise ActiveSessionExistsError("End your current conversation before starting another.")
         quota = await self.get_quota(user)
         if quota.sessions_remaining_today <= 0:
             raise DailySessionQuotaExceededError(
@@ -93,6 +104,22 @@ class VoiceService:
         if session is None:
             raise SessionNotFoundError(str(session_id))
         return session
+
+    async def create_socket_ticket(self, user: User, session_id: uuid.UUID) -> str:
+        await self.get_session(user, session_id)
+        ticket = secrets.token_urlsafe(32)
+        await self._socket_tickets.create(
+            session_id=session_id,
+            user_id=user.id,
+            token_hash=hashlib.sha256(ticket.encode()).hexdigest(),
+            expires_at=datetime.now(UTC) + timedelta(seconds=60),
+        )
+        return ticket
+
+    async def claim_socket_ticket(self, ticket: str) -> tuple[uuid.UUID, uuid.UUID] | None:
+        return await self._socket_tickets.claim(
+            token_hash=hashlib.sha256(ticket.encode()).hexdigest(), now=datetime.now(UTC)
+        )
 
     async def list_sessions(
         self, user: User, *, offset: int = 0, limit: int = 20

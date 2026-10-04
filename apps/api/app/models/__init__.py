@@ -9,6 +9,7 @@ from app.models.tracking_category import TrackingCategory
 from app.models.tracking_entry import TrackingCadence, TrackingEntry
 from app.models.user import User
 from app.models.user_memory_profile import UserMemoryProfile
+from app.models.voice_socket_ticket import VoiceSocketTicket
 from app.models.user_roadmap_state import UserRoadmapState
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "User",
     "UserMemoryProfile",
     "UserRoadmapState",
+    "VoiceSocketTicket",
 ]

@@ -5,8 +5,8 @@ from urllib.parse import urlencode
 
 import httpx
 import jwt
-from authlib.common.security import generate_token
-from authlib.oauth2.rfc7636 import create_s256_code_challenge
+from authlib.common.security import generate_token  # type: ignore[import-untyped]
+from authlib.oauth2.rfc7636 import create_s256_code_challenge  # type: ignore[import-untyped]
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings

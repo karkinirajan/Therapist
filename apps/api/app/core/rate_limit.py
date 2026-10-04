@@ -1,13 +1,16 @@
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from starlette.requests import Request
+from app.core.config import get_settings
 
 # Default key func is per-IP. Endpoints that also need a per-email limit pass an
 # explicit `key_func=email_key` on a second stacked `@limiter.limit(...)` decorator;
 # `email_key` reads a value a request-body-parsing dependency stashed on
 # `request.state` earlier in the dependency chain (slowapi's key_func only ever
 # receives the `Request`, not the resolved endpoint kwargs).
-limiter = Limiter(key_func=get_remote_address)
+# Redis is required in production so all Gunicorn workers enforce one shared
+# counter. The memory fallback keeps direct local development friction-free.
+limiter = Limiter(key_func=get_remote_address, storage_uri=get_settings().rate_limit_storage_uri)
 
 
 def email_key(request: Request) -> str:

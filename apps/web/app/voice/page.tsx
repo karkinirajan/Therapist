@@ -12,6 +12,7 @@ import {
   type TherapySessionOut,
 } from "@/lib/voice";
 import { VoiceWebSocket, type VoiceServerMessage } from "@/lib/voice-ws";
+import { fetchJson } from "@/lib/api-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -98,7 +99,8 @@ export default function VoicePage() {
 
     const ws = new VoiceWebSocket();
     wsRef.current = ws;
-    ws.connect(newSession.id, {
+    const { ticket } = await fetchJson<{ ticket: string }>(`/api/voice/sessions/${newSession.id}/socket-ticket`, { method: "POST" }, { auth: true });
+    ws.connect(ticket, {
       onMessage: handleServerMessage,
       onError: () => setConnectionError("Lost connection to the conversation. Try starting a new session."),
     });

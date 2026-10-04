@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import date, datetime
+from datetime import date as Date, datetime
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, Text, func
 from sqlalchemy import Enum as SAEnum
@@ -29,7 +29,7 @@ class CheckinLog(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    date: Mapped[date] = mapped_column(Date, nullable=False)
+    date: Mapped[Date] = mapped_column(Date, nullable=False)
     mood: Mapped[int] = mapped_column(Integer, nullable=False)
     anxiety: Mapped[int] = mapped_column(Integer, nullable=False)
     meds: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -48,7 +48,7 @@ class CheckinLog(Base):
     pattern_flagged: Mapped[str] = mapped_column(Text, nullable=False)
     roadmap_phase_name: Mapped[str] = mapped_column(Text, nullable=False)
     next_homework: Mapped[str] = mapped_column(Text, nullable=False)
-    next_homework_due: Mapped[date | None] = mapped_column(Date, nullable=True)
+    next_homework_due: Mapped[Date | None] = mapped_column(Date, nullable=True)
     streak_at_logging: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

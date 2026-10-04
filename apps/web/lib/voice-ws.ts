@@ -1,4 +1,3 @@
-import { getAccessToken } from "@/lib/api-client";
 
 /**
  * WebSocket client for the voice therapy feature's live conversation.
@@ -34,15 +33,9 @@ export interface VoiceWsHandlers {
 export class VoiceWebSocket {
   private socket: WebSocket | null = null;
 
-  connect(sessionId: string, handlers: VoiceWsHandlers): void {
-    const token = getAccessToken();
-    if (!token) {
-      handlers.onError?.();
-      return;
-    }
-
+  connect(ticket: string, handlers: VoiceWsHandlers): void {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const url = `${protocol}//${window.location.host}/voice/ws?session_id=${encodeURIComponent(sessionId)}&token=${encodeURIComponent(token)}`;
+    const url = `${protocol}//${window.location.host}/voice/ws?ticket=${encodeURIComponent(ticket)}`;
 
     const socket = new WebSocket(url);
     this.socket = socket;

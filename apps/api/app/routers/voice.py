@@ -7,11 +7,12 @@ from app.core.deps import get_db
 from app.core.gating_deps import require_gate
 from app.core.rate_limit import limiter, user_key
 from app.models.user import User
-from app.schemas.voice import TherapySessionOut, TtsRequest, UserMemoryProfileOut, VoiceQuotaOut
+from app.schemas.voice import TherapySessionOut, TtsRequest, UserMemoryProfileOut, VoiceQuotaOut, VoiceSocketTicketOut
 from app.services import tts_client
 from app.services.tts_client import TtsNotConfiguredError, TtsQuotaExceededError, TtsRequestError
 from app.services.voice_service import (
     DailySessionQuotaExceededError,
+    ActiveSessionExistsError,
     SessionAlreadyEndedError,
     SessionNotFoundError,
     VoiceService,
@@ -41,6 +42,8 @@ async def start_session(
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)
         ) from exc
+    except ActiveSessionExistsError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     return TherapySessionOut.model_validate(session)
 
 
@@ -125,6 +128,21 @@ async def get_session(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
         ) from exc
     return TherapySessionOut.model_validate(session)
+
+
+@router.post("/sessions/{session_id}/socket-ticket", response_model=VoiceSocketTicketOut)
+@limiter.limit("10/minute", key_func=user_key)
+async def create_socket_ticket(
+    request: Request,
+    session_id: uuid.UUID,
+    current_user: User = Depends(_stash_user_for_rate_limit),
+    db: AsyncSession = Depends(get_db),
+) -> VoiceSocketTicketOut:
+    try:
+        ticket = await VoiceService(db).create_socket_ticket(current_user, session_id)
+    except SessionNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found") from exc
+    return VoiceSocketTicketOut(ticket=ticket)
 
 
 @router.get("/memory-profile", response_model=UserMemoryProfileOut | None)

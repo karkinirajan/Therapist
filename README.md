@@ -99,7 +99,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(48))"
 # paste the output into apps/api/.env's JWT_SECRET=
 ```
 
-If you want Google sign-in working locally, also fill in `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI` from a Google Cloud OAuth client with redirect URI `http://localhost:8000/auth/google/callback` — everything else works without it.
+If you want Google sign-in working locally, also fill in `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI` from a Google Cloud OAuth client with redirect URI `http://localhost:3000/auth/google/callback` — everything else works without it.
 
 ### Development conventions
 

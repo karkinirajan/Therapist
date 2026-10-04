@@ -53,6 +53,7 @@ jobs:
 
       - run: uv sync
       - run: uv run ruff check .
+      - run: uv run mypy app
 
       # tests/conftest.py creates its own dedicated `therapist_test` database
       # (via _ensure_test_database_exists) against this service container, so

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
-import { useCurrentUser, useLogout } from "@/lib/api-client";
+import { getAccessToken, useCurrentUser, useLogout } from "@/lib/api-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,6 +14,20 @@ export default function AccountPage() {
 
   function handleLogout() {
     logout.mutate(undefined, { onSuccess: () => router.push("/login") });
+  }
+
+  async function downloadDataExport() {
+    const token = getAccessToken();
+    const response = await fetch("/api/me/export", {
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) return;
+    const url = URL.createObjectURL(await response.blob());
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "therapist-data-export.json";
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -61,8 +75,13 @@ export default function AccountPage() {
             {logout.isPending ? "Logging out…" : "Log out"}
           </Button>
 
+          <Button variant="outline" onClick={downloadDataExport} disabled={!currentUser.data} className="w-full sm:w-auto">
+            Download my data
+          </Button>
+
           <p className="text-xs text-muted-foreground">
-            Settings, theme preference, and data export are coming in a follow-up.
+            Your download includes everything you&apos;ve entered, including voice-session transcripts.
+            Keep the file somewhere private.
           </p>
         </CardContent>
       </Card>

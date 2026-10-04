@@ -36,3 +36,7 @@ class VoiceQuotaOut(BaseModel):
 
 class TtsRequest(BaseModel):
     text: str
+
+
+class VoiceSocketTicketOut(BaseModel):
+    ticket: str

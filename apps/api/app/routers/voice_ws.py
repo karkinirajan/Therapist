@@ -3,7 +3,6 @@ import uuid
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 
-from app.core.security import decode_access_token
 from app.db.session import async_session_factory
 from app.repositories.user_repo import UserRepository
 from app.services.llm_client import LlmNotConfiguredError, LlmQuotaExceededError, LlmRequestError
@@ -25,17 +24,14 @@ router = APIRouter(prefix="/voice", tags=["voice"])
 
 
 @router.websocket("/ws")
-async def voice_conversation(websocket: WebSocket, session_id: uuid.UUID, token: str) -> None:
-    # Native browser WebSocket can't set an Authorization header, so the
-    # access token travels as a query param instead - see the plan's Safety
-    # note: this is exactly as exposed as the rest of this deployment is
-    # today (plain HTTP, no TLS yet), not a new weakness introduced here.
-    user_id = decode_access_token(token)
-    if user_id is None:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
-        return
-
+async def voice_conversation(websocket: WebSocket, ticket: str) -> None:
     async with async_session_factory() as db:
+        claimed = await VoiceService(db).claim_socket_ticket(ticket)
+        if claimed is None:
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid or expired ticket")
+            return
+        user_id, session_id = claimed
+        await db.commit()
         user = await UserRepository(db).get_by_id(user_id)
         if user is None:
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
@@ -60,6 +56,9 @@ async def voice_conversation(websocket: WebSocket, session_id: uuid.UUID, token:
                 if message.get("type") != "transcript_chunk":
                     continue
                 user_text = str(message.get("text", "")).strip()
+                if len(user_text) > 4_000:
+                    await websocket.send_text(json.dumps({"type": "error", "detail": "Messages are limited to 4,000 characters."}))
+                    continue
                 if not user_text:
                     continue
 

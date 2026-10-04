@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_ttl_minutes: int = 15
     refresh_token_ttl_days: int = 30
+    rate_limit_storage_uri: str = "memory://"
 
     google_client_id: str = ""
     google_client_secret: str = ""
