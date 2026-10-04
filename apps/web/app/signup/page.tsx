@@ -93,7 +93,7 @@ export default function SignupPage() {
                 </p>
               )}
             </div>
-            <Button type="submit" className="w-full" disabled={signup.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={signup.isPending}>
               {signup.isPending ? "Creating account…" : "Sign up"}
             </Button>
           </form>
@@ -107,7 +107,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <Button asChild variant="outline" className="w-full">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             {/* Intentional full browser navigation (not a Next.js page, not
                 a fetch) — the OAuth flow needs a real top-level GET to hit
                 the redirect chain to Google's consent screen. */}

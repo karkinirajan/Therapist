@@ -76,7 +76,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={login.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={login.isPending}>
               {login.isPending ? "Logging in…" : "Log in"}
             </Button>
           </form>
@@ -90,7 +90,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button asChild variant="outline" className="w-full">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             {/* Intentional full browser navigation (not a Next.js page, not
                 a fetch) — the OAuth flow needs a real top-level GET to hit
                 the redirect chain to Google's consent screen. */}

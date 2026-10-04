@@ -303,7 +303,7 @@ export default function TrackingCategoryPage({
         <p className="text-sm text-muted-foreground">{category.description}</p>
       </div>
 
-      <div className="flex gap-2" role="tablist" aria-label="Cadence">
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Cadence">
         {CADENCES.map((c) => (
           <button
             key={c}
@@ -312,7 +312,7 @@ export default function TrackingCategoryPage({
             aria-selected={cadence === c}
             onClick={() => setCadence(c)}
             className={cn(
-              "rounded-md border px-3 py-1.5 text-sm font-medium capitalize transition-colors",
+              "min-h-12 rounded-md border px-4 py-2.5 text-sm font-medium capitalize transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
               cadence === c
                 ? "border-primary bg-primary/10 text-link"
@@ -400,7 +400,7 @@ function CategoryEntryForm({
           {fields.map((field) => (
             <FieldInput key={field.name} field={field} value={state[field.name]} onChange={(v) => setField(field.name, v)} />
           ))}
-          <Button type="submit" className="w-full" disabled={createEntry.isPending}>
+          <Button type="submit" className="w-full sm:w-auto" disabled={createEntry.isPending}>
             {createEntry.isPending ? "Saving…" : "Save entry"}
           </Button>
         </form>

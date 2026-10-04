@@ -146,7 +146,7 @@ export default function ToolsPage() {
                   <button
                     type="button"
                     aria-label="Remove"
-                    className="text-muted-foreground hover:text-destructive"
+                    className="inline-flex size-11 items-center justify-center text-muted-foreground hover:text-destructive"
                     onClick={() =>
                       update((d) => ({ ...d, hierarchy: d.hierarchy.filter((h) => h.id !== item.id) }))
                     }

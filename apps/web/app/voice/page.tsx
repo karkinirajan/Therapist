@@ -192,7 +192,7 @@ export default function VoicePage() {
           {session ? (
             <div className="space-y-3">
               <RecorderButton onFinalTranscript={handleTranscriptChunk} disabled={!!connectionError} />
-              <Button variant="outline" className="w-full" onClick={handleEnd} disabled={endSession.isPending}>
+              <Button variant="outline" className="w-full sm:w-auto" onClick={handleEnd} disabled={endSession.isPending}>
                 {endSession.isPending ? <Loader2 className="size-4 animate-spin" /> : "End conversation"}
               </Button>
             </div>

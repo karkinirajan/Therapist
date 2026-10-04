@@ -94,7 +94,7 @@ export function RecorderButton({
   if (!supported) {
     return (
       <form
-        className="flex gap-2"
+        className="flex flex-col gap-2 sm:flex-row"
         onSubmit={(e) => {
           e.preventDefault();
           const text = fallbackText.trim();
@@ -108,7 +108,6 @@ export function RecorderButton({
           onChange={(e) => setFallbackText(e.target.value)}
           placeholder="Your browser doesn't support speech input — type instead."
           disabled={disabled}
-          className="min-h-[44px]"
         />
         <Button type="submit" disabled={disabled || !fallbackText.trim()} size="icon">
           <Send className="size-4" />
@@ -124,7 +123,7 @@ export function RecorderButton({
       disabled={disabled}
       variant={listening ? "destructive" : "default"}
       size="lg"
-      className="w-full gap-2"
+      className="w-full gap-2 sm:w-auto"
       aria-pressed={listening}
     >
       {listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}

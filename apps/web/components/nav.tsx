@@ -54,7 +54,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-chrome/95 backdrop-blur supports-[backdrop-filter]:bg-chrome/80">
       {/* Centered with mx-auto and max-w-7xl to match the layout. */}
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4">
         <Link
           href={currentUser.data ? "/dashboard" : "/"}
           className="flex items-center gap-2 text-sm tracking-tight text-chrome-foreground"
@@ -71,7 +71,7 @@ export function Nav() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors",
+                  "inline-flex min-h-12 items-center rounded-sm px-4 py-2.5 text-sm font-semibold transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -122,7 +122,7 @@ export function Nav() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "rounded-sm px-3 py-2 text-sm font-semibold transition-colors",
+                  "flex min-h-12 items-center rounded-sm px-4 py-3 text-sm font-semibold transition-colors",
                   active
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",

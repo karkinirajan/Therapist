@@ -277,14 +277,14 @@ export default function CheckinPage() {
           {(lastCheckins.data?.length ?? 0) > 0 && (
             <div className="space-y-1.5">
               <Label>Last homework</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {HOMEWORK_OPTIONS.map((o) => (
                   <button
                     type="button"
                     key={o.value}
                     onClick={() => setHomeworkStatus(o.value)}
                     className={cn(
-                      "flex-1 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
+                      "min-h-12 flex-1 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors",
                       homeworkStatus === o.value
                         ? "border-primary bg-primary/10 text-link"
                         : "border-border text-muted-foreground hover:bg-muted",
@@ -327,14 +327,14 @@ export default function CheckinPage() {
           <CardDescription>Exactly one technique per check-in — not several.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {CBT_TOOLS.map((t) => (
               <button
                 type="button"
                 key={t.id}
                 onClick={() => setTool(t.id)}
                 className={cn(
-                  "rounded-md border p-3 text-left text-sm transition-colors",
+                  "min-h-12 rounded-md border p-4 text-left text-sm transition-colors",
                   tool === t.id ? "border-primary bg-primary/10" : "border-border hover:bg-muted",
                 )}
               >
@@ -414,7 +414,7 @@ export default function CheckinPage() {
                 value={toolFields.item_label}
                 onChange={(v) => setField("item_label", v)}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <TextField
                   label="SUDS before (0-100)"
                   value={toolFields.suds_before}
@@ -487,7 +487,7 @@ export default function CheckinPage() {
         </CardContent>
       </Card>
 
-      <Button type="submit" size="lg" className="w-full" disabled={createCheckin.isPending}>
+      <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={createCheckin.isPending}>
         {createCheckin.isPending ? "Saving…" : "Save check-in"}
       </Button>
     </form>

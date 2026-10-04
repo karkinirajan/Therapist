@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Safety",
 };
 
-const CALL_BUTTON_CLASS = cn(buttonVariants({ variant: "destructive", size: "xl" }), "w-full");
+const CALL_BUTTON_CLASS = cn(buttonVariants({ variant: "destructive", size: "xl" }), "w-full sm:w-auto");
 
 export default function SafetyPage() {
   return (

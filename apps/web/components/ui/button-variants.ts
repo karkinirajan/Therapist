@@ -10,8 +10,8 @@ import { cva } from "class-variance-authority";
 // has to live in its own file to be importable from a Server Component.
 export const buttonVariants = cva(
   // Single global button style, per explicit instruction: every text
-  // button (regardless of `size`) shares the exact same compact padding —
-  // py-1 (4px) px-2 (8px) — defined once here on the base class rather
+  // button (regardless of `size`) shares the exact same padding —
+  // py-2.5 px-4 with min-h-12 (double the former compact height) — defined once here on the base class rather
   // than per-size. `size` still varies text size for hierarchy (a hero CTA
   // still reads as more prominent than a compact nav button), just not box
   // height/padding. No forced `whitespace-nowrap`: a button's height grows
@@ -19,7 +19,7 @@ export const buttonVariants = cva(
   // clipping/overflowing the box. `min-w-0` lets the text node itself
   // shrink/wrap inside a flex/grid parent narrower than the button's
   // natural content width.
-  "inline-flex min-w-0 shrink-0 items-center justify-center gap-2 rounded-sm border bg-clip-padding px-2 py-1 text-center text-sm leading-tight font-medium text-foreground transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex min-h-12 w-auto max-w-full min-w-0 shrink-0 items-center justify-center gap-2 rounded-sm border bg-clip-padding px-4 py-2.5 text-center text-sm leading-tight font-medium text-foreground transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -41,9 +41,9 @@ export const buttonVariants = cva(
         sm: "text-xs",
         lg: "text-base",
         xl: "text-base",
-        icon: "size-9 p-0",
-        "icon-sm": "size-8 p-0",
-        "icon-lg": "size-11 p-0",
+        icon: "size-12 p-0",
+        "icon-sm": "size-12 p-0",
+        "icon-lg": "size-14 min-h-14 p-0",
       },
     },
     defaultVariants: {

@@ -63,7 +63,7 @@ function GoogleCallbackContent() {
                     : "We couldn't complete Google sign-in. Please try again."}
                 </AlertDescription>
               </Alert>
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="outline" className="w-full sm:w-auto">
                 <a href="/login">Back to log in</a>
               </Button>
             </>

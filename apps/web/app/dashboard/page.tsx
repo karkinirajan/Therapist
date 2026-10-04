@@ -164,7 +164,7 @@ function DashboardContent({
             <CardDescription>Quick numbers, one CBT tool, one homework action.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="w-full">
+            <Button asChild className="w-full sm:w-auto">
               <Link href="/checkin">Start check-in</Link>
             </Button>
           </CardContent>
@@ -175,7 +175,7 @@ function DashboardContent({
             <CardDescription>Your 6-month phased plan.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href="/roadmap">View roadmap</Link>
             </Button>
           </CardContent>
@@ -186,7 +186,7 @@ function DashboardContent({
             <CardDescription>Talk it through — a CBT-style spoken conversation.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href="/voice">Start talking</Link>
             </Button>
           </CardContent>
